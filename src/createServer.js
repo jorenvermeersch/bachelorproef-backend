@@ -2,6 +2,7 @@ const config = require('config');
 const Koa = require('koa');
 
 const { initializeLogging } = require('./core/logging');
+const installMiddlewares = require('./core/installMiddlewares');
 
 const NODE_ENV = config.get('env');
 const HOST = config.get('host');
@@ -16,6 +17,8 @@ module.exports = async function createServer() {
   const app = new Koa();
 
   const logger = initializeLogging(LOG_LEVEL, LOG_DISABLED, { NODE_ENV });
+
+  installMiddlewares(app);
 
   app.use(async (ctx) => {
     ctx.body = 'Hello world!';

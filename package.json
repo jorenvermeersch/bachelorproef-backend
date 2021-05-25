@@ -30,9 +30,17 @@
     "nodemon": "^2.0.7"
   },
   "dependencies": {
+    "@koa/cors": "^3.1.0",
     "config": "^3.3.6",
     "dotenv": "^10.0.0",
     "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-helmet": "^6.1.0",
+    "koa-qs": "^3.0.0",
+    "koa-response-time": "^2.1.0",
+    "node-emoji": "^1.10.0",
+    "serialize-error": "^8.1.0",
+    "uuid": "^8.3.2",
     "winston": "^3.3.3"
   }
 }
