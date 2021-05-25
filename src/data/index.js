@@ -1,9 +1,13 @@
 const config = require('config');
 const knex = require('knex');
+const { join } = require('path');
+const { serializeError } = require('serialize-error');
 
 const { getChildLogger } = require('../core/logging');
 
 const NODE_ENV = config.get('env');
+const isDevelopment = NODE_ENV === 'development';
+
 const DATABASE_CLIENT = config.get('database.client');
 const DATABASE_NAME = config.get('database.name');
 const DATABASE_HOST = config.get('database.host');
@@ -36,9 +40,9 @@ async function initializeData() {
       user: DATABASE_USERNAME,
       password: DATABASE_PASSWORD,
       database: DATABASE_NAME,
-      insecureAuth: NODE_ENV === 'development',
+      insecureAuth: isDevelopment,
     },
-    debug: NODE_ENV === 'development',
+    debug: isDevelopment,
     log: {
       debug: getKnexLogger(logger, 'debug'),
       error: getKnexLogger(logger, 'error'),
@@ -48,10 +52,50 @@ async function initializeData() {
         alternative,
       }),
     },
+    migrations: {
+      tableName: 'knex_meta',
+      directory: join('src', 'data', 'migrations'),
+    },
+    seeds: {
+      directory: join('src', 'data', 'seeds'),
+    },
   });
 
   // Check the connection
   await knexInstance.raw('SELECT 1+1 AS result');
+
+  // Run migrations
+  let migrationsFailed = true;
+  try {
+    await knexInstance.migrate.latest();
+    migrationsFailed = false;
+  } catch (error) {
+    logger.error('Error while migrating the database', {
+      error: serializeError(error),
+    });
+  }
+
+  // Undo last migration if something failed
+  if (migrationsFailed) {
+    try {
+      await knexInstance.migrate.down();
+    } catch (error) {
+      logger.error('Error while undoing last migration', {
+        error: serializeError(error),
+      });
+    }
+  }
+
+  // Run seeds in development
+  if (isDevelopment) {
+    try {
+      await knexInstance.seed.run();
+    } catch (error) {
+      logger.error('Error while seeding database', {
+        error: serializeError(error),
+      });
+    }
+  }
 
   logger.info('Succesfully connected to the database');
 
@@ -74,7 +118,14 @@ function getKnex() {
   return knexInstance;
 }
 
+const tables = {
+  transaction: 'transactions',
+  user: 'users',
+  place: 'places',
+};
+
 module.exports = {
+  tables,
   getKnex,
   initializeData,
   shutdownData,
