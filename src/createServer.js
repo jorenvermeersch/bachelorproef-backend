@@ -3,6 +3,7 @@ const Koa = require('koa');
 
 const { initializeLogging } = require('./core/logging');
 const installMiddlewares = require('./core/installMiddlewares');
+const { initializeData, shutdownData } = require('./data');
 
 const NODE_ENV = config.get('env');
 const HOST = config.get('host');
@@ -19,6 +20,7 @@ module.exports = async function createServer() {
   const logger = initializeLogging(LOG_LEVEL, LOG_DISABLED, { NODE_ENV });
 
   installMiddlewares(app);
+  await initializeData();
 
   app.use(async (ctx) => {
     ctx.body = 'Hello world!';
@@ -34,8 +36,9 @@ module.exports = async function createServer() {
       });
     },
 
-    stop() {
+    async stop() {
       app.removeAllListeners();
+      await shutdownData();
       logger.info('Goodbye! 👋');
     },
   };
