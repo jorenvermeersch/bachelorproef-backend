@@ -1,0 +1,16 @@
+{
+  "name": "budget-backend",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "repository": "git@github.com:HOGENT-Web/BudgetBackEnd.git",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js",
+    "lint": "npx eslint ./src --fix"
+  },
+  "devDependencies": {
+    "eslint": "^7.27.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0"
+  }
+}
