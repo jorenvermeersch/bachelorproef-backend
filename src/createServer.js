@@ -4,6 +4,7 @@ const Koa = require('koa');
 const { initializeLogging } = require('./core/logging');
 const installMiddlewares = require('./core/installMiddlewares');
 const { initializeData, shutdownData } = require('./data');
+const installRouter = require('./rest');
 
 const NODE_ENV = config.get('env');
 const HOST = config.get('host');
@@ -21,10 +22,7 @@ module.exports = async function createServer() {
 
   installMiddlewares(app);
   await initializeData();
-
-  app.use(async (ctx) => {
-    ctx.body = 'Hello world!';
-  });
+  installRouter(app);
 
   return {
     start() {
