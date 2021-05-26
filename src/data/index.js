@@ -87,7 +87,7 @@ async function initializeData() {
   }
 
   // Run seeds in development
-  if (isDevelopment) {
+  if (!migrationsFailed && isDevelopment) {
     try {
       await knexInstance.seed.run();
     } catch (error) {
