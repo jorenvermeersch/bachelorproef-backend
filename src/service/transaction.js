@@ -8,7 +8,15 @@ const placeService = require('./place');
  * @param {number} [offset] - Nr of transactions to skip.
  */
 const getAll = async (limit, offset) => {
-  return await transactionRepository.getAll({ limit, offset });
+  const data = await transactionRepository.findAll({ limit, offset });
+  const totalCount = await transactionRepository.findCount();
+  return {
+    data,
+    totalCount,
+    count: data.length,
+    limit,
+    offset,
+  };
 };
 
 /**

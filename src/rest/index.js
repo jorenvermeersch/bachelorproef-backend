@@ -1,5 +1,6 @@
 const Router = require('@koa/router');
 const installTransactionRoutes = require('./transaction');
+const installPlacesRoutes = require('./place');
 
 /**
  * Install all routes in the given Koa application.
@@ -11,6 +12,7 @@ module.exports = function installRoutes(app) {
     prefix: '/api',
   });
 
+  installPlacesRoutes(router);
   installTransactionRoutes(router);
 
   app

@@ -1,6 +1,24 @@
 const { placeRepository } = require('../repository');
 
 /**
+ * Get all `limit` places, skip the first `offset`.
+ *
+ * @param {number} [limit] - Nr of places to fetch.
+ * @param {number} [offset] - Nr of places to skip.
+ */
+const getAll = async (limit, offset) => {
+  const data = await placeRepository.findAll({ limit, offset });
+  const totalCount = await placeRepository.findCount();
+  return {
+    data,
+    totalCount,
+    count: data.length,
+    limit,
+    offset,
+  };
+};
+
+/**
  * Get the first place with the given name, returns null if nothing matched.
  *
  * @param {string} name - The name to look for.
@@ -21,6 +39,7 @@ const create = async ({ name }) => {
 };
 
 module.exports = {
+  getAll,
   getByName,
   create,
 };

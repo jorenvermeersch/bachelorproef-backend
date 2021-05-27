@@ -30,7 +30,24 @@ const findAll = async({
       .offset(offset);
   } catch (error) {
     const logger = getChildLogger('transactions-repo');
-    logger.error('Error in getAll', {
+    logger.error('Error in findAll', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
+/**
+ * Calculate the total number of transactions.
+ */
+const findCount = async () => {
+  try {
+    const [count] = await getKnex()(tables.transaction)
+      .count();
+    return count['count(*)'];
+  } catch (error) {
+    const logger = getChildLogger('transactions-repo');
+    logger.error('Error in findCount', {
       error: serializeError(error),
     });
     throw error;
@@ -72,6 +89,7 @@ const create = async ({
 
 
 module.exports = {
-  getAll: findAll,
+  findAll,
+  findCount,
   create,
 };
