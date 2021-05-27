@@ -10,7 +10,8 @@ CREATE TRIGGER before_insert_${tableName}
   BEFORE INSERT ON ${tableName} FOR EACH ROW
   BEGIN
     IF new.id IS NULL OR new.id = '' THEN
-      SET new.id = uuid();
+      SET new.id = UUID();
+      SET @last_uuid = new.id;
     END IF;
   END;
 `;
