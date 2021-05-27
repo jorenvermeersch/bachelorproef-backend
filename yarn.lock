@@ -1249,6 +1249,11 @@ keyv@^3.0.0:
   dependencies:
     json-buffer "3.0.0"
 
+killports@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/killports/-/killports-1.0.2.tgz#aea28a4c901540eb896b3e22526a65557264c104"
+  integrity sha512-lWQ7rTTQAgYUjRcU3voDYDcsRhesViUZky/Do+geBnm3IgDbHOob15cD/fKIBJKTHhB3eMjxpuOcAMvQy52G2g==
+
 knex@^0.95.6:
   version "0.95.6"
   resolved "https://registry.yarnpkg.com/knex/-/knex-0.95.6.tgz#5fc60ffc2935567bf122925526b1b06b8dbca785"
