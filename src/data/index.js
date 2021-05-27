@@ -88,12 +88,17 @@ async function initializeData() {
 
   // Run seeds in development
   if (!migrationsFailed && isDevelopment) {
-    try {
-      await knexInstance.seed.run();
-    } catch (error) {
-      logger.error('Error while seeding database', {
-        error: serializeError(error),
-      });
+    // if no users exist, run the seed
+    const nrOfUsers = await getKnex()(tables.user).count();
+
+    if (nrOfUsers === 0) {
+      try {
+        await knexInstance.seed.run();
+      } catch (error) {
+        logger.error('Error while seeding database', {
+          error: serializeError(error),
+        });
+      }
     }
   }
 
