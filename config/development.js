@@ -18,4 +18,8 @@ module.exports = {
     username: 'devuser',
     password: 'devpwd',
   },
+  pagination: {
+    limit: 100,
+    offset: 0,
+  },
 };

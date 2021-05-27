@@ -1,12 +1,20 @@
 const Router = require('@koa/router');
 
-const { transactionRepository } = require('../repository');
+const { transactionService } = require('../service');
 
 const getAllTransactions = async (ctx) => {
-  const transactions = await transactionRepository.getAll();
+  const transactions = await transactionService.getAll(10);
   ctx.sendResponse(200, {
     transactions,
   });
+};
+
+const createTransaction = async (ctx) => {
+  const transaction = await transactionService.create({
+    ...ctx.request.body,
+    date: new Date(ctx.request.body.date),
+  });
+  ctx.sendResponse(201, transaction);
 };
 
 /**
@@ -20,6 +28,7 @@ module.exports = function installTransactionRoutes(app) {
   });
 
   router.get('/', getAllTransactions);
+  router.post('/', createTransaction);
 
   app
     .use(router.routes())
