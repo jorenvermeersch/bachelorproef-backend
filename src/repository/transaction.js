@@ -14,7 +14,7 @@ const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
  * @param {number} [pagination.limit] - Nr of transactions to return.
  * @param {number} [pagination.offset] - Nr of transactions to skip.
  */
-const getAll = async({
+const findAll = async({
   limit = DEFAULT_PAGINATION_LIMIT,
   offset = DEFAULT_PAGINATION_OFFSET,
 } = {}) => {
@@ -72,6 +72,6 @@ const create = async ({
 
 
 module.exports = {
-  getAll,
+  getAll: findAll,
   create,
 };
