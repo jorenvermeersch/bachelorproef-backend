@@ -83,6 +83,8 @@ const findById = async(id) => {
  * @param {Date} transaction.date - Date of the transaction.
  * @param {string} transaction.placeId - Id of the place the transaction happened.
  * @param {string} transaction.userId - Id of the user who did the transaction.
+ *
+ * @returns {Promise<string>} Created transaction's id
  */
 const create = async ({
   amount,
@@ -117,6 +119,8 @@ const create = async ({
  * @param {Date} [transaction.date] - Date of the transaction.
  * @param {string} [transaction.placeId] - Id of the place the transaction happened.
  * @param {string} [transaction.userId] - Id of the user who did the transaction.
+ *
+ * @returns {Promise<string>} Transaction's id
  */
 const updateById = async (id, {
   amount,
@@ -148,7 +152,7 @@ const updateById = async (id, {
  *
  * @param {string} id - Id of the transaction to delete.
  *
- * @returns {boolean} Whether the transaction was deleted.
+ * @returns {Promise<boolean>} Whether the transaction was deleted.
  */
 const deleteById = async (id) => {
   try {

@@ -42,7 +42,7 @@ const findAll = async ({
 };
 
 /**
- * Find a place with the given name.
+ * Find a place with the given `name`.
  *
  * @param {string} name - Name to look for.
  */
@@ -54,6 +54,25 @@ const findByName = async (name) => {
   } catch (error) {
     const logger = getChildLogger('places-repo');
     logger.error('Error in create', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
+/**
+ * Find a place with the given `id`.
+ *
+ * @param {string} id - Id of the place to find.
+ */
+const findById = async (id) => {
+  try {
+    return await getKnex()(tables.place)
+      .where('id', id)
+      .first();
+  } catch (error) {
+    const logger = getChildLogger('places-repo');
+    logger.error('Error in findById', {
       error: serializeError(error),
     });
     throw error;
@@ -79,6 +98,12 @@ const findCount = async () => {
 
 /**
  * Create a new place with the given `name` and `rating`.
+ *
+ * @param {object} place - Place to create.
+ * @param {string} place.name - Name of the place.
+ * @param {number} [place.rating] - Rating given to the place (1 to 5).
+ *
+ * @returns {Promise<string>} Created place's id
  */
 const create = async ({
   name,
@@ -101,9 +126,67 @@ const create = async ({
   }
 };
 
+/**
+ * Update an existing place with the given `name` and `rating`.
+ *
+ * @param {string} id - Id of the place to update.
+ * @param {object} place - Place to create.
+ * @param {string} [place.name] - Name of the place.
+ * @param {number} [place.rating] - Rating given to the place (1 to 5).
+ *
+ * @returns {Promise<string>} Place's id
+ */
+const updateById = async (id, {
+  name,
+  rating,
+}) => {
+  try {
+    await getKnex()(tables.place)
+      .update({
+        name,
+        rating,
+      })
+      .where('id', id);
+
+    return await getLastId();
+  } catch (error) {
+    const logger = getChildLogger('places-repo');
+    logger.error('Error in updateById', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
+/**
+ * Delete a place.
+ *
+ * @param {string} id - Id of the place to delete.
+ *
+ * @returns {Promise<boolean>} Whether the place was deleted.
+ */
+const deleteById = async (id) => {
+  try {
+    const rowsAffected = await getKnex()(tables.place)
+      .delete()
+      .where('id', id);
+
+    return rowsAffected > 0;
+  } catch (error) {
+    const logger = getChildLogger('places-repo');
+    logger.error('Error in deleteById', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
 module.exports = {
   findAll,
+  findById,
   findCount,
   findByName,
   create,
+  updateById,
+  deleteById,
 };

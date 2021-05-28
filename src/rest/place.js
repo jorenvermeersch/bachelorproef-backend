@@ -10,6 +10,26 @@ const getAllPlaces = async (ctx) => {
   ctx.sendResponse(200, places);
 };
 
+const getPlaceById = async (ctx) => {
+  const place = await placeService.getById(ctx.params.id);
+  ctx.sendResponse(200, place);
+};
+
+const createPlace = async (ctx) => {
+  const place = await placeService.create(ctx.request.body);
+  ctx.sendResponse(201, place);
+};
+
+const updatePlace = async (ctx) => {
+  const place = await placeService.updateById(ctx.params.id, ctx.request.body);
+  ctx.sendResponse(200, place);
+};
+
+const deletePlace = async (ctx) => {
+  await placeService.deleteById(ctx.params.id);
+  ctx.sendResponse(204);
+};
+
 /**
  * Install transaction routes in the given router.
  *
@@ -21,6 +41,10 @@ module.exports = function installPlacesRoutes(app) {
   });
 
   router.get('/', getAllPlaces);
+  router.get('/:id', getPlaceById);
+  router.post('/', createPlace);
+  router.patch('/:id', updatePlace);
+  router.delete('/:id', deletePlace);
 
   app
     .use(router.routes())
