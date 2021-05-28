@@ -8,8 +8,10 @@ const { v4: uuid } = require('uuid');
 const emoji = require('node-emoji');
 const { serializeError } = require('serialize-error');
 const { getChildLogger } = require('./logging');
+const ServiceError = require('./serviceError');
 
 const NODE_ENV = config.get('env');
+const EXPOSE_STACK = config.get('exposeStack');
 const CORS_ORIGINS = config.get('cors.origins');
 const CORS_MAX_AGE = config.get('cors.maxAge');
 
@@ -109,5 +111,36 @@ module.exports = function installMiddleware(app) {
     };
     // Don't wait for other middlewares, return here
     return next();
+  });
+
+  // Add a handler for known errors
+  app.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (error) {
+      const { logger } = ctx;
+      logger.error('Error occured while handling a request', {
+        error: serializeError(error),
+      });
+
+      let statusCode = 500;
+      let errorBody = {
+        message: error.message,
+        details: error.details || {},
+        stack: EXPOSE_STACK ? error.stack : undefined,
+      };
+
+      if (error instanceof ServiceError) {
+        if (error.isNotFound) {
+          statusCode = 404;
+        }
+
+        if (error.isValidationFailed) {
+          statusCode = 400;
+        }
+      }
+
+      ctx.sendResponse(statusCode, errorBody);
+    }
   });
 };

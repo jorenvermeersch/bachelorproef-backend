@@ -1,3 +1,6 @@
+const NOT_FOUND = 'NOT_FOUND';
+const VALIDATION_FAILED = 'VALIDATION_FAILED';
+
 class ServiceError extends Error {
 
   /**
@@ -14,12 +17,20 @@ class ServiceError extends Error {
     this.name = 'ServiceError';
   }
 
-  static notFound(message, id) {
-    return new ServiceError('NOT_FOUND', message, { id });
+  static notFound(message, details) {
+    return new ServiceError(NOT_FOUND, message, details);
   }
 
   static validationFailed(message, details) {
-    return new ServiceError('VALIDATION_FAILED', message, details);
+    return new ServiceError(VALIDATION_FAILED, message, details);
+  }
+
+  get isNotFound() {
+    return this.code === NOT_FOUND;
+  }
+
+  get isValidationFailed() {
+    return this.code === VALIDATION_FAILED;
   }
 }
 
