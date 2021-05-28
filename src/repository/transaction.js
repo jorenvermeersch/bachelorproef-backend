@@ -55,6 +55,27 @@ const findCount = async () => {
 };
 
 /**
+ * Find a transaction with the given `id`.
+ *
+ * @param {string} id - Id of the transaction to find.
+ */
+const findById = async(id) => {
+  try {
+    return await getKnex()(tables.transaction)
+      .first()
+      .where(`${tables.transaction}.id`, id)
+      .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
+      .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`);
+  } catch (error) {
+    const logger = getChildLogger('transactions-repo');
+    logger.error('Error in findById', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
+/**
  * Create a new transaction.
  *
  * @param {object} transaction - The transaction to create.
@@ -87,9 +108,68 @@ const create = async ({
   }
 };
 
+/**
+ * Update an existing transaction.
+ *
+ * @param {string} id - Id of the transaction to update.
+ * @param {object} transaction - The transaction data to save.
+ * @param {string} [transaction.amount] - Amount deposited/withdrawn.
+ * @param {Date} [transaction.date] - Date of the transaction.
+ * @param {string} [transaction.placeId] - Id of the place the transaction happened.
+ * @param {string} [transaction.userId] - Id of the user who did the transaction.
+ */
+const updateById = async (id, {
+  amount,
+  date,
+  placeId,
+  userId,
+}) => {
+  try {
+    await getKnex()(tables.transaction)
+      .update({
+        amount,
+        date,
+        place_id: placeId,
+        user_id: userId,
+      })
+      .where(`${tables.transaction}.id`, id);
+    return await getLastId();
+  } catch (error) {
+    const logger = getChildLogger('transactions-repo');
+    logger.error('Error in updateById', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
+/**
+ * Delete a transaction with the given `id`.
+ *
+ * @param {string} id - Id of the transaction to delete.
+ *
+ * @returns {boolean} Whether the transaction was deleted.
+ */
+const deleteById = async (id) => {
+  try {
+    const rowsAffected = await getKnex()(tables.transaction)
+      .delete()
+      .where(`${tables.transaction}.id`, id);
+    return rowsAffected > 0;
+  } catch (error) {
+    const logger = getChildLogger('transactions-repo');
+    logger.error('Error in deleteById', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
 
 module.exports = {
   findAll,
   findCount,
+  findById,
   create,
+  updateById,
+  deleteById,
 };
