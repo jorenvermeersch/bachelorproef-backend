@@ -53,11 +53,19 @@ const create = async ({
   place,
   userId,
 }) => {
+  if (date > new Date()) {
+    throw ServiceError.validationFailed('You can\'t create transactions in the future');
+  }
+
   const existingPlace = await placeService.getByName(place);
 
   let placeId = existingPlace?.id;
   if (!placeId) {
     placeId = (await placeService.create({ name: place })).id;
+  }
+
+  if (!placeId) {
+    throw ServiceError.validationFailed('No place could be created for this transaction');
   }
 
   const id = await transactionRepository.create({
@@ -88,11 +96,19 @@ const updateById = async (id, {
   place,
   userId,
 }) => {
+  if (date > new Date()) {
+    throw ServiceError.validationFailed('You can\'t create transactions in the future');
+  }
+
   const existingPlace = await placeService.getByName(place);
 
   let placeId = existingPlace?.id;
   if (!placeId) {
     placeId = (await placeService.create({ name: place })).id;
+  }
+
+  if (!placeId) {
+    throw ServiceError.validationFailed('No place could be created for this transaction');
   }
 
   await transactionRepository.updateById(id, {
