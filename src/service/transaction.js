@@ -82,10 +82,10 @@ const create = async ({
  *
  * @param {string} id - Id of the transaction to update.
  * @param {object} transaction - The transaction data to save.
- * @param {string} transaction.amount - Amount deposited/withdrawn.
- * @param {Date} transaction.date - Date of the transaction.
- * @param {string} transaction.place - Name of the place the transaction happened.
- * @param {string} transaction.userId - Id of the user who did the transaction.
+ * @param {string} [transaction.amount] - Amount deposited/withdrawn.
+ * @param {Date} [transaction.date] - Date of the transaction.
+ * @param {string} [transaction.place] - Name of the place the transaction happened.
+ * @param {string} [transaction.userId] - Id of the user who did the transaction.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction with the given id could be found.

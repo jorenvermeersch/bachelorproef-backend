@@ -26,7 +26,7 @@ const createTransaction = async (ctx) => {
 const updateTransaction = async (ctx) => {
   const transaction = await transactionService.updateById(ctx.params.id, {
     ...ctx.request.body,
-    date: new Date(ctx.request.body.date),
+    date: ctx.request.body.date && new Date(ctx.request.body.date),
   });
   ctx.sendResponse(200, transaction);
 };
@@ -49,7 +49,7 @@ module.exports = function installTransactionRoutes(app) {
   router.get('/', getAllTransactions);
   router.get('/:id', getTransactionById);
   router.post('/', createTransaction);
-  router.put('/:id', updateTransaction);
+  router.patch('/:id', updateTransaction);
   router.delete('/:id', deleteTransaction);
 
   app
