@@ -7,6 +7,10 @@ const responseTime = require('koa-response-time');
 const { v4: uuid } = require('uuid');
 const emoji = require('node-emoji');
 const { serializeError } = require('serialize-error');
+const swaggerJsdoc = require('swagger-jsdoc');
+const { koaSwagger } = require('koa2-swagger-ui');
+
+const swaggerOptions = require('../swagger.config');
 const { getChildLogger } = require('./logging');
 const ServiceError = require('./serviceError');
 
@@ -14,6 +18,7 @@ const NODE_ENV = config.get('env');
 const EXPOSE_STACK = config.get('exposeStack');
 const CORS_ORIGINS = config.get('cors.origins');
 const CORS_MAX_AGE = config.get('cors.maxAge');
+const isDevelopment = NODE_ENV === 'development';
 
 /**
  * Install all required middlewares in the given app.
@@ -73,7 +78,6 @@ module.exports = function installMiddleware(app) {
     }
   });
 
-
   // Add the response time
   app.use(responseTime());
 
@@ -83,7 +87,7 @@ module.exports = function installMiddleware(app) {
   // Add some security headers
   app.use(koaHelmet({
     // Not needed in development (destroys GraphQL Playground)
-    contentSecurityPolicy: NODE_ENV === 'development' ? false : undefined,
+    contentSecurityPolicy: isDevelopment ? false : undefined,
   }));
 
   // Add CORS
@@ -143,4 +147,19 @@ module.exports = function installMiddleware(app) {
       ctx.sendResponse(statusCode, errorBody);
     }
   });
+
+  if (isDevelopment) {
+    const spec = swaggerJsdoc(swaggerOptions);
+    // Install Swagger docs
+    app.use(
+      koaSwagger({
+        routePrefix: '/swagger',
+        specPrefix: '/swagger/spec',
+        exposeSpec: true,
+        swaggerOptions: {
+          spec,
+        },
+      }),
+    );
+  }
 };

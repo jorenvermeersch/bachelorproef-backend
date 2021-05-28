@@ -46,6 +46,9 @@ const getById = async (id) => {
  * @param {Date} transaction.date - Date of the transaction.
  * @param {string} transaction.place - Name of the place the transaction happened.
  * @param {string} transaction.userId - Id of the user who did the transaction.
+ *
+ * @throws {ServiceError} One of:
+ * - VALIDATION_FAILED: Transactions created in the future, no place could be created
  */
 const create = async ({
   amount,
@@ -89,6 +92,7 @@ const create = async ({
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction with the given id could be found.
+ * - VALIDATION_FAILED: Transactions created in the future, no place could be created
  */
 const updateById = async (id, {
   amount,
