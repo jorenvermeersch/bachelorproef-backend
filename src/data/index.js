@@ -89,9 +89,9 @@ async function initializeData() {
   // Run seeds in development
   if (!migrationsFailed && isDevelopment) {
     // if no users exist, run the seed
-    const nrOfUsers = await getKnex()(tables.user).count();
+    const [nrOfUsers] = await getKnex()(tables.user).count();
 
-    if (nrOfUsers === 0) {
+    if (nrOfUsers['count(*)'] === 0) {
       try {
         await knexInstance.seed.run();
       } catch (error) {

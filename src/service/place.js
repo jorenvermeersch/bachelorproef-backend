@@ -1,3 +1,4 @@
+const ServiceError = require('../core/serviceError');
 const { placeRepository } = require('../repository');
 
 /**
@@ -32,9 +33,14 @@ const getByName = async (name) => {
  *
  * @param {object} place - Place to create.
  * @param {string} place.name - Name of the place.
+ * @param {number} [place.rating] - Rating of the place (between 1 and 5).
  */
-const create = async ({ name }) => {
-  const id = await placeRepository.create({ name });
+const create = async ({ name, rating }) => {
+  if (rating && (rating < 1 || rating > 5)) {
+    throw ServiceError.validationFailed('Please provide a rating between 1 and 5');
+  }
+
+  const id = await placeRepository.create({ name, rating });
   return { id };
 };
 

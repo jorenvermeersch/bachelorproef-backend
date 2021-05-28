@@ -78,15 +78,17 @@ const findCount = async () => {
 };
 
 /**
- * Create a new place with the given `name`.
+ * Create a new place with the given `name` and `rating`.
  */
 const create = async ({
   name,
+  rating,
 }) => {
   try {
     await getKnex()(tables.place)
       .insert({
         name,
+        rating,
       });
 
     return await getLastId();
