@@ -1,5 +1,4 @@
 const Router = require('@koa/router');
-
 const { userService } = require('../service');
 
 /**
@@ -39,6 +38,24 @@ const { userService } = require('../service');
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/User"
+ */
+
+/**
+ * @swagger
+ * components:
+ *   responses:
+ *     LoginResponse:
+ *       description: The user and a JWT
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user:
+ *                 $ref: "#/components/schemas/User"
+ *               token:
+ *                 type: string
+ *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c..."
  */
 
 /**
@@ -96,13 +113,7 @@ const getAllUsers = async (ctx) => {
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   $ref: "#/components/schemas/User"
- *                 token:
- *                   type: string
- *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c..."
+ *               $ref: '#/components/responses/LoginResponse'
  *       400:
  *         description: You provided invalid data
  *         content:
@@ -138,6 +149,47 @@ const login = async (ctx) => {
 };
 
 /**
+ * @swagger
+ * /api/users/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags:
+ *      - Users
+ *     requestBody:
+ *       description: The user's data
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The user and a JWT
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/LoginResponse'
+ *       400:
+ *         description: You provided invalid data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/400BadRequest'
+ */
+const register = async (ctx) => {
+  const token = await userService.register(ctx.request.body);
+  ctx.sendResponse(200, token);
+};
+
+/**
  * Install transaction routes in the given router.
  *
  * @param {Router} app - The parent router.
@@ -149,6 +201,7 @@ module.exports = function installUsersRoutes(app) {
 
   router.get('/', getAllUsers);
   router.post('/login', login);
+  router.post('/register', register);
 
   app
     .use(router.routes())

@@ -50,9 +50,29 @@ const findCount = async () => {
 };
 
 /**
+ * Find a user with the given id.
+ *
+ * @param {string} id - The id to search for.
+ */
+const findById = async (id) => {
+  try {
+    const user = await getKnex()(tables.user)
+      .where('id', id)
+      .first();
+    return user;
+  } catch (error) {
+    const logger = getChildLogger('users-repo');
+    logger.error('Error in findById', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
+/**
  * Find a user with the given email.
  *
- * @property {string} email - The email to search for.
+ * @param {string} email - The email to search for.
  */
 const findByEmail = async (email) => {
   try {
@@ -74,11 +94,24 @@ const findByEmail = async (email) => {
  *
  * @param {object} user - User to create.
  * @param {string} user.name - Name of the user.
+ * @param {string} user.email - Email of the user.
+ * @param {string} user.password_hash - Hashed password of the user.
+ * @param {string[]} user.roles - Roles of the user.
  */
-const create = async ({ name }) => {
+const create = async ({
+  name,
+  email,
+  password_hash,
+  roles,
+}) => {
   try {
     await getKnex()(tables.user)
-      .insert({ name });
+      .insert({
+        name,
+        email,
+        password_hash,
+        roles: JSON.stringify(roles),
+      });
     return await getLastId();
   } catch (error) {
     const logger = getChildLogger('users-repo');
@@ -92,6 +125,7 @@ const create = async ({ name }) => {
 module.exports = {
   findAll,
   findCount,
+  findById,
   findByEmail,
   create,
 };
