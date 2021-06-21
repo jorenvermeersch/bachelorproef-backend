@@ -1,6 +1,22 @@
+const config = require('config');
 const Router = require('@koa/router');
 const { requireAuthentication } = require('../core/auth');
 const { userService } = require('../service');
+
+const AUTH_MAX_DELAY = config.get('auth.maxDelay');
+
+/**
+ * Middleware which waites for a certain amount of time
+ * before calling the `next` function in order to make
+ * time attacks very hard.
+ */
+const authDelay = async (_, next) => {
+  await new Promise((resolve) => {
+    const delay = Math.round(Math.random() * AUTH_MAX_DELAY);
+    setTimeout(resolve, delay);
+  });
+  return next();
+};
 
 /**
  * @swagger
@@ -239,8 +255,8 @@ module.exports = function installUsersRoutes(app) {
   });
 
   // Public routes
-  router.post('/login', login);
-  router.post('/register', register);
+  router.post('/login', authDelay, login);
+  router.post('/register', authDelay, register);
 
   // Routes with authentication
   router.get('/', requireAuthentication, getAllUsers);
