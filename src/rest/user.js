@@ -1,4 +1,5 @@
 const Router = require('@koa/router');
+const { requireAuthentication } = require('../core/auth');
 const { userService } = require('../service');
 
 /**
@@ -199,9 +200,12 @@ module.exports = function installUsersRoutes(app) {
     prefix: '/users',
   });
 
-  router.get('/', getAllUsers);
+  // Public routes
   router.post('/login', login);
   router.post('/register', register);
+
+  // Routes with authentication
+  router.get('/', requireAuthentication, getAllUsers);
 
   app
     .use(router.routes())

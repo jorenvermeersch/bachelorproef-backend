@@ -1,6 +1,6 @@
 const config = require('config');
 const argon2 = require('argon2');
-const { verifyToken } = require('./jwt');
+const { verifyJWT } = require('./jwt');
 
 const ARGON_SALT_LENGTH = config.get('auth.argon.saltLength');
 const ARGON_HASH_LENGTH = config.get('auth.argon.hashLength');
@@ -74,7 +74,7 @@ const requireAuthentication = async (ctx, next) => {
   try {
     const {
       roles, userId,
-    } = await verifyToken(authToken);
+    } = await verifyJWT(authToken);
 
     // Save the decoded session data in the current context's state
     ctx.state.session = {

@@ -127,7 +127,7 @@ module.exports = function installMiddleware(app) {
         error: serializeError(error),
       });
 
-      let statusCode = 500;
+      let statusCode = error.status || 500;
       let errorBody = {
         message: error.message,
         details: error.details || {},

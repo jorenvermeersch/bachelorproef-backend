@@ -1,5 +1,6 @@
 const Router = require('@koa/router');
 
+const { requireAuthentication } = require('../core/auth');
 const { placeService } = require('../service');
 
 /**
@@ -219,6 +220,8 @@ module.exports = function installPlacesRoutes(app) {
   const router = new Router({
     prefix: '/places',
   });
+
+  router.use(requireAuthentication);
 
   router.get('/', getAllPlaces);
   router.get('/:id', getPlaceById);

@@ -1,8 +1,7 @@
 const Router = require('@koa/router');
 
-const {
-  transactionService,
-} = require('../service');
+const { requireAuthentication } = require('../core/auth');
+const { transactionService } = require('../service');
 
 /**
  * @swagger
@@ -245,6 +244,8 @@ module.exports = function installTransactionRoutes(app) {
   const router = new Router({
     prefix: '/transactions',
   });
+
+  router.use(requireAuthentication);
 
   router.get('/', getAllTransactions);
   router.get('/:id', getTransactionById);
