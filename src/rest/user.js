@@ -191,6 +191,44 @@ const register = async (ctx) => {
 };
 
 /**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Get a single user
+ *     tags:
+ *      - Users
+ *     parameters:
+ *       - $ref: "#/components/parameters/idParam"
+ *     responses:
+ *       200:
+ *         description: The requested user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/User"
+ *       404:
+ *         description: No user with the given id could be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/404NotFound'
+ */
+const getUserById = async (ctx) => {
+  const { userId } = ctx.state.session;
+  const { id } = ctx.params;
+
+  // You can only get our own data
+  if (id !== userId) {
+    return ctx.throw(403, 'You are not allowed to view this user\'s information', {
+      code: 'UNAUTHORIZED',
+    });
+  }
+
+  const user = await userService.getById(id);
+  ctx.sendResponse(200, user);
+};
+
+/**
  * Install transaction routes in the given router.
  *
  * @param {Router} app - The parent router.
@@ -206,6 +244,7 @@ module.exports = function installUsersRoutes(app) {
 
   // Routes with authentication
   router.get('/', requireAuthentication, getAllUsers);
+  router.get('/:id', requireAuthentication, getUserById);
 
   app
     .use(router.routes())

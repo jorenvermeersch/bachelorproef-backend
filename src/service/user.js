@@ -80,26 +80,22 @@ const register = async ({
     roles,
   });
 
-  if (!userId) {
-    throw new ServiceError.validationFailed('Could not create the new user');
-  }
-
-  const user = await userRepository.findById(userId);
+  const user = await getById(userId);
 
   return await makeLoginData(user);
 };
 
 /**
- * Get all `limit` places, skip the first `offset`.
+ * Get all `limit` users, skip the first `offset`.
  *
- * @param {number} [limit] - Nr of places to fetch.
+ * @param {number} [limit] - Nr of users to fetch.
  * @param {number} [offset] - Nr of places to skip.
  */
 const getAll = async (limit, offset) => {
   const data = await userRepository.findAll({ limit, offset });
   const totalCount = await userRepository.findCount();
   return {
-    data,
+    data: data.map(makeExposedUser),
     totalCount,
     count: data.length,
     limit,
@@ -107,8 +103,27 @@ const getAll = async (limit, offset) => {
   };
 };
 
+/**
+ * Get the user with the given id.
+ *
+ * @param {string} id - Id of the user to get.
+ *
+ * @throws {ServiceError} One of:
+ * - NOT_FOUND: No user with the given id could be found.
+ */
+const getById = async (id) => {
+  const user = await userRepository.findById(id);
+
+  if (!user) {
+    throw ServiceError.notFound(`No user with id ${id} exists`);
+  }
+
+  return makeExposedUser(user);
+};
+
 module.exports = {
   login,
   register,
   getAll,
+  getById,
 };
