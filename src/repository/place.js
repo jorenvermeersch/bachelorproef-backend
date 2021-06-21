@@ -53,7 +53,7 @@ const findByName = async (name) => {
       .first();
   } catch (error) {
     const logger = getChildLogger('places-repo');
-    logger.error('Error in create', {
+    logger.error('Error in findByName', {
       error: serializeError(error),
     });
     throw error;
