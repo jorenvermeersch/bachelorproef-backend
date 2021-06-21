@@ -73,10 +73,12 @@ const { transactionService } = require('../service');
  *                   $ref: "#/components/schemas/TransactionsList"
  */
 const getAllTransactions = async (ctx) => {
-  const transactions = await transactionService.getAll(
-    ctx.query.limit && Number(ctx.query.limit),
-    ctx.query.offset && Number(ctx.query.offset),
-  );
+  const { userId } = ctx.state.session;
+  const transactions = await transactionService.getAll({
+    userId,
+    limit: ctx.query.limit && Number(ctx.query.limit),
+    offset: ctx.query.offset && Number(ctx.query.offset),
+  });
   ctx.sendResponse(200, transactions);
 };
 

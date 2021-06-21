@@ -5,11 +5,13 @@ const placeService = require('./place');
 /**
  * Get all `limit` transactions, skip the first `offset`.
  *
- * @param {number} [limit] - Nr of transactions to fetch.
- * @param {number} [offset] - Nr of transactions to skip.
+ * @param {object} params - The parameters for this function.
+ * @param {number} [params.limit] - Nr of transactions to fetch.
+ * @param {number} [params.offset] - Nr of transactions to skip.
+ * @param {string} params.userId - Id of the user to fetch transactions for.
  */
-const getAll = async (limit, offset) => {
-  const data = await transactionRepository.findAll({ limit, offset });
+const getAll = async ({ userId, limit, offset }) => {
+  const data = await transactionRepository.findAll({ limit, offset }, userId);
   const totalCount = await transactionRepository.findCount();
   return {
     data,

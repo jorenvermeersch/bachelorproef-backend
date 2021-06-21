@@ -13,11 +13,12 @@ const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
  * @param {object} [pagination] - Pagination options
  * @param {number} [pagination.limit] - Nr of transactions to return.
  * @param {number} [pagination.offset] - Nr of transactions to skip.
+ * @param {string} userId - Id of the user to fetch transactions for.
  */
 const findAll = async({
   limit = DEFAULT_PAGINATION_LIMIT,
   offset = DEFAULT_PAGINATION_OFFSET,
-} = {}) => {
+} = {}, userId) => {
   try {
     return await getKnex()(tables.transaction)
       .select(
@@ -26,6 +27,7 @@ const findAll = async({
       )
       .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
       .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`)
+      .where(`${tables.transaction}.user_id`, userId)
       .limit(limit)
       .offset(offset);
   } catch (error) {
