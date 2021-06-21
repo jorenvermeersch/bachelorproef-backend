@@ -50,6 +50,26 @@ const findCount = async () => {
 };
 
 /**
+ * Find a user with the given email.
+ *
+ * @property {string} email - The email to search for.
+ */
+const findByEmail = async (email) => {
+  try {
+    const user = await getKnex()(tables.user)
+      .where('email', email)
+      .first();
+    return user;
+  } catch (error) {
+    const logger = getChildLogger('users-repo');
+    logger.error('Error in findByEmail', {
+      error: serializeError(error),
+    });
+    throw error;
+  }
+};
+
+/**
  * Create a new user with the given `name`.
  *
  * @param {object} user - User to create.
@@ -72,5 +92,6 @@ const create = async ({ name }) => {
 module.exports = {
   findAll,
   findCount,
+  findByEmail,
   create,
 };

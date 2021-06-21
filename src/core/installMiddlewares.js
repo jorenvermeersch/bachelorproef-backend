@@ -142,6 +142,10 @@ module.exports = function installMiddleware(app) {
         if (error.isValidationFailed) {
           statusCode = 400;
         }
+
+        if (error.isUnauthorized) {
+          statusCode = 401;
+        }
       }
 
       ctx.sendResponse(statusCode, errorBody);

@@ -112,7 +112,7 @@ const installUsersRoutes = require('./user');
  *                 type: string
  *               details:
  *                 type: string
- *                 description: Extra information about the specific not found error that occured
+ *                 description: Extra information about the specific bad request error that occured
  *               stack:
  *                 type: string
  *                 description: Stack trace (only available if set in configuration)

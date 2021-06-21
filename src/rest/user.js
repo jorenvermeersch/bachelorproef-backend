@@ -22,8 +22,12 @@ const { userService } = require('../service');
  *           properties:
  *             name:
  *               type: "string"
+ *             email:
+ *               type: "string"
+ *               format: email
  *           example:
  *             name: "Thomas"
+ *             email: "thomas.aelbrecht@hogent.be"
  *     UsersList:
  *       allOf:
  *         - $ref: "#/components/schemas/ListResponse"
@@ -67,6 +71,73 @@ const getAllUsers = async (ctx) => {
 };
 
 /**
+ * @swagger
+ * /api/users/login:
+ *   post:
+ *     summary: Try to login
+ *     tags:
+ *      - Users
+ *     requestBody:
+ *       description: The credentials of the user to login
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The user and a JWT
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: "#/components/schemas/User"
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c..."
+ *       400:
+ *         description: You provided invalid data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/400BadRequest'
+ *       401:
+ *         description: You provided invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - code
+ *                 - details
+ *               properties:
+ *                 code:
+ *                   type: string
+ *                 details:
+ *                   type: string
+ *                   description: Extra information about the specific error that occured
+ *                 stack:
+ *                   type: string
+ *                   description: Stack trace (only available if set in configuration)
+ *               example:
+ *                 code: "UNAUTHORIZED"
+ *                 details: "The given email and password do not match"
+ */
+const login = async (ctx) => {
+  const { email, password } = ctx.request.body;
+  const token = await userService.login(email, password);
+  ctx.sendResponse(200, token);
+};
+
+/**
  * Install transaction routes in the given router.
  *
  * @param {Router} app - The parent router.
@@ -77,6 +148,7 @@ module.exports = function installUsersRoutes(app) {
   });
 
   router.get('/', getAllUsers);
+  router.post('/login', login);
 
   app
     .use(router.routes())
