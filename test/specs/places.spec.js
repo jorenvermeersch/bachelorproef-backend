@@ -114,6 +114,23 @@ describe('Places', () => {
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.query).toHaveProperty('offset');
     });
+
+    test('it should 401 when no authorization token provided', async () => {
+      const response = await supertest.get(url);
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('You need to be signed in');
+    });
+
+    test('it should 401 when invalid authorization token provided', async () => {
+      const response = await supertest.get(url)
+        .set('Authorization', authHeader.substr(7));
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('Invalid authentication token');
+    });
   });
 
   describe('GET /api/places/:id', () => {
@@ -163,6 +180,23 @@ describe('Places', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.params).toHaveProperty('id');
+    });
+
+    test('it should 401 when no authorization token provided', async () => {
+      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abffaa`);
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('You need to be signed in');
+    });
+
+    test('it should 401 when invalid authorization token provided', async () => {
+      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abffaa`)
+        .set('Authorization', authHeader.substr(7));
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('Invalid authentication token');
     });
   });
 
@@ -257,6 +291,31 @@ describe('Places', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('rating');
+    });
+
+    test('it should 401 when no authorization token provided', async () => {
+      const response = await supertest.post(url)
+        .send({
+          name: 'The wrong place',
+          rating: 3,
+        });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('You need to be signed in');
+    });
+
+    test('it should 401 when invalid authorization token provided', async () => {
+      const response = await supertest.post(url)
+        .set('Authorization', authHeader.substr(7))
+        .send({
+          name: 'The wrong place',
+          rating: 3,
+        });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('Invalid authentication token');
     });
   });
 
@@ -355,6 +414,31 @@ describe('Places', () => {
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('rating');
     });
+
+    test('it should 401 when no authorization token provided', async () => {
+      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+        .send({
+          name: 'The wrong place',
+          rating: 3,
+        });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('You need to be signed in');
+    });
+
+    test('it should 401 when invalid authorization token provided', async () => {
+      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+        .set('Authorization', authHeader.substr(7))
+        .send({
+          name: 'The wrong place',
+          rating: 3,
+        });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('Invalid authentication token');
+    });
   });
 
   describe('DELETE /api/places/:id', () => {
@@ -384,6 +468,23 @@ describe('Places', () => {
         message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff83 exists',
         details: {},
       });
+    });
+
+    test('it should 401 when no authorization token provided', async () => {
+      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`);
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('You need to be signed in');
+    });
+
+    test('it should 401 when invalid authorization token provided', async () => {
+      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+        .set('Authorization', authHeader.substr(7));
+
+      expect(response.statusCode).toBe(401);
+      expect(response.body.code).toBe('UNAUTHORIZED');
+      expect(response.body.message).toBe('Invalid authentication token');
     });
   });
 });
