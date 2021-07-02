@@ -2,8 +2,5 @@
   "root": false,
   "env": {
     "jest": true
-  },
-  "globals": {
-    "got": "writable"
   }
 }

@@ -1,13 +1,16 @@
-const { got } = require('../got.setup');
+const { withServer } = require('../supertest.setup');
 const packageJson = require('../../package.json');
 
 describe('Health', () => {
 
+  let supertest;
+  withServer(({ supertest: s }) => supertest = s);
+
   describe('/api/health/ping', () => {
-    const url = 'api/health/ping';
+    const url = '/api/health/ping';
 
     test('should return pong', async () => {
-      const response = await got(url);
+      const response = await supertest.get(url);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
@@ -17,10 +20,10 @@ describe('Health', () => {
   });
 
   describe('/api/health/version', () => {
-    const url = 'api/health/version';
+    const url = '/api/health/version';
 
     test('should return version from package.json', async () => {
-      const response = await got(url);
+      const response = await supertest.get(url);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
@@ -33,15 +36,17 @@ describe('Health', () => {
 });
 
 describe('General', () => {
-  const url = 'invalid';
+  const url = '/invalid';
+  let supertest;
+  withServer(({ supertest: s }) => supertest = s);
 
   test('should return 404 when accessing invalid url', async () => {
-    const response = await got(url);
+    const response = await supertest.get(url);
 
     expect(response.statusCode).toBe(404);
     expect(response.body).toEqual({
       code: 'NOT_FOUND',
-      message: `Unknown resource: /${url}`,
+      message: `Unknown resource: ${url}`,
     });
   });
 });

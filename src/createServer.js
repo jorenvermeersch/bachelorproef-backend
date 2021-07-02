@@ -25,6 +25,10 @@ module.exports = async function createServer() {
   installRouter(app);
 
   return {
+    getApp() {
+      return app;
+    },
+
     start() {
       return new Promise((resolve) => {
         app.listen(PORT, () => {
