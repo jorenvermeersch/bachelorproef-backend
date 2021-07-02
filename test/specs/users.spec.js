@@ -38,7 +38,7 @@ describe('Users', () => {
         .delete();
     });
 
-    test('should 200 and return user and token when succesfully logged in', async () => {
+    test('it should 200 and return user and token when succesfully logged in', async () => {
       const response = await supertest.post(url)
         .send({
           email: 'login@hogent.be',
@@ -55,7 +55,7 @@ describe('Users', () => {
       });
     });
 
-    test('should 401 with wrong email', async () => {
+    test('it should 401 with wrong email', async () => {
       const response = await supertest.post(url)
         .send({
           email: 'invalid@hogent.be',
@@ -70,7 +70,7 @@ describe('Users', () => {
       });
     });
 
-    test('should 401 with wrong password', async () => {
+    test('it should 401 with wrong password', async () => {
       const response = await supertest.post(url)
         .send({
           email: 'login@hogent.be',
@@ -85,7 +85,7 @@ describe('Users', () => {
       });
     });
 
-    test('should 400 with invalid email', async () => {
+    test('it should 400 with invalid email', async () => {
       const response = await supertest.post(url)
         .send({
           email: 'invalid',
@@ -97,7 +97,7 @@ describe('Users', () => {
       expect(response.body.details.body).toHaveProperty('email');
     });
 
-    test('should 400 when no password given', async () => {
+    test('it should 400 when no password given', async () => {
       const response = await supertest.post(url)
         .send({
           email: 'login@hogent.be',
@@ -108,7 +108,7 @@ describe('Users', () => {
       expect(response.body.details.body).toHaveProperty('password');
     });
 
-    test('should 400 when no email given', async () => {
+    test('it should 400 when no email given', async () => {
       const response = await supertest.post(url)
         .send({
           password: '12345678',
@@ -130,7 +130,7 @@ describe('Users', () => {
         .delete();
     });
 
-    test('should 200 and return the registered user', async () => {
+    test('it should 200 and return the registered user', async () => {
       const response = await supertest.post(url)
         .send({
           firstName: 'Register',
@@ -147,7 +147,7 @@ describe('Users', () => {
       expect(response.body.user.email).toBe('register@hogent.be');
     });
 
-    test('should 400 when missing firstName', async () => {
+    test('it should 400 when missing firstName', async () => {
       const response = await supertest.post(url)
         .send({
           lastName: 'User',
@@ -160,7 +160,7 @@ describe('Users', () => {
       expect(response.body.details.body).toHaveProperty('firstName');
     });
 
-    test('should 400 when missing lastName', async () => {
+    test('it should 400 when missing lastName', async () => {
       const response = await supertest.post(url)
         .send({
           firstName: 'Register',
@@ -173,7 +173,7 @@ describe('Users', () => {
       expect(response.body.details.body).toHaveProperty('lastName');
     });
 
-    test('should 400 when missing email', async () => {
+    test('it should 400 when missing email', async () => {
       const response = await supertest.post(url)
         .send({
           firstName: 'Register',
@@ -186,7 +186,7 @@ describe('Users', () => {
       expect(response.body.details.body).toHaveProperty('email');
     });
 
-    test('should 400 when missing passsword', async () => {
+    test('it should 400 when missing passsword', async () => {
       const response = await supertest.post(url)
         .send({
           firstName: 'Register',
@@ -199,7 +199,7 @@ describe('Users', () => {
       expect(response.body.details.body).toHaveProperty('password');
     });
 
-    test('should 400 when passsword too short', async () => {
+    test('it should 400 when passsword too short', async () => {
       const response = await supertest.post(url)
         .send({
           firstName: 'Register',
@@ -213,7 +213,7 @@ describe('Users', () => {
       expect(response.body.details.body).toHaveProperty('password');
     });
 
-    test('should 400 when passsword too long', async () => {
+    test('it should 400 when passsword too long', async () => {
       const response = await supertest.post(url)
         .send({
           firstName: 'Register',
@@ -272,7 +272,7 @@ describe('Users', () => {
         .delete();
     });
 
-    test('should 200 and return all users', async () => {
+    test('it should 200 and return all users', async () => {
       const response = await supertest.get(url)
         .set('Authorization', authHeader);
 
@@ -283,7 +283,7 @@ describe('Users', () => {
       expect(response.body.offset).toBe(0);
     });
 
-    test('should 200 and paginate the list of users', async () => {
+    test('it should 200 and paginate the list of users', async () => {
       const response = await supertest.get(`${url}?limit=2&offset=1`)
         .set('Authorization', authHeader);
 
@@ -308,7 +308,7 @@ describe('Users', () => {
       });
     });
 
-    test('should 400 when offset is missing', async () => {
+    test('it should 400 when offset is missing', async () => {
       const response = await supertest.get(`${url}?limit=2`)
         .set('Authorization', authHeader);
 
@@ -317,7 +317,7 @@ describe('Users', () => {
       expect(response.body.details.query).toHaveProperty('value');
     });
 
-    test('should 400 when limit is missing', async () => {
+    test('it should 400 when limit is missing', async () => {
       const response = await supertest.get(`${url}?offset=1`)
         .set('Authorization', authHeader);
 
@@ -326,7 +326,7 @@ describe('Users', () => {
       expect(response.body.details.query).toHaveProperty('value');
     });
 
-    test('should 400 when limit is zero', async () => {
+    test('it should 400 when limit is zero', async () => {
       const response = await supertest.get(`${url}?limit=0offset=1`)
         .set('Authorization', authHeader);
 
@@ -335,7 +335,7 @@ describe('Users', () => {
       expect(response.body.details.query).toHaveProperty('limit');
     });
 
-    test('should 400 when limit is negative', async () => {
+    test('it should 400 when limit is negative', async () => {
       const response = await supertest.get(`${url}?limit=-10offset=1`)
         .set('Authorization', authHeader);
 
@@ -344,7 +344,7 @@ describe('Users', () => {
       expect(response.body.details.query).toHaveProperty('limit');
     });
 
-    test('should 400 when offset is negative', async () => {
+    test('it should 400 when offset is negative', async () => {
       const response = await supertest.get(`${url}?limit=10&offset=-15`)
         .set('Authorization', authHeader);
 
@@ -375,7 +375,7 @@ describe('Users', () => {
         .delete();
     });
 
-    test('should 200 and return the requested user', async () => {
+    test('it should 200 and return the requested user', async () => {
       const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`)
         .set('Authorization', authHeader);
 
@@ -388,7 +388,7 @@ describe('Users', () => {
       });
     });
 
-    test('should 403 when requesting other user\'s info', async () => {
+    test('it should 403 when requesting other user\'s info', async () => {
       const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff82`)
         .set('Authorization', authHeader);
 
@@ -400,7 +400,7 @@ describe('Users', () => {
       });
     });
 
-    test('should 400 with invalid user id', async () => {
+    test('it should 400 with invalid user id', async () => {
       const response = await supertest.get(`${url}/invalid`)
         .set('Authorization', authHeader);
 
