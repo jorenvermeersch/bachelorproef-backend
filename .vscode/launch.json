@@ -14,7 +14,22 @@
       ],
       "type": "pwa-node",
       "restart": true,
-      "timeout": 10000,
+      "timeout": 10000
+    },
+    {
+      "type": "node",
+      "name": "vscode-jest-tests",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "yarn",
+      "args": [
+        "test",
+        "--runInBand",
+        "--watchAll=false"
+      ]
     }
   ]
 }

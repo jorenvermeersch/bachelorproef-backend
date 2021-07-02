@@ -1,37 +1,25 @@
-const config = require('config');
-const {
-  tables,
-  getKnex,
-} = require('../data/index');
-const {
-  serializeError,
-} = require('serialize-error');
-const {
-  getChildLogger,
-} = require('../core/logging');
-const {
-  getLastId,
-} = require('./_repository.helpers');
-
-const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
-const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
+const { tables, getKnex } = require('../data/index');
+const { serializeError } = require('serialize-error');
+const { getChildLogger } = require('../core/logging');
+const { getLastId } = require('./_repository.helpers');
 
 /**
  * Find all `limit` places, skip the first `offset`.
  *
- * @param {object} [pagination] - Pagination options
- * @param {number} [pagination.limit] - Nr of places to return.
- * @param {number} [pagination.offset] - Nr of places to skip.
+ * @param {object} pagination - Pagination options
+ * @param {number} pagination.limit - Nr of places to return.
+ * @param {number} pagination.offset - Nr of places to skip.
  */
 const findAll = async ({
-  limit = DEFAULT_PAGINATION_LIMIT,
-  offset = DEFAULT_PAGINATION_OFFSET,
-} = {}) => {
+  limit,
+  offset,
+}) => {
   try {
     return await getKnex()(tables.place)
       .select()
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .orderBy('name', 'ASC');
   } catch (error) {
     const logger = getChildLogger('places-repo');
     logger.error('Error in findAll', {

@@ -76,7 +76,7 @@ const getAllPlaces = async (ctx) => {
 };
 getAllPlaces.validationScheme = validationSchemeFactory((Joi) => ({
   query: Joi.object({
-    limit: Joi.number().min(10).max(1000).optional(),
+    limit: Joi.number().positive().max(1000).optional(),
     offset: Joi.number().min(0).optional(),
   }).and('limit', 'offset'),
 }));
@@ -152,7 +152,7 @@ const createPlace = async (ctx) => {
 createPlace.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
     name: Joi.string().max(255),
-    rating: Joi.number().min(0).max(5).optional(),
+    rating: Joi.number().min(1).max(5).integer().optional(),
   },
 }));
 
@@ -204,7 +204,7 @@ updatePlace.validationScheme = validationSchemeFactory((Joi) => ({
   },
   body: {
     name: Joi.string().max(255),
-    rating: Joi.number().min(0).max(5),
+    rating: Joi.number().min(1).max(5).integer(),
   },
 }));
 

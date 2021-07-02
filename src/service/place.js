@@ -1,5 +1,9 @@
+const config = require('config');
 const ServiceError = require('../core/serviceError');
 const { placeRepository } = require('../repository');
+
+const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
+const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 
 /**
  * Get all `limit` places, skip the first `offset`.
@@ -7,7 +11,10 @@ const { placeRepository } = require('../repository');
  * @param {number} [limit] - Nr of places to fetch.
  * @param {number} [offset] - Nr of places to skip.
  */
-const getAll = async (limit, offset) => {
+const getAll = async (
+  limit = DEFAULT_PAGINATION_LIMIT,
+  offset = DEFAULT_PAGINATION_OFFSET,
+) => {
   const data = await placeRepository.findAll({ limit, offset });
   const totalCount = await placeRepository.findCount();
   return {
