@@ -129,6 +129,7 @@ module.exports = function installMiddleware(app) {
 
       let statusCode = error.status || 500;
       let errorBody = {
+        code: error.code || 'INTERNAL_SERVER_ERROR',
         message: error.message,
         details: error.details || {},
         stack: EXPOSE_STACK ? error.stack : undefined,
@@ -166,4 +167,10 @@ module.exports = function installMiddleware(app) {
       }),
     );
   }
+
+  // Make body better accessible
+  app.use((ctx, next) => {
+    ctx.body = ctx.request.body;
+    return next();
+  });
 };

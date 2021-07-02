@@ -2,6 +2,7 @@ const config = require('config');
 const Router = require('@koa/router');
 const { requireAuthentication } = require('../core/auth');
 const { userService } = require('../service');
+const { validate, validationSchemeFactory } = require('./_validation');
 
 const AUTH_MAX_DELAY = config.get('auth.maxDelay');
 
@@ -36,13 +37,16 @@ const authDelay = async (_, next) => {
  *           required:
  *             - name
  *           properties:
- *             name:
+ *             firstName:
+ *               type: "string"
+ *             lastName:
  *               type: "string"
  *             email:
  *               type: "string"
  *               format: email
  *           example:
- *             name: "Thomas"
+ *             firstName: "Thomas"
+ *             lastName: "Aelbrecht"
  *             email: "thomas.aelbrecht@hogent.be"
  *     UsersList:
  *       allOf:
@@ -103,6 +107,12 @@ const getAllUsers = async (ctx) => {
   );
   ctx.sendResponse(200, users);
 };
+getAllUsers.validationScheme = validationSchemeFactory((Joi) => ({
+  query: Joi.object({
+    limit: Joi.number().min(10).max(1000).optional(),
+    offset: Joi.number().min(0).optional(),
+  }).and('limit', 'offset'),
+}));
 
 /**
  * @swagger
@@ -164,6 +174,12 @@ const login = async (ctx) => {
   const token = await userService.login(email, password);
   ctx.sendResponse(200, token);
 };
+login.validationScheme = validationSchemeFactory((Joi) => ({
+  body: {
+    email: Joi.string().email(),
+    password: Joi.string().min(8).max(30),
+  },
+}));
 
 /**
  * @swagger
@@ -180,7 +196,9 @@ const login = async (ctx) => {
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               firstName:
+ *                 type: string
+ *               lastName:
  *                 type: string
  *               email:
  *                 type: string
@@ -205,6 +223,15 @@ const register = async (ctx) => {
   const token = await userService.register(ctx.request.body);
   ctx.sendResponse(200, token);
 };
+register.validationScheme = validationSchemeFactory((Joi) => ({
+  body: {
+    firstName: Joi.string().max(255),
+    lastName: Joi.string().max(255),
+    email: Joi.string().email(),
+    password: Joi.string().min(8).max(30),
+    roles: Joi.array().items(Joi.string().required()),
+  },
+}));
 
 /**
  * @swagger
@@ -243,6 +270,11 @@ const getUserById = async (ctx) => {
   const user = await userService.getById(id);
   ctx.sendResponse(200, user);
 };
+getUserById.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+}));
 
 /**
  * Install transaction routes in the given router.
@@ -255,12 +287,12 @@ module.exports = function installUsersRoutes(app) {
   });
 
   // Public routes
-  router.post('/login', authDelay, login);
-  router.post('/register', authDelay, register);
+  router.post('/login', authDelay, validate(login.validationScheme), login);
+  router.post('/register', authDelay, validate(register.validationScheme), register);
 
   // Routes with authentication
-  router.get('/', requireAuthentication, getAllUsers);
-  router.get('/:id', requireAuthentication, getUserById);
+  router.get('/', requireAuthentication, validate(getAllUsers.validationScheme), getAllUsers);
+  router.get('/:id', requireAuthentication, validate(getUserById.validationScheme), getUserById);
 
   app
     .use(router.routes())

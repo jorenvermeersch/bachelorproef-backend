@@ -2,6 +2,7 @@ const Router = require('@koa/router');
 
 const { requireAuthentication } = require('../core/auth');
 const { placeService } = require('../service');
+const { validate, validationSchemeFactory } = require('./_validation');
 
 /**
  * @swagger
@@ -73,6 +74,12 @@ const getAllPlaces = async (ctx) => {
   );
   ctx.sendResponse(200, places);
 };
+getAllPlaces.validationScheme = validationSchemeFactory((Joi) => ({
+  query: Joi.object({
+    limit: Joi.number().min(10).max(1000).optional(),
+    offset: Joi.number().min(0).optional(),
+  }).and('limit', 'offset'),
+}));
 
 /**
  * @swagger
@@ -101,6 +108,11 @@ const getPlaceById = async (ctx) => {
   const place = await placeService.getById(ctx.params.id);
   ctx.sendResponse(200, place);
 };
+getPlaceById.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+}));
 
 /**
  * @swagger
@@ -137,6 +149,12 @@ const createPlace = async (ctx) => {
   const place = await placeService.create(ctx.request.body);
   ctx.sendResponse(201, place);
 };
+createPlace.validationScheme = validationSchemeFactory((Joi) => ({
+  body: {
+    name: Joi.string().max(255),
+    rating: Joi.number().min(0).max(5).optional(),
+  },
+}));
 
 /**
  * @swagger
@@ -180,6 +198,15 @@ const updatePlace = async (ctx) => {
   const place = await placeService.updateById(ctx.params.id, ctx.request.body);
   ctx.sendResponse(200, place);
 };
+updatePlace.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+  body: {
+    name: Joi.string().max(255),
+    rating: Joi.number().min(0).max(5),
+  },
+}));
 
 /**
  * @swagger
@@ -210,6 +237,11 @@ const deletePlace = async (ctx) => {
   await placeService.deleteById(ctx.params.id);
   ctx.sendResponse(204);
 };
+deletePlace.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+}));
 
 /**
  * Install places routes in the given router.
@@ -223,11 +255,11 @@ module.exports = function installPlacesRoutes(app) {
 
   router.use(requireAuthentication);
 
-  router.get('/', getAllPlaces);
-  router.get('/:id', getPlaceById);
-  router.post('/', createPlace);
-  router.patch('/:id', updatePlace);
-  router.delete('/:id', deletePlace);
+  router.get('/', validate(getAllPlaces.validationScheme), getAllPlaces);
+  router.get('/:id', validate(getPlaceById.validationScheme), getPlaceById);
+  router.post('/', validate(createPlace.validationScheme), createPlace);
+  router.patch('/:id', validate(updatePlace.validationScheme), updatePlace);
+  router.delete('/:id', validate(deletePlace.validationScheme), deletePlace);
 
   app
     .use(router.routes())

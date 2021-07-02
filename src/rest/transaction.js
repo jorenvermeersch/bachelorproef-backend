@@ -2,6 +2,7 @@ const Router = require('@koa/router');
 
 const { requireAuthentication } = require('../core/auth');
 const { transactionService } = require('../service');
+const { validate, validationSchemeFactory } = require('./_validation');
 
 /**
  * @swagger
@@ -81,6 +82,12 @@ const getAllTransactions = async (ctx) => {
   });
   ctx.sendResponse(200, transactions);
 };
+getAllTransactions.validationScheme = validationSchemeFactory((Joi) => ({
+  query: Joi.object({
+    limit: Joi.number().min(10).max(1000).optional(),
+    offset: Joi.number().min(0).optional(),
+  }).and('limit', 'offset'),
+}));
 
 /**
  * @swagger
@@ -109,6 +116,11 @@ const getTransactionById = async (ctx) => {
   const transaction = await transactionService.getById(ctx.params.id);
   ctx.sendResponse(200, transaction);
 };
+getTransactionById.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+}));
 
 /**
  * @swagger
@@ -133,7 +145,7 @@ const getTransactionById = async (ctx) => {
  *               place:
  *                 type: string
  *                 description: "Name of the place the transaction is for, will create a new one if not existing"
- *               user:
+ *               userId:
  *                 type: string
  *                 format: "uuid"
  *     responses:
@@ -157,6 +169,14 @@ const createTransaction = async (ctx) => {
   });
   ctx.sendResponse(201, transaction);
 };
+createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
+  body: {
+    amount: Joi.number(),
+    date: Joi.date().iso().less('now'),
+    place: Joi.string().max(255),
+    userId: Joi.string().uuid(),
+  },
+}));
 
 /**
  * @swagger
@@ -182,7 +202,7 @@ const createTransaction = async (ctx) => {
  *               place:
  *                 type: string
  *                 description: "Name of the place the transaction is for, will create a new one if not existing"
- *               user:
+ *               userId:
  *                 type: string
  *                 format: "uuid"
  *     responses:
@@ -212,6 +232,17 @@ const updateTransaction = async (ctx) => {
   });
   ctx.sendResponse(200, transaction);
 };
+updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+  body: {
+    amount: Joi.number(),
+    date: Joi.date().iso().less('now'),
+    place: Joi.string().max(255),
+    userId: Joi.string().uuid(),
+  },
+}));
 
 /**
  * @swagger
@@ -236,6 +267,11 @@ const deleteTransaction = async (ctx) => {
   await transactionService.deleteById(ctx.params.id);
   ctx.sendResponse(204);
 };
+deleteTransaction.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+}));
 
 /**
  * Install transaction routes in the given router.
@@ -249,11 +285,11 @@ module.exports = function installTransactionRoutes(app) {
 
   router.use(requireAuthentication);
 
-  router.get('/', getAllTransactions);
-  router.get('/:id', getTransactionById);
-  router.post('/', createTransaction);
-  router.patch('/:id', updateTransaction);
-  router.delete('/:id', deleteTransaction);
+  router.get('/', validate(getAllTransactions.validationScheme), getAllTransactions);
+  router.get('/:id', validate(getTransactionById.validationScheme), getTransactionById);
+  router.post('/', validate(createTransaction.validationScheme), createTransaction);
+  router.patch('/:id', validate(updateTransaction.validationScheme), updateTransaction);
+  router.delete('/:id', validate(deleteTransaction.validationScheme), deleteTransaction);
 
   app
     .use(router.routes())

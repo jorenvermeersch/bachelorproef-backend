@@ -93,23 +93,26 @@ const findByEmail = async (email) => {
  * Create a new user with the given `name`.
  *
  * @param {object} user - User to create.
- * @param {string} user.name - Name of the user.
+ * @param {string} user.firstName - First name of the user.
+ * @param {string} user.lastName - Last name of the user.
  * @param {string} user.email - Email of the user.
- * @param {string} user.password_hash - Hashed password of the user.
+ * @param {string} user.passwordHash - Hashed password of the user.
  * @param {string[]} user.roles - Roles of the user.
  */
 const create = async ({
-  name,
+  firstName,
+  lastName,
   email,
-  password_hash,
+  passwordHash,
   roles,
 }) => {
   try {
     await getKnex()(tables.user)
       .insert({
-        name,
+        first_name: firstName,
+        last_name: lastName,
         email,
-        password_hash,
+        password_hash: passwordHash,
         roles: JSON.stringify(roles),
       });
     return await getLastId();

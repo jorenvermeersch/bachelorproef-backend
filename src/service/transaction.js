@@ -2,6 +2,33 @@ const ServiceError = require('../core/serviceError');
 const { transactionRepository } = require('../repository');
 const placeService = require('./place');
 
+const makeExposedTransaction = ({
+  user_id,
+  place_id,
+  name,
+  first_name,
+  last_name,
+  email,
+  ...transaction
+}) => {
+  delete transaction.password_hash;
+  delete transaction.roles;
+
+  return {
+    ...transaction,
+    user: {
+      id: user_id,
+      firstName: first_name,
+      lastName: last_name,
+      email,
+    },
+    place: {
+      id: place_id,
+      name,
+    },
+  };
+};
+
 /**
  * Get all `limit` transactions, skip the first `offset`.
  *
@@ -14,7 +41,7 @@ const getAll = async ({ userId, limit, offset }) => {
   const data = await transactionRepository.findAll({ limit, offset }, userId);
   const totalCount = await transactionRepository.findCount();
   return {
-    data,
+    data: data.map(makeExposedTransaction),
     totalCount,
     count: data.length,
     limit,
@@ -37,7 +64,7 @@ const getById = async (id) => {
     throw ServiceError.notFound(`No transaction with id ${id} exists`, { id });
   }
 
-  return transaction;
+  return makeExposedTransaction(transaction);
 };
 
 /**

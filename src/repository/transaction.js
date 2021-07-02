@@ -6,6 +6,12 @@ const { getLastId } = require('./_repository.helpers');
 
 const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
 const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
+const SELECT_COLUMNS = [
+  `${tables.transaction}.id`, 'amount', 'date',
+  `${tables.place}.id as place_id`, `${tables.place}.name`,
+  `${tables.user}.id as user_id`, `${tables.user}.first_name`,
+  `${tables.user}.last_name`,
+];
 
 /**
  * Get all `limit` transactions, throws on error.
@@ -21,10 +27,7 @@ const findAll = async({
 } = {}, userId) => {
   try {
     return await getKnex()(tables.transaction)
-      .select(
-        `${tables.transaction}.id`, 'amount', 'date',
-        `${tables.place}.name AS place`, `${tables.user}.name AS user`,
-      )
+      .select(SELECT_COLUMNS)
       .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
       .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`)
       .where(`${tables.transaction}.user_id`, userId)
@@ -64,7 +67,7 @@ const findCount = async () => {
 const findById = async(id) => {
   try {
     return await getKnex()(tables.transaction)
-      .first()
+      .first(SELECT_COLUMNS)
       .where(`${tables.transaction}.id`, id)
       .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
       .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`);

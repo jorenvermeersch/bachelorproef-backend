@@ -24,8 +24,6 @@ module.exports = async function createServer() {
   await initializeData();
   installRouter(app);
 
-
-
   return {
     start() {
       return new Promise((resolve) => {

@@ -6,9 +6,10 @@ const { userRepository } = require('../repository');
 /**
  * Only return the public information about the given user.
  */
-const makeExposedUser = ({ id, name, email }) => ({
+const makeExposedUser = ({ id, first_name, last_name, email }) => ({
   id,
-  name,
+  firstName: first_name,
+  lastName: last_name,
   email,
 });
 
@@ -58,7 +59,8 @@ const login = async (email, password) => {
  * Register a new user
  *
  * @param {object} user - The user's data.
- * @param {string} user.name - The user's name.
+ * @param {string} user.firstName - The user's first name.
+ * @param {string} user.lastName - The user's last name.
  * @param {string} user.email - The user's email.
  * @param {string} user.password - The user's password.
  * @param {string[]} user.roles - The user's roles.
@@ -66,7 +68,8 @@ const login = async (email, password) => {
  * @returns {Promise<object>} - Promise whichs resolves in an object containing the token and signed in user.
  */
 const register = async ({
-  name,
+  firstName,
+  lastName,
   email,
   password,
   roles,
@@ -74,9 +77,10 @@ const register = async ({
   const passwordHash = await hashPassword(password);
 
   const userId = await userRepository.create({
-    name,
+    firstName,
+    lastName,
     email,
-    password_hash: passwordHash,
+    passwordHash,
     roles,
   });
 

@@ -7,7 +7,10 @@ module.exports = {
       table.uuid('id')
         .primary();
 
-      table.string('name', 255)
+      table.string('first_name', 255)
+        .notNullable();
+
+      table.string('last_name', 255)
         .notNullable();
     });
 
