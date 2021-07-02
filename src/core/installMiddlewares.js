@@ -168,9 +168,15 @@ module.exports = function installMiddleware(app) {
     );
   }
 
-  // Make body better accessible
-  app.use((ctx, next) => {
-    ctx.body = ctx.request.body;
-    return next();
+  // Handle 404 not found with uniform response
+  app.use(async (ctx, next) => {
+    await next();
+
+    if (ctx.status === 404) {
+      ctx.sendResponse(404, {
+        code: 'NOT_FOUND',
+        message: `Unknown resource:  ${ctx.url}`,
+      });
+    }
   });
 };
