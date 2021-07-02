@@ -2,6 +2,7 @@ const Router = require('@koa/router');
 const installTransactionRoutes = require('./transaction');
 const installPlacesRoutes = require('./place');
 const installUsersRoutes = require('./user');
+const installHealthRoutes = require('./health');
 
 /**
  * @swagger
@@ -134,6 +135,7 @@ module.exports = function installRoutes(app) {
   installPlacesRoutes(router);
   installTransactionRoutes(router);
   installUsersRoutes(router);
+  installHealthRoutes(router);
 
   app
     .use(router.routes())
