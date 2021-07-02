@@ -1,7 +1,11 @@
+const config = require('config');
 const ServiceError = require('../core/serviceError');
 const { verifyPassword, hashPassword } = require('../core/auth');
 const { generateJWT } = require('../core/jwt');
 const { userRepository } = require('../repository');
+
+const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
+const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 
 /**
  * Only return the public information about the given user.
@@ -63,7 +67,6 @@ const login = async (email, password) => {
  * @param {string} user.lastName - The user's last name.
  * @param {string} user.email - The user's email.
  * @param {string} user.password - The user's password.
- * @param {string[]} user.roles - The user's roles.
  *
  * @returns {Promise<object>} - Promise whichs resolves in an object containing the token and signed in user.
  */
@@ -72,7 +75,6 @@ const register = async ({
   lastName,
   email,
   password,
-  roles,
 }) => {
   const passwordHash = await hashPassword(password);
 
@@ -81,10 +83,10 @@ const register = async ({
     lastName,
     email,
     passwordHash,
-    roles,
+    roles: ['user'],
   });
 
-  const user = await getById(userId);
+  const user = await userRepository.findById(userId);
 
   return await makeLoginData(user);
 };
@@ -95,7 +97,10 @@ const register = async ({
  * @param {number} [limit] - Nr of users to fetch.
  * @param {number} [offset] - Nr of places to skip.
  */
-const getAll = async (limit, offset) => {
+const getAll = async (
+  limit = DEFAULT_PAGINATION_LIMIT,
+  offset = DEFAULT_PAGINATION_OFFSET,
+) => {
   const data = await userRepository.findAll({ limit, offset });
   const totalCount = await userRepository.findCount();
   return {

@@ -2,10 +2,10 @@ module.exports = {
   env: process.env.NODE_ENV,
   host: '0.0.0.0',
   port: 9000,
-  exposeStack: true,
+  exposeStack: false,
   log: {
     level: 'info',
-    disabled: false,
+    disabled: true,
   },
   cors: {
     origins: ['http://localhost:3000'],

@@ -1,28 +1,25 @@
-const config = require('config');
 const { tables, getKnex } = require('../data/index');
 const { serializeError } = require('serialize-error');
 const { getChildLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
 
-const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
-const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
-
 /**
  * Get all `limit` users, skip the first `offset`.
  *
- * @param {object} [pagination] - Pagination options
- * @param {number} [pagination.limit] - Nr of transactions to return.
- * @param {number} [pagination.offset] - Nr of transactions to skip.
+ * @param {object} pagination - Pagination options
+ * @param {number} pagination.limit - Nr of transactions to return.
+ * @param {number} pagination.offset - Nr of transactions to skip.
  */
 const findAll = async ({
-  limit = DEFAULT_PAGINATION_LIMIT,
-  offset = DEFAULT_PAGINATION_OFFSET,
-} = {}) => {
+  limit,
+  offset,
+}) => {
   try {
     return await getKnex()(tables.user)
       .select()
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .orderBy(['first_name', 'last_name'], 'ASC');
   } catch (error) {
     const logger = getChildLogger('users-repo');
     logger.error('Error in findAll', {

@@ -109,7 +109,7 @@ const getAllUsers = async (ctx) => {
 };
 getAllUsers.validationScheme = validationSchemeFactory((Joi) => ({
   query: Joi.object({
-    limit: Joi.number().min(10).max(1000).optional(),
+    limit: Joi.number().positive().max(1000).optional(),
     offset: Joi.number().min(0).optional(),
   }).and('limit', 'offset'),
 }));
@@ -177,7 +177,7 @@ const login = async (ctx) => {
 login.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
     email: Joi.string().email(),
-    password: Joi.string().min(8).max(30),
+    password: Joi.string(),
   },
 }));
 
@@ -229,7 +229,6 @@ register.validationScheme = validationSchemeFactory((Joi) => ({
     lastName: Joi.string().max(255),
     email: Joi.string().email(),
     password: Joi.string().min(8).max(30),
-    roles: Joi.array().items(Joi.string().required()),
   },
 }));
 
