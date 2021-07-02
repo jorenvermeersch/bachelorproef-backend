@@ -6,7 +6,7 @@ describe('Health', () => {
   let supertest;
   withServer(({ supertest: s }) => supertest = s);
 
-  describe('/api/health/ping', () => {
+  describe('GET /api/health/ping', () => {
     const url = '/api/health/ping';
 
     test('should return pong', async () => {
@@ -19,7 +19,7 @@ describe('Health', () => {
     });
   });
 
-  describe('/api/health/version', () => {
+  describe('GET /api/health/version', () => {
     const url = '/api/health/version';
 
     test('should return version from package.json', async () => {

@@ -14,7 +14,7 @@ describe('Users', () => {
     authHeader = await login(supertest);
   });
 
-  describe('/api/users/login', () => {
+  describe('POST /api/users/login', () => {
 
     const url = '/api/users/login';
 
@@ -120,7 +120,7 @@ describe('Users', () => {
     });
   });
 
-  describe('/api/users/register', () => {
+  describe('POST /api/users/register', () => {
 
     const url = '/api/users/register';
 
@@ -228,7 +228,7 @@ describe('Users', () => {
     });
   });
 
-  describe('/api/users', () => {
+  describe('GET /api/users', () => {
 
     const url = '/api/users';
 
@@ -354,7 +354,7 @@ describe('Users', () => {
     });
   });
 
-  describe('/api/user/:id', () => {
+  describe('GET /api/user/:id', () => {
     const url = '/api/users';
 
     beforeAll(async () => {
