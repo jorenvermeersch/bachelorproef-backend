@@ -1,4 +1,4 @@
-const { got } = require('../setup');
+const { got } = require('../spec.setup');
 const packageJson = require('../../package.json');
 
 describe('Health', () => {
