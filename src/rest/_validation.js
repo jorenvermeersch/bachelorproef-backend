@@ -32,13 +32,20 @@ const validate = (schema) => {
         const {
           error,
           value,
-        } = schema[key].validate(ctx[key], JOI_OPTIONS);
+        } = schema[key].validate(
+          key === 'body' ? ctx.request.body : ctx[key],
+          JOI_OPTIONS,
+        );
 
         if (error) {
           errors[key] = cleanupJoiError(error);
         }
 
-        ctx[key] = value;
+        if (key === 'body') {
+          ctx.request.body = value;
+        } else {
+          ctx[key] = value;
+        }
       }
 
       return errors;

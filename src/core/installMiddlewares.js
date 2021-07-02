@@ -175,7 +175,7 @@ module.exports = function installMiddleware(app) {
     if (ctx.status === 404) {
       ctx.sendResponse(404, {
         code: 'NOT_FOUND',
-        message: `Unknown resource:  ${ctx.url}`,
+        message: `Unknown resource: ${ctx.url}`,
       });
     }
   });

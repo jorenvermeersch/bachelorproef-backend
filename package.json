@@ -8,8 +8,9 @@
   "scripts": {
     "start": "NODE_ENV=production node src/index.js",
     "start:dev": "npx killports 9001 && NODE_ENV=development nodemon",
+    "start:test": "NODE_ENV=testing node src/index.js",
     "lint": "npx eslint ./src --fix",
-    "test": "jest"
+    "test": "NODE_ENV=testing jest"
   },
   "nodemonConfig": {
     "signal": "SIGTERM",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "eslint": "^7.29.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
+    "got": "^11.8.2",
     "jest": "^27.0.6",
     "killports": "^1.0.3",
     "nodemon": "^2.0.7"
