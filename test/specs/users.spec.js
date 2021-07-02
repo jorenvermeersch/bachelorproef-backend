@@ -1,4 +1,5 @@
 const { tables } = require('../../src/data');
+const { testAuthHeader } = require('../common/auth');
 const { withServer, login } = require('../supertest.setup');
 
 describe('Users', () => {
@@ -353,22 +354,7 @@ describe('Users', () => {
       expect(response.body.details.query).toHaveProperty('offset');
     });
 
-    test('it should 401 when no authorization token provided', async () => {
-      const response = await supertest.get(url);
-
-      expect(response.statusCode).toBe(401);
-      expect(response.body.code).toBe('UNAUTHORIZED');
-      expect(response.body.message).toBe('You need to be signed in');
-    });
-
-    test('it should 401 when invalid authorization token provided', async () => {
-      const response = await supertest.get(url)
-        .set('Authorization', authHeader.substr(7));
-
-      expect(response.statusCode).toBe(401);
-      expect(response.body.code).toBe('UNAUTHORIZED');
-      expect(response.body.message).toBe('Invalid authentication token');
-    });
+    testAuthHeader(() => supertest.get(url));
   });
 
   describe('GET /api/user/:id', () => {
@@ -426,21 +412,6 @@ describe('Users', () => {
       expect(response.body.details.params).toHaveProperty('id');
     });
 
-    test('it should 401 when no authorization token provided', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`);
-
-      expect(response.statusCode).toBe(401);
-      expect(response.body.code).toBe('UNAUTHORIZED');
-      expect(response.body.message).toBe('You need to be signed in');
-    });
-
-    test('it should 401 when invalid authorization token provided', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`)
-        .set('Authorization', authHeader.substr(7));
-
-      expect(response.statusCode).toBe(401);
-      expect(response.body.code).toBe('UNAUTHORIZED');
-      expect(response.body.message).toBe('Invalid authentication token');
-    });
+    testAuthHeader(() => supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`));
   });
 });
