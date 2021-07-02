@@ -1,4 +1,4 @@
-const { tables, getKnex } = require('../data/index');
+const { tables, getKnex } = require('../data');
 const { serializeError } = require('serialize-error');
 const { getChildLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
@@ -10,40 +10,24 @@ const { getLastId } = require('./_repository.helpers');
  * @param {number} pagination.limit - Nr of transactions to return.
  * @param {number} pagination.offset - Nr of transactions to skip.
  */
-const findAll = async ({
+const findAll = ({
   limit,
   offset,
 }) => {
-  try {
-    return await getKnex()(tables.user)
-      .select()
-      .limit(limit)
-      .offset(offset)
-      .orderBy(['first_name', 'last_name'], 'ASC');
-  } catch (error) {
-    const logger = getChildLogger('users-repo');
-    logger.error('Error in findAll', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+  return getKnex()(tables.user)
+    .select()
+    .limit(limit)
+    .offset(offset)
+    .orderBy(['first_name', 'last_name'], 'ASC');
 };
 
 /**
  * Calculate the total number of user.
  */
 const findCount = async () => {
-  try {
-    const [count] = await getKnex()(tables.user)
-      .count();
-    return count['count(*)'];
-  } catch (error) {
-    const logger = getChildLogger('users-repo');
-    logger.error('Error in findCount', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+  const [count] = await getKnex()(tables.user)
+    .count();
+  return count['count(*)'];
 };
 
 /**
@@ -51,19 +35,10 @@ const findCount = async () => {
  *
  * @param {string} id - The id to search for.
  */
-const findById = async (id) => {
-  try {
-    const user = await getKnex()(tables.user)
-      .where('id', id)
-      .first();
-    return user;
-  } catch (error) {
-    const logger = getChildLogger('users-repo');
-    logger.error('Error in findById', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+const findById = (id) => {
+  return getKnex()(tables.user)
+    .where('id', id)
+    .first();
 };
 
 /**
@@ -71,19 +46,10 @@ const findById = async (id) => {
  *
  * @param {string} email - The email to search for.
  */
-const findByEmail = async (email) => {
-  try {
-    const user = await getKnex()(tables.user)
-      .where('email', email)
-      .first();
-    return user;
-  } catch (error) {
-    const logger = getChildLogger('users-repo');
-    logger.error('Error in findByEmail', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+const findByEmail = (email) => {
+  return getKnex()(tables.user)
+    .where('email', email)
+    .first();
 };
 
 /**

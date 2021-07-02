@@ -10,23 +10,15 @@ const { getLastId } = require('./_repository.helpers');
  * @param {number} pagination.limit - Nr of places to return.
  * @param {number} pagination.offset - Nr of places to skip.
  */
-const findAll = async ({
+const findAll = ({
   limit,
   offset,
 }) => {
-  try {
-    return await getKnex()(tables.place)
-      .select()
-      .limit(limit)
-      .offset(offset)
-      .orderBy('name', 'ASC');
-  } catch (error) {
-    const logger = getChildLogger('places-repo');
-    logger.error('Error in findAll', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+  return getKnex()(tables.place)
+    .select()
+    .limit(limit)
+    .offset(offset)
+    .orderBy('name', 'ASC');
 };
 
 /**
@@ -34,18 +26,10 @@ const findAll = async ({
  *
  * @param {string} name - Name to look for.
  */
-const findByName = async (name) => {
-  try {
-    return await getKnex()(tables.place)
-      .where('name', name)
-      .first();
-  } catch (error) {
-    const logger = getChildLogger('places-repo');
-    logger.error('Error in findByName', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+const findByName = (name) => {
+  return getKnex()(tables.place)
+    .where('name', name)
+    .first();
 };
 
 /**
@@ -53,35 +37,19 @@ const findByName = async (name) => {
  *
  * @param {string} id - Id of the place to find.
  */
-const findById = async (id) => {
-  try {
-    return await getKnex()(tables.place)
-      .where('id', id)
-      .first();
-  } catch (error) {
-    const logger = getChildLogger('places-repo');
-    logger.error('Error in findById', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+const findById = (id) => {
+  return getKnex()(tables.place)
+    .where('id', id)
+    .first();
 };
 
 /**
  * Calculate the total number of places.
  */
 const findCount = async () => {
-  try {
-    const [count] = await getKnex()(tables.place)
-      .count();
-    return count['count(*)'];
-  } catch (error) {
-    const logger = getChildLogger('places-repo');
-    logger.error('Error in findCount', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+  const [count] = await getKnex()(tables.place)
+    .count();
+  return count['count(*)'];
 };
 
 /**

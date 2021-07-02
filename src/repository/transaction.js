@@ -21,42 +21,26 @@ const SELECT_COLUMNS = [
  * @param {number} [pagination.offset] - Nr of transactions to skip.
  * @param {string} userId - Id of the user to fetch transactions for.
  */
-const findAll = async({
+const findAll = ({
   limit = DEFAULT_PAGINATION_LIMIT,
   offset = DEFAULT_PAGINATION_OFFSET,
 } = {}, userId) => {
-  try {
-    return await getKnex()(tables.transaction)
-      .select(SELECT_COLUMNS)
-      .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
-      .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`)
-      .where(`${tables.transaction}.user_id`, userId)
-      .limit(limit)
-      .offset(offset);
-  } catch (error) {
-    const logger = getChildLogger('transactions-repo');
-    logger.error('Error in findAll', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+  return getKnex()(tables.transaction)
+    .select(SELECT_COLUMNS)
+    .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
+    .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`)
+    .where(`${tables.transaction}.user_id`, userId)
+    .limit(limit)
+    .offset(offset);
 };
 
 /**
  * Calculate the total number of transactions.
  */
 const findCount = async () => {
-  try {
-    const [count] = await getKnex()(tables.transaction)
-      .count();
-    return count['count(*)'];
-  } catch (error) {
-    const logger = getChildLogger('transactions-repo');
-    logger.error('Error in findCount', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+  const [count] = await getKnex()(tables.transaction)
+    .count();
+  return count['count(*)'];
 };
 
 /**
@@ -64,20 +48,12 @@ const findCount = async () => {
  *
  * @param {string} id - Id of the transaction to find.
  */
-const findById = async(id) => {
-  try {
-    return await getKnex()(tables.transaction)
-      .first(SELECT_COLUMNS)
-      .where(`${tables.transaction}.id`, id)
-      .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
-      .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`);
-  } catch (error) {
-    const logger = getChildLogger('transactions-repo');
-    logger.error('Error in findById', {
-      error: serializeError(error),
-    });
-    throw error;
-  }
+const findById = (id) => {
+  return getKnex()(tables.transaction)
+    .first(SELECT_COLUMNS)
+    .where(`${tables.transaction}.id`, id)
+    .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
+    .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`);
 };
 
 /**

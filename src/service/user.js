@@ -38,10 +38,6 @@ const makeLoginData = async (user) => {
  * @returns {Promise<object>} - Promise whichs resolves in an object containing the token and signed in user.
  */
 const login = async (email, password) => {
-  if (!email || !password) {
-    throw ServiceError.validationFailed('Email and password are both required');
-  }
-
   const user = await userRepository.findByEmail(email);
 
   if (!user) {

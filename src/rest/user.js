@@ -256,11 +256,11 @@ register.validationScheme = validationSchemeFactory((Joi) => ({
  *               $ref: '#/components/responses/404NotFound'
  */
 const getUserById = async (ctx) => {
-  const { userId } = ctx.state.session;
+  const { userId, roles } = ctx.state.session;
   const { id } = ctx.params;
 
-  // You can only get our own data
-  if (id !== userId) {
+  // You can only get our own data unless you're an admin
+  if (id !== userId && !roles.includes('admin')) {
     return ctx.throw(403, 'You are not allowed to view this user\'s information', {
       code: 'UNAUTHORIZED',
     });
