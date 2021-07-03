@@ -125,9 +125,24 @@ describe('Users', () => {
 
     const url = '/api/users/register';
 
+    beforeAll(async () => {
+      await knex(tables.user).insert([{
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
+        first_name: 'Duplicate',
+        last_name: 'User',
+        email: 'duplicate@hogent.be',
+        password_hash:
+        '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
+        roles: JSON.stringify(['user']),
+      }]);
+    });
+
     afterAll(async () => {
       await knex(tables.user)
-        .where('email', 'register@hogent.be')
+        .whereIn('email', [
+          'register@hogent.be',
+          'duplicate@hogent.be',
+        ])
         .delete();
     });
 
@@ -146,6 +161,23 @@ describe('Users', () => {
       expect(response.body.user.firstName).toBe('Register');
       expect(response.body.user.lastName).toBe('User');
       expect(response.body.user.email).toBe('register@hogent.be');
+    });
+
+    test('it should 400 when using duplicate email', async () => {
+      const response = await supertest.post(url)
+        .send({
+          firstName: 'Duplicate',
+          lastName: 'User',
+          email: 'duplicate@hogent.be',
+          password: '12345678',
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toEqual({
+        code: 'VALIDATION_FAILED',
+        message: 'There is already a user with this email address',
+        details: {},
+      });
     });
 
     test('it should 400 when missing firstName', async () => {
