@@ -15,13 +15,17 @@ module.exports = {
 
       table.uuid('user_id')
         .notNullable();
-      table.foreign('user_id')
+
+      // Give this foreign key a name for better error handling in service layer
+      table.foreign('user_id', 'fk_transaction_user')
         .references(`${tables.user}.id`)
         .onDelete('CASCADE');
 
       table.uuid('place_id')
         .notNullable();
-      table.foreign('place_id')
+
+      // Give this foreign key a name for better error handling in service layer
+      table.foreign('place_id', 'fk_transaction_place')
         .references(`${tables.place}.id`)
         .onDelete('CASCADE');
     });

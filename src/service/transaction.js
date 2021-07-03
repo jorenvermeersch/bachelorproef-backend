@@ -2,6 +2,7 @@ const config = require('config');
 const ServiceError = require('../core/serviceError');
 const { transactionRepository } = require('../repository');
 const placeService = require('./place');
+const handleDBError = require('./_handleDBError');
 
 const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
 const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
@@ -109,7 +110,7 @@ const create = async ({
     date,
     userId,
     placeId,
-  });
+  }).catch(handleDBError);
   return getById(id);
 };
 
@@ -149,7 +150,7 @@ const updateById = async (id, {
     date,
     userId,
     placeId,
-  });
+  }).catch(handleDBError);
   return getById(id);
 };
 

@@ -224,7 +224,7 @@ describe('Places', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body).toEqual({
         code: 'VALIDATION_FAILED',
-        message: 'A place with name Lovely place already exists',
+        message: 'A place with this name already exists',
         details: {},
       });
     });
@@ -294,12 +294,16 @@ describe('Places', () => {
     beforeAll(async () => {
       await knex(tables.place).insert([
         { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83', name: 'Loon', rating: 4 },
+        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84', name: 'Duplicate name', rating: 1 },
       ]);
     });
 
     afterAll(async () => {
       await knex(tables.place)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff83')
+        .whereIn('id', [
+          '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
+          '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
+        ])
         .delete();
     });
 
@@ -319,9 +323,8 @@ describe('Places', () => {
       });
     });
 
-    // TODO: make this a database check
     test('it should 400 for duplicate place name', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff84`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -331,7 +334,7 @@ describe('Places', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body).toEqual({
         code: 'VALIDATION_FAILED',
-        message: 'A place with name Changed name already exists',
+        message: 'A place with this name already exists',
         details: {},
       });
     });

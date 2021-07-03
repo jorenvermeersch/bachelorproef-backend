@@ -9,6 +9,9 @@ module.exports = {
 
       table.string('name', 255)
         .notNullable();
+
+      // Give this unique index a name for better error handling in service layer
+      table.unique('name', 'idx_place_name_unique');
     });
 
     // Create a trigger to set the UUID for the column id as MySQL does

@@ -1,6 +1,7 @@
 const config = require('config');
 const ServiceError = require('../core/serviceError');
 const { placeRepository } = require('../repository');
+const handleDBError = require('./_handleDBError');
 
 const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
 const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
@@ -60,15 +61,12 @@ const getById = async (id) => {
  * @param {object} place - Place to create.
  * @param {string} place.name - Name of the place.
  * @param {number} [place.rating] - Rating of the place (between 1 and 5).
+ *
+ * @throws {ServiceError} One of:
+ * - VALIDATION_FAILED: A place with the same name exists.
  */
 const create = async ({ name, rating }) => {
-  const existingPlace = await getByName(name);
-
-  if (existingPlace) {
-    throw ServiceError.validationFailed(`A place with name ${name} already exists`);
-  }
-
-  const id = await placeRepository.create({ name, rating });
+  const id = await placeRepository.create({ name, rating }).catch(handleDBError);
   return getById(id);
 };
 
@@ -82,15 +80,10 @@ const create = async ({ name, rating }) => {
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No place with the given id could be found.
+ * - VALIDATION_FAILED: A place with the same name exists.
  */
 const updateById = async (id, { name, rating }) => {
-  const existingPlace = await getByName(name);
-
-  if (existingPlace) {
-    throw ServiceError.validationFailed(`A place with name ${name} already exists`);
-  }
-
-  await placeRepository.updateById(id, { name, rating });
+  await placeRepository.updateById(id, { name, rating }).catch(handleDBError);
   return getById(id);
 };
 

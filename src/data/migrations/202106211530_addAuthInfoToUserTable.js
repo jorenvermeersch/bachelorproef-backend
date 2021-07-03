@@ -11,6 +11,9 @@ module.exports = {
 
       table.jsonb('roles')
         .notNullable();
+
+      // Give this unique index a name for better error handling in service layer
+      table.unique('email', 'idx_user_email_unique');
     });
   },
   down: (knex) => {

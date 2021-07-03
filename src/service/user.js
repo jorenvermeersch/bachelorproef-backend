@@ -3,6 +3,7 @@ const ServiceError = require('../core/serviceError');
 const { verifyPassword, hashPassword } = require('../core/auth');
 const { generateJWT } = require('../core/jwt');
 const { userRepository } = require('../repository');
+const handleDBError = require('./_handleDBError');
 
 const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
 const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
@@ -80,7 +81,7 @@ const register = async ({
     email,
     passwordHash,
     roles: ['user'],
-  });
+  }).catch(handleDBError);
 
   const user = await userRepository.findById(userId);
 
