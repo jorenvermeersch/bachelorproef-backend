@@ -41,10 +41,10 @@ describe('Places', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(3);
-      expect(response.body.count).toBe(3);
+      expect(response.body.totalCount).toBeGreaterThanOrEqual(3); // one place from transactions could be present
       expect(response.body.limit).toBe(100);
       expect(response.body.offset).toBe(0);
+      expect(response.body.data.length).toBeGreaterThanOrEqual(3); // one place from transactions could be present
     });
 
     test('it should 200 and paginate the list of places', async () => {
@@ -52,7 +52,7 @@ describe('Places', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(3);
+      expect(response.body.totalCount).toBeGreaterThanOrEqual(3); // one place from transactions could be present
       expect(response.body.count).toBe(2);
       expect(response.body.limit).toBe(2);
       expect(response.body.offset).toBe(1);
@@ -181,16 +181,16 @@ describe('Places', () => {
         .delete();
     });
 
-    test('it should 200 and return the created place', async () => {
+    test('it should 201 and return the created place', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
-          name: 'Test place',
+          name: 'New place',
         });
 
       expect(response.statusCode).toBe(201);
       expect(response.body.id).toBeTruthy();
-      expect(response.body.name).toBe('Test place');
+      expect(response.body.name).toBe('New place');
       expect(response.body.rating).toBeNull();
 
       placestoDelete.push(response.body.id);

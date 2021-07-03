@@ -84,7 +84,7 @@ const getAllTransactions = async (ctx) => {
 };
 getAllTransactions.validationScheme = validationSchemeFactory((Joi) => ({
   query: Joi.object({
-    limit: Joi.number().min(10).max(1000).optional(),
+    limit: Joi.number().positive().max(1000).optional(),
     offset: Joi.number().min(0).optional(),
   }).and('limit', 'offset'),
 }));
@@ -181,7 +181,7 @@ createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
 /**
  * @swagger
  * /api/transactions/{id}:
- *   patch:
+ *   put:
  *     summary: Update an existing transaction
  *     tags:
  *      - Transactions
@@ -288,7 +288,7 @@ module.exports = function installTransactionRoutes(app) {
   router.get('/', validate(getAllTransactions.validationScheme), getAllTransactions);
   router.get('/:id', validate(getTransactionById.validationScheme), getTransactionById);
   router.post('/', validate(createTransaction.validationScheme), createTransaction);
-  router.patch('/:id', validate(updateTransaction.validationScheme), updateTransaction);
+  router.put('/:id', validate(updateTransaction.validationScheme), updateTransaction);
   router.delete('/:id', validate(deleteTransaction.validationScheme), deleteTransaction);
 
   app

@@ -1,6 +1,10 @@
+const config = require('config');
 const ServiceError = require('../core/serviceError');
 const { transactionRepository } = require('../repository');
 const placeService = require('./place');
+
+const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
+const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 
 const makeExposedTransaction = ({
   user_id,
@@ -37,7 +41,11 @@ const makeExposedTransaction = ({
  * @param {number} [params.offset] - Nr of transactions to skip.
  * @param {string} params.userId - Id of the user to fetch transactions for.
  */
-const getAll = async ({ userId, limit, offset }) => {
+const getAll = async ({
+  userId,
+  limit = DEFAULT_PAGINATION_LIMIT,
+  offset = DEFAULT_PAGINATION_OFFSET,
+}) => {
   const data = await transactionRepository.findAll({ limit, offset }, userId);
   const totalCount = await transactionRepository.findCount();
   return {
@@ -165,7 +173,7 @@ const deleteById = async (id) => {
   const deleted = await transactionRepository.deleteById(id);
 
   if (!deleted) {
-    throw ServiceError.notFound(`No transaction with id ${id} exists`);
+    throw ServiceError.notFound(`No transaction with id ${id} exists`, { id });
   }
 };
 

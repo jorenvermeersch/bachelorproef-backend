@@ -1,11 +1,8 @@
-const config = require('config');
 const { tables, getKnex } = require('../data/index');
 const { serializeError } = require('serialize-error');
 const { getChildLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
 
-const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
-const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 const SELECT_COLUMNS = [
   `${tables.transaction}.id`, 'amount', 'date',
   `${tables.place}.id as place_id`, `${tables.place}.name`,
@@ -16,22 +13,23 @@ const SELECT_COLUMNS = [
 /**
  * Get all `limit` transactions, throws on error.
  *
- * @param {object} [pagination] - Pagination options
- * @param {number} [pagination.limit] - Nr of transactions to return.
- * @param {number} [pagination.offset] - Nr of transactions to skip.
+ * @param {object} pagination - Pagination options
+ * @param {number} pagination.limit - Nr of transactions to return.
+ * @param {number} pagination.offset - Nr of transactions to skip.
  * @param {string} userId - Id of the user to fetch transactions for.
  */
 const findAll = ({
-  limit = DEFAULT_PAGINATION_LIMIT,
-  offset = DEFAULT_PAGINATION_OFFSET,
-} = {}, userId) => {
+  limit,
+  offset,
+}, userId) => {
   return getKnex()(tables.transaction)
     .select(SELECT_COLUMNS)
     .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
     .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`)
     .where(`${tables.transaction}.user_id`, userId)
     .limit(limit)
-    .offset(offset);
+    .offset(offset)
+    .orderBy('date', 'ASC');
 };
 
 /**

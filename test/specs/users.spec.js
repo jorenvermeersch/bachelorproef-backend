@@ -282,6 +282,7 @@ describe('Users', () => {
       expect(response.body.count).toBe(4);
       expect(response.body.limit).toBe(100);
       expect(response.body.offset).toBe(0);
+      expect(response.body.data.length).toBe(4);
     });
 
     test('it should 200 and paginate the list of users', async () => {
