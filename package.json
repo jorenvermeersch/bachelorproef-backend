@@ -11,7 +11,7 @@
     "start:test": "NODE_ENV=testing node src/index.js",
     "lint": "npx eslint ./src --fix",
     "test": "NODE_ENV=testing jest",
-    "test:coverage": "NODE_ENV=testing jest --runInBand --coverage"
+    "test:coverage": "NODE_ENV=testing jest --coverage"
   },
   "nodemonConfig": {
     "signal": "SIGTERM",
