@@ -19,7 +19,7 @@ module.exports = async () => {
     last_name: 'User',
     email: 'test.user@hogent.be',
     password_hash:
-      '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
+      '$argon2id$v=19$m=2048,t=2,p=1$NF6PFLTgSYpDSex0iFeFQQ$Rz5ouoM9q3EH40hrq67BC3Ajsu/ohaHnkKBLunELLzU',
     roles: JSON.stringify(['user']),
   }]);
 };

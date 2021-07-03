@@ -30,8 +30,8 @@ module.exports = {
     argon: {
       saltLength: 16,
       hashLength: 32,
-      timeCost: 6,
-      memoryCost: 2 ** 17,
+      timeCost: 2,
+      memoryCost: 2 ** 11,
     },
     jwt: {
       audience: 'budget.hogent.be',
