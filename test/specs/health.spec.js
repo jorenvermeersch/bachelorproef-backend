@@ -17,6 +17,14 @@ describe('Health', () => {
         pong: true,
       });
     });
+
+    test('it should 400 with unknown query parameters', async () => {
+      const response = await supertest.get(`${url}?invalid=true`);
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.code).toBe('VALIDATION_FAILED');
+      expect(response.body.details.query).toHaveProperty('invalid');
+    });
   });
 
   describe('GET /api/health/version', () => {

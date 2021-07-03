@@ -68,10 +68,8 @@ const validate = (schema) => {
  *
  * @param {Function} schemeGenerator - Function whichs creates the Joi-Scheme.
  */
-const validationSchemeFactory = (schemeGenerator = () => {}) => {
-  if (schemeGenerator === null) return {};
-
-  const scheme = schemeGenerator(Joi);
+const validationSchemeFactory = (schemeGenerator) => {
+  const scheme = schemeGenerator === null ? {} : schemeGenerator(Joi);
   return ALLOWED_KEYS.reduce((newScheme, key) => {
     return {
       ...newScheme,
