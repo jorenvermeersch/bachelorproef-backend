@@ -154,7 +154,9 @@ describe('Places', () => {
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
         message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abffaa exists',
-        details: {},
+        details: {
+          id: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
+        },
       });
     });
 
@@ -172,12 +174,12 @@ describe('Places', () => {
 
   describe('POST /api/places', () => {
 
-    const placestoDelete = [];
+    const placesToDelete = [];
     const url = '/api/places';
 
     afterAll(async () => {
       await knex(tables.place)
-        .whereIn('id', placestoDelete)
+        .whereIn('id', placesToDelete)
         .delete();
     });
 
@@ -193,7 +195,7 @@ describe('Places', () => {
       expect(response.body.name).toBe('New place');
       expect(response.body.rating).toBeNull();
 
-      placestoDelete.push(response.body.id);
+      placesToDelete.push(response.body.id);
     });
 
     test('it should 200 and return the created place with it\'s rating', async () => {
@@ -209,7 +211,22 @@ describe('Places', () => {
       expect(response.body.name).toBe('Lovely place');
       expect(response.body.rating).toBe(5);
 
-      placestoDelete.push(response.body.id);
+      placesToDelete.push(response.body.id);
+    });
+
+    test('it should 400 for duplicate place name', async () => {
+      const response = await supertest.post(url)
+        .set('Authorization', authHeader)
+        .send({
+          name: 'Lovely place',
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toEqual({
+        code: 'VALIDATION_FAILED',
+        message: 'A place with name Lovely place already exists',
+        details: {},
+      });
     });
 
     test('it should 400 when missing name', async () => {
@@ -270,7 +287,6 @@ describe('Places', () => {
       }));
   });
 
-
   describe('PATCH /api/places/:id', () => {
 
     const url = '/api/places';
@@ -300,6 +316,23 @@ describe('Places', () => {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
         name: 'Changed name',
         rating: 1,
+      });
+    });
+
+    // TODO: make this a database check
+    test('it should 400 for duplicate place name', async () => {
+      const response = await supertest.post(url)
+        .set('Authorization', authHeader)
+        .send({
+          name: 'Changed name',
+          rating: 1,
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toEqual({
+        code: 'VALIDATION_FAILED',
+        message: 'A place with name Changed name already exists',
+        details: {},
       });
     });
 
@@ -398,7 +431,9 @@ describe('Places', () => {
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
         message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff83 exists',
-        details: {},
+        details: {
+          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
+        },
       });
     });
 

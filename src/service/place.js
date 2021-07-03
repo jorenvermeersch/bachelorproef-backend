@@ -48,7 +48,7 @@ const getById = async (id) => {
   const place = await placeRepository.findById(id);
 
   if (!place) {
-    throw ServiceError.notFound(`No place with id ${id} exists`);
+    throw ServiceError.notFound(`No place with id ${id} exists`, { id });
   }
 
   return place;
@@ -62,10 +62,6 @@ const getById = async (id) => {
  * @param {number} [place.rating] - Rating of the place (between 1 and 5).
  */
 const create = async ({ name, rating }) => {
-  if (rating && (rating < 1 || rating > 5)) {
-    throw ServiceError.validationFailed('Please provide a rating between 1 and 5');
-  }
-
   const existingPlace = await getByName(name);
 
   if (existingPlace) {
@@ -88,10 +84,6 @@ const create = async ({ name, rating }) => {
  * - NOT_FOUND: No place with the given id could be found.
  */
 const updateById = async (id, { name, rating }) => {
-  if (rating && (rating < 1 || rating > 5)) {
-    throw ServiceError.validationFailed('Please provide a rating between 1 and 5');
-  }
-
   const existingPlace = await getByName(name);
 
   if (existingPlace) {
@@ -115,7 +107,7 @@ const deleteById = async (id) => {
   const deleted = await placeRepository.deleteById(id);
 
   if (!deleted) {
-    throw ServiceError.notFound(`No place with id ${id} exists`);
+    throw ServiceError.notFound(`No place with id ${id} exists`, { id });
   }
 };
 

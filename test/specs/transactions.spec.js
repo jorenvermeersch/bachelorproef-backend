@@ -244,7 +244,8 @@ describe('Transactions', () => {
 
   describe('POST /api/transactions', () => {
 
-    const transactionstoDelete = [];
+    const transactionsToDelete = [];
+    const placesToDelete = [];
     const url = '/api/transactions';
 
     beforeAll(async () => {
@@ -253,15 +254,16 @@ describe('Transactions', () => {
         name: 'Test place',
         rating: 3,
       }]);
+      placesToDelete.push('7f28c5f9-d711-4cd6-ac15-d13d71abff90');
     });
 
     afterAll(async () => {
       await knex(tables.transaction)
-        .whereIn('id', transactionstoDelete)
+        .whereIn('id', transactionsToDelete)
         .delete();
 
       await knex(tables.place)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff90')
+        .whereIn('id', placesToDelete)
         .delete();
     });
 
@@ -289,7 +291,32 @@ describe('Transactions', () => {
         lastName: 'User',
       });
 
-      transactionstoDelete.push(response.body.id);
+      transactionsToDelete.push(response.body.id);
+    });
+
+    test('it should 201 and create new place when place does not exist', async () => {
+      const response = await supertest.post(url)
+        .set('Authorization', authHeader).send({
+          amount: -125,
+          date: '2021-05-27T13:00:00.000Z',
+          place: 'Fake place',
+          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        });
+
+      expect(response.statusCode).toBe(201);
+      expect(response.body.id).toBeTruthy();
+      expect(response.body.amount).toBe(-125);
+      expect(response.body.date).toBe('2021-05-27T13:00:00.000Z');
+      expect(response.body.place.id).toBeTruthy();
+      expect(response.body.place.name).toBe('Fake place');
+      expect(response.body.user).toEqual({
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        firstName: 'Test',
+        lastName: 'User',
+      });
+
+      placesToDelete.push(response.body.place.id);
+
     });
 
     test('it should 400 when missing amount', async () => {
@@ -359,6 +386,7 @@ describe('Transactions', () => {
 
   describe('PUT /api/transactions/:id', () => {
 
+    const placesToDelete = [];
     const url = '/api/transactions';
 
     beforeAll(async () => {
@@ -375,6 +403,8 @@ describe('Transactions', () => {
         place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
         user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
       }]);
+
+      placesToDelete.push('7f28c5f9-d711-4cd6-ac15-d13d71abff90');
     });
 
     afterAll(async () => {
@@ -383,7 +413,7 @@ describe('Transactions', () => {
         .delete();
 
       await knex(tables.place)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff90')
+        .whereIn('id', placesToDelete)
         .delete();
     });
 
@@ -429,6 +459,30 @@ describe('Transactions', () => {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
         },
       });
+    });
+
+    test('it should 200 and create new place when place does not exist', async () => {
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+        .set('Authorization', authHeader).send({
+          amount: -125,
+          date: '2021-05-27T13:00:00.000Z',
+          place: 'Fake place',
+          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.id).toBeTruthy();
+      expect(response.body.amount).toBe(-125);
+      expect(response.body.date).toBe('2021-05-27T13:00:00.000Z');
+      expect(response.body.place.id).toBeTruthy();
+      expect(response.body.place.name).toBe('Fake place');
+      expect(response.body.user).toEqual({
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        firstName: 'Test',
+        lastName: 'User',
+      });
+
+      placesToDelete.push(response.body.place.id);
     });
 
     test('it should 400 when missing amount', async () => {

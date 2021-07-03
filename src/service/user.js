@@ -120,7 +120,7 @@ const getById = async (id) => {
   const user = await userRepository.findById(id);
 
   if (!user) {
-    throw ServiceError.notFound(`No user with id ${id} exists`);
+    throw ServiceError.notFound(`No user with id ${id} exists`, { id });
   }
 
   return makeExposedUser(user);
