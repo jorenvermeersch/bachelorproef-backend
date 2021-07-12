@@ -17,9 +17,9 @@ const handleDBError = (error) => {
   if (code.startsWith('ER_NO_REFERENCED_ROW')) {
     switch (true) {
       case sqlMessage.includes('fk_transaction_user'):
-        throw ServiceError.validationFailed('This user does not exist');
+        throw ServiceError.notFound('This user does not exist');
       case sqlMessage.includes('fk_transaction_place'):
-        throw ServiceError.validationFailed('This place does not exist');
+        throw ServiceError.notFound('This place does not exist');
     }
   }
 

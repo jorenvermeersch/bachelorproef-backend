@@ -1,11 +1,21 @@
-const { tables } = require('../../src/data');
-const { testAuthHeader } = require('../common/auth');
-const { withServer, login } = require('../supertest.setup');
+const {
+  tables,
+} = require('../../src/data');
+const {
+  testAuthHeader,
+} = require('../common/auth');
+const {
+  withServer,
+  login,
+} = require('../supertest.setup');
 
 describe('Transactions', () => {
   let supertest, knex, authHeader;
 
-  withServer(({ supertest: s, knex: k }) => {
+  withServer(({
+    supertest: s,
+    knex: k,
+  }) => {
     supertest = s;
     knex = k;
   });
@@ -25,28 +35,27 @@ describe('Transactions', () => {
         rating: 3,
       }]);
 
-      await knex(tables.transaction).insert([
-        { // Test User
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
-          user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-          place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          amount: 3500,
-          date: new Date(2021, 4, 25, 19, 40),
-        },
-        {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff87',
-          user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-          place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          amount: -220,
-          date: new Date(2021, 4, 8, 20, 0),
-        },
-        {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff88',
-          user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-          place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          amount: -74,
-          date: new Date(2021, 4, 21, 14, 30),
-        },
+      await knex(tables.transaction).insert([{ // Test User
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
+        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        amount: 3500,
+        date: new Date(2021, 4, 25, 19, 40),
+      },
+      {
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff87',
+        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        amount: -220,
+        date: new Date(2021, 4, 8, 20, 0),
+      },
+      {
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff88',
+        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        amount: -74,
+        date: new Date(2021, 4, 21, 14, 30),
+      },
       ]);
     });
 
@@ -373,6 +382,22 @@ describe('Transactions', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('userId');
+    });
+
+    test('it should 404 with not existing user', async () => {
+      const response = await supertest.post(url)
+        .set('Authorization', authHeader)
+        .send({
+          amount: 123,
+          date: '2021-05-27T13:00:00.000Z',
+          place: 'Test place',
+          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
+        });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body.code).toBe('NOT_FOUND');
+      expect(response.body.message).toBe('This user does not exist');
+      expect(response.body.details).toEqual({});
     });
 
     testAuthHeader(() => supertest.post(url)
