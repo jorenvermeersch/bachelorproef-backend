@@ -4,6 +4,7 @@ const { requireAuthentication } = require('../core/auth');
 const { userService } = require('../service');
 const { validate, validationSchemeFactory } = require('./_validation');
 
+const AUTH_DISABLED = config.get('auth.disabled');
 const AUTH_MAX_DELAY = config.get('auth.maxDelay');
 
 /**
@@ -285,9 +286,13 @@ module.exports = function installUsersRoutes(app) {
     prefix: '/users',
   });
 
-  // Public routes
-  router.post('/login', authDelay, validate(login.validationScheme), login);
-  router.post('/register', authDelay, validate(register.validationScheme), register);
+  // Allow any user if authentication/authorization is disabled
+  // DO NOT use this config parameter in any production worthy application!
+  if (!AUTH_DISABLED) {
+    // Public routes
+    router.post('/login', authDelay, validate(login.validationScheme), login);
+    router.post('/register', authDelay, validate(register.validationScheme), register);
+  }
 
   // Routes with authentication
   router.get('/', requireAuthentication, validate(getAllUsers.validationScheme), getAllUsers);

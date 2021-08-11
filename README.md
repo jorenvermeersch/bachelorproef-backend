@@ -21,3 +21,8 @@ This server assumes a database named `budget_test` has been made before the serv
     * This will start a new server for each test suite that runs, you won't see any output as logging is disabled to make output more clean.
     * To enable logging change the config parameter `log.disabled` to `true`.
     * The user suite will take 'long' (around 6s) to complete, this is normal as many cryptographic operations are being performed.
+
+## Disable authentication
+
+If you want to disable authentication and authorization, set the config parameter `auth.disabled` to `true`. **This is not intended
+for use in any production worthy application!**

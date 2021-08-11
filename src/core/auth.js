@@ -2,6 +2,7 @@ const config = require('config');
 const argon2 = require('argon2');
 const { verifyJWT } = require('./jwt');
 
+const AUTH_DISABLED = config.get('auth.disabled');
 const ARGON_SALT_LENGTH = config.get('auth.argon.saltLength');
 const ARGON_HASH_LENGTH = config.get('auth.argon.hashLength');
 const ARGON_TIME_COST = config.get('auth.argon.timeCost');
@@ -50,6 +51,12 @@ const verifyPassword = async (password, passwordHash) => {
  * Middleware to enforce a JWT in every request.
  */
 const requireAuthentication = async (ctx, next) => {
+  // Allow any user if authentication/authorization is disabled
+  // DO NOT use this config parameter in any production worthy application!
+  if (AUTH_DISABLED) {
+    return next();
+  }
+
   const {
     authorization,
   } = ctx.headers;
@@ -104,6 +111,12 @@ const requireAuthentication = async (ctx, next) => {
  * @returns {Function} - A Koa middleware.
  */
 const makeRequireRole = (role) => async (ctx, next) => {
+  // Allow any user if authentication/authorization is disabled
+  // DO NOT use this config parameter in any production worthy application!
+  if (AUTH_DISABLED) {
+    return next();
+  }
+
   const {
     roles = [],
   } = ctx.state.session;
