@@ -5,7 +5,7 @@ module.exports = {
   port: 9000,
   exposeStack: false,
   log: {
-    level: 'silly',
+    level: 'info',
     disabled: true,
   },
   cors: {

@@ -17,5 +17,7 @@ This server assumes a database named `budget` has been made before the server is
 This server assumes a database named `budget_test` has been made before the server is started.
 
 * Install all dependencies: `yarn`
-* Start the testing server: `yarn start:test`
 * Run the tests: `yarn test`
+    * This will start a new server for each test suite that runs, you won't see any output as logging is disabled to make output more clean.
+    * To enable logging change the config parameter `log.disabled` to `true`.
+    * The user suite will take 'long' (around 6s) to complete, this is normal as many cryptographic operations are being performed.

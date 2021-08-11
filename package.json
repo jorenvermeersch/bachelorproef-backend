@@ -8,7 +8,6 @@
   "scripts": {
     "start": "npx cross-env NODE_ENV=production node src/index.js",
     "start:dev": "npx killports 9001 && npx cross-env NODE_ENV=development nodemon",
-    "start:test": "npx cross-env NODE_ENV=testing node src/index.js",
     "lint": "npx eslint ./src --fix",
     "test": "npx cross-env NODE_ENV=testing jest",
     "test:coverage": "npx cross-env NODE_ENV=testing jest --coverage"
