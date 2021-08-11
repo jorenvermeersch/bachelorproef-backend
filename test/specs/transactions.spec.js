@@ -282,7 +282,7 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
@@ -303,29 +303,23 @@ describe('Transactions', () => {
       transactionsToDelete.push(response.body.id);
     });
 
-    test('it should 201 and create new place when place does not exist', async () => {
+    test('it should 404 when place does not exist', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader).send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Fake place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
-      expect(response.statusCode).toBe(201);
-      expect(response.body.id).toBeTruthy();
-      expect(response.body.amount).toBe(-125);
-      expect(response.body.date).toBe('2021-05-27T13:00:00.000Z');
-      expect(response.body.place.id).toBeTruthy();
-      expect(response.body.place.name).toBe('Fake place');
-      expect(response.body.user).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        firstName: 'Test',
-        lastName: 'User',
-      });
-
-      placesToDelete.push(response.body.place.id);
-
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual({
+          code: 'NOT_FOUND',
+          message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff00 exists',
+          details: {
+            id: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
+          },
+        });
     });
 
     test('it should 400 when missing amount', async () => {
@@ -333,7 +327,7 @@ describe('Transactions', () => {
         .set('Authorization', authHeader)
         .send({
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
@@ -347,7 +341,7 @@ describe('Transactions', () => {
         .set('Authorization', authHeader)
         .send({
           amount: 102,
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
@@ -356,7 +350,7 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('date');
     });
 
-    test('it should 400 when missing place', async () => {
+    test('it should 400 when missing placeId', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -367,7 +361,7 @@ describe('Transactions', () => {
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('place');
+      expect(response.body.details.body).toHaveProperty('placeId');
     });
 
     test('it should 400 when missing userId', async () => {
@@ -376,7 +370,7 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
         });
 
       expect(response.statusCode).toBe(400);
@@ -390,7 +384,7 @@ describe('Transactions', () => {
         .send({
           amount: 123,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
         });
 
@@ -448,7 +442,7 @@ describe('Transactions', () => {
         .send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
@@ -472,7 +466,7 @@ describe('Transactions', () => {
         .set('Authorization', authHeader).send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
@@ -486,28 +480,23 @@ describe('Transactions', () => {
       });
     });
 
-    test('it should 200 and create new place when place does not exist', async () => {
+    test('it should 404 when place does not exist', async () => {
       const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
         .set('Authorization', authHeader).send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Fake place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
-      expect(response.statusCode).toBe(200);
-      expect(response.body.id).toBeTruthy();
-      expect(response.body.amount).toBe(-125);
-      expect(response.body.date).toBe('2021-05-27T13:00:00.000Z');
-      expect(response.body.place.id).toBeTruthy();
-      expect(response.body.place.name).toBe('Fake place');
-      expect(response.body.user).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        firstName: 'Test',
-        lastName: 'User',
+      expect(response.statusCode).toBe(404);
+      expect(response.body).toEqual({
+        code: 'NOT_FOUND',
+        message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff00 exists',
+        details: {
+          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
+        },
       });
-
-      placesToDelete.push(response.body.place.id);
     });
 
     test('it should 400 when missing amount', async () => {
@@ -515,7 +504,7 @@ describe('Transactions', () => {
         .set('Authorization', authHeader)
         .send({
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
@@ -529,7 +518,7 @@ describe('Transactions', () => {
         .set('Authorization', authHeader)
         .send({
           amount: 102,
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
@@ -538,7 +527,7 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('date');
     });
 
-    test('it should 400 when missing place', async () => {
+    test('it should 400 when missing placeId', async () => {
       const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
         .set('Authorization', authHeader)
         .send({
@@ -549,7 +538,7 @@ describe('Transactions', () => {
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('place');
+      expect(response.body.details.body).toHaveProperty('placeId');
     });
 
     test('it should 400 when missing userId', async () => {
@@ -558,7 +547,7 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           date: '2021-05-27T13:00:00.000Z',
-          place: 'Test place',
+          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
         });
 
       expect(response.statusCode).toBe(400);
@@ -570,7 +559,7 @@ describe('Transactions', () => {
       .send({
         amount: -125,
         date: '2021-05-27T13:00:00.000Z',
-        place: 'Test place',
+        placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
         userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
       }));
   });

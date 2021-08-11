@@ -62,7 +62,12 @@ async function initializeData() {
   });
 
   // Check the connection
-  await knexInstance.raw('SELECT 1+1 AS result');
+  try {
+    await knexInstance.raw('SELECT 1+1 AS result');
+  } catch (error) {
+    logger.error(error.message, { error: serializeError(error) });
+    throw error;
+  }
 
   // Run migrations
   let migrationsFailed = true;

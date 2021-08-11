@@ -142,12 +142,12 @@ getTransactionById.validationScheme = validationSchemeFactory((Joi) => ({
  *               date:
  *                 type: string
  *                 format: "date-time"
- *               place:
+ *               placeId:
  *                 type: string
- *                 description: "Name of the place the transaction is for, will create a new one if not existing"
+ *                 format: uuid
  *               userId:
  *                 type: string
- *                 format: "uuid"
+ *                 format: uuid
  *     responses:
  *       200:
  *         description: The created transaction
@@ -171,9 +171,9 @@ const createTransaction = async (ctx) => {
 };
 createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
-    amount: Joi.number(),
+    amount: Joi.number().invalid(0),
     date: Joi.date().iso().less('now'),
-    place: Joi.string().max(255),
+    placeId: Joi.string().uuid(),
     userId: Joi.string().uuid(),
   },
 }));
@@ -199,12 +199,12 @@ createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
  *               date:
  *                 type: string
  *                 format: "date-time"
- *               place:
+ *               placeId:
  *                 type: string
- *                 description: "Name of the place the transaction is for, will create a new one if not existing"
+ *                 format: uuid
  *               userId:
  *                 type: string
- *                 format: "uuid"
+ *                 format: uuid
  *     responses:
  *       200:
  *         description: The updated transaction
@@ -237,9 +237,9 @@ updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
     id: Joi.string().uuid(),
   },
   body: {
-    amount: Joi.number(),
+    amount: Joi.number().invalid(0),
     date: Joi.date().iso().less('now'),
-    place: Joi.string().max(255),
+    placeId: Joi.string().uuid(),
     userId: Joi.string().uuid(),
   },
 }));

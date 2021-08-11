@@ -1,6 +1,7 @@
 module.exports = {
   env: process.env.NODE_ENV,
-  host: '0.0.0.0',
+  protocol: 'http',
+  host: 'localhost',
   port: 9000,
   exposeStack: false,
   log: {
@@ -16,8 +17,8 @@ module.exports = {
     host: 'localhost',
     port: 3306,
     name: 'budget_test',
-    username: 'devuser',
-    password: 'devpwd',
+    username: 'root',
+    password: '',
   },
   pagination: {
     limit: 100,

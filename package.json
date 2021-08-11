@@ -6,12 +6,12 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=production node src/index.js",
-    "start:dev": "npx killports 9001 && NODE_ENV=development nodemon",
-    "start:test": "NODE_ENV=testing node src/index.js",
+    "start": "npx cross-env NODE_ENV=production node src/index.js",
+    "start:dev": "npx killports 9001 && npx cross-env NODE_ENV=development nodemon",
+    "start:test": "npx cross-env NODE_ENV=testing node src/index.js",
     "lint": "npx eslint ./src --fix",
-    "test": "NODE_ENV=testing jest",
-    "test:coverage": "NODE_ENV=testing jest --coverage"
+    "test": "npx cross-env NODE_ENV=testing jest",
+    "test:coverage": "npx cross-env NODE_ENV=testing jest --coverage"
   },
   "nodemonConfig": {
     "signal": "SIGTERM",
@@ -41,6 +41,7 @@
     "@koa/router": "^10.0.0",
     "argon2": "^0.28.2",
     "config": "^3.3.6",
+    "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",

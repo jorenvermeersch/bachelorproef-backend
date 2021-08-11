@@ -7,6 +7,7 @@ const { initializeData, shutdownData } = require('./data');
 const installRouter = require('./rest');
 
 const NODE_ENV = config.get('env');
+const PROTOCOL = config.get('protocol');
 const HOST = config.get('host');
 const PORT = config.get('port');
 const LOG_LEVEL = config.get('log.level');
@@ -32,7 +33,7 @@ module.exports = async function createServer() {
     start() {
       return new Promise((resolve) => {
         app.listen(PORT, () => {
-          logger.info(`🚀 Server listening on ${HOST}:${PORT}`);
+          logger.info(`🚀 Server listening on ${PROTOCOL}://${HOST}:${PORT}`);
           resolve();
         });
       });

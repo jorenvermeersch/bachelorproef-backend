@@ -10,7 +10,7 @@ async function main() {
   }
 
   process.on('SIGTERM', onClose);
-  process.on('SIGQUIT', onClose);
+  process.on('SIGQUIT', onClose); 
 }
 
 main();

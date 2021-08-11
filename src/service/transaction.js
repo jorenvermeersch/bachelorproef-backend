@@ -82,27 +82,23 @@ const getById = async (id) => {
  * @param {object} transaction - The transaction to create.
  * @param {string} transaction.amount - Amount deposited/withdrawn.
  * @param {Date} transaction.date - Date of the transaction.
- * @param {string} transaction.place - Name of the place the transaction happened.
+ * @param {string} transaction.placeId - Id of the place the transaction happened.
  * @param {string} transaction.userId - Id of the user who did the transaction.
  *
  * @throws {ServiceError} One of:
+ * - NOT_FOUND: No place with the given id could be found.
  * - VALIDATION_FAILED: Transactions created in the future, no place could be created
  */
 const create = async ({
   amount,
   date,
-  place,
+  placeId,
   userId,
 }) => {
-  const existingPlace = await placeService.getByName(place);
+  const existingPlace = await placeService.getById(placeId);
 
-  let placeId = existingPlace?.id;
-  if (!placeId) {
-    placeId = (await placeService.create({ name: place })).id;
-  }
-
-  if (!placeId) {
-    throw ServiceError.validationFailed('No place could be created for this transaction');
+  if (!existingPlace) {
+    throw ServiceError.notFound(`There is no place with id ${id}.`, { id });
   }
 
   const id = await transactionRepository.create({
@@ -121,28 +117,26 @@ const create = async ({
  * @param {object} transaction - The transaction data to save.
  * @param {string} [transaction.amount] - Amount deposited/withdrawn.
  * @param {Date} [transaction.date] - Date of the transaction.
- * @param {string} [transaction.place] - Name of the place the transaction happened.
+ * @param {string} [transaction.placeId] - Id of the place the transaction happened.
  * @param {string} [transaction.userId] - Id of the user who did the transaction.
  *
  * @throws {ServiceError} One of:
- * - NOT_FOUND: No transaction with the given id could be found.
+ * - NOT_FOUND: No transaction/place with the given id could be found.
  * - VALIDATION_FAILED: Transactions created in the future, no place could be created
  */
 const updateById = async (id, {
   amount,
   date,
-  place,
+  placeId,
   userId,
 }) => {
-  const existingPlace = await placeService.getByName(place);
+  // Only perform the check if an id is given, will otherwise cause NOT FOUND if `undefined`
+  if (placeId) {
+    const existingPlace = await placeService.getById(placeId);
 
-  let placeId = existingPlace?.id;
-  if (!placeId) {
-    placeId = (await placeService.create({ name: place })).id;
-  }
-
-  if (!placeId) {
-    throw ServiceError.validationFailed('No place could be created for this transaction');
+    if (!existingPlace) {
+      throw ServiceError.notFound(`There is no place with id ${id}.`, { id });
+    }
   }
 
   await transactionRepository.updateById(id, {
