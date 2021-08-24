@@ -1,6 +1,6 @@
 const winston = require('winston');
 const {
-  combine, timestamp, colorize, printf,
+  combine, timestamp, colorize, printf, json
 } = winston.format;
 
 let rootLogger;
@@ -30,6 +30,26 @@ const getChildLogger = (name, meta = {}) => {
   });
 };
 
+const devFormat = () => {
+  const formatMessage = ({
+    level, message, timestamp, name = 'server', ...rest
+  }) => `${timestamp} | ${name} | ${level} | ${message} | ${JSON.stringify(rest)}`;
+
+  const formatError = ({
+    error: { stack }, ...rest
+  }) => `${formatMessage(rest)}\n\n${stack}\n`;
+  const format = info => info.error instanceof Error ? formatError(info) : formatMessage(info);
+  return combine(
+    colorize(), timestamp(), printf(format),
+  );
+};
+
+const prodFormat = () => {
+  const replaceError = ({ label, level, message, stack }) => ({ label, level, message, stack });
+  const replacer = (key, value) => value instanceof Error ? replaceError(value) : value;
+  return json({ replacer });
+};
+
 const theLogFormat = printf(({
   level, message, timestamp, name = 'server', ...rest
 }) => {
@@ -52,9 +72,7 @@ const initializeLogging = (
 ) => {
   rootLogger = winston.createLogger({
     level,
-    format: combine(
-      colorize(), timestamp(), theLogFormat,
-    ),
+    format: process.env.NODE_ENV === 'production' ? prodFormat() : devFormat(),
     defaultMeta,
     transports: [
       new winston.transports.Console({

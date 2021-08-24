@@ -65,8 +65,8 @@ async function initializeData() {
   try {
     await knexInstance.raw('SELECT 1+1 AS result');
   } catch (error) {
-    logger.error(error.message, { error: serializeError(error) });
-    throw error;
+    logger.error(error.message, { error });
+    throw new Error('Could not initialize the data layer');
   }
 
   // Run migrations
@@ -84,6 +84,9 @@ async function initializeData() {
   if (migrationsFailed) {
     try {
       await knexInstance.migrate.down();
+
+      // No point in starting the server
+      throw new Error('Migrations failed');
     } catch (error) {
       logger.error('Error while undoing last migration', {
         error: serializeError(error),
