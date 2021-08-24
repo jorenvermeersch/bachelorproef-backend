@@ -50,12 +50,6 @@ const prodFormat = () => {
   return json({ replacer });
 };
 
-const theLogFormat = printf(({
-  level, message, timestamp, name = 'server', ...rest
-}) => {
-  return `${timestamp} | ${name} | ${level} | ${message} | ${JSON.stringify(rest)}`;
-});
-
 /**
  * Initialize the root logger.
  *

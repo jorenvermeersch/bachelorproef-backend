@@ -312,14 +312,14 @@ describe('Transactions', () => {
           userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
-        expect(response.statusCode).toBe(404);
-        expect(response.body).toEqual({
-          code: 'NOT_FOUND',
-          message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff00 exists',
-          details: {
-            id: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
-          },
-        });
+      expect(response.statusCode).toBe(404);
+      expect(response.body).toEqual({
+        code: 'NOT_FOUND',
+        message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff00 exists',
+        details: {
+          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
+        },
+      });
     });
 
     test('it should 400 when missing amount', async () => {
