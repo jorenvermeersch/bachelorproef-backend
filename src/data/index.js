@@ -1,7 +1,6 @@
 const config = require('config');
 const knex = require('knex');
 const { join } = require('path');
-const { serializeError } = require('serialize-error');
 
 const { getChildLogger } = require('../core/logging');
 
@@ -77,7 +76,7 @@ async function initializeData() {
     migrationsFailed = false;
   } catch (error) {
     logger.error('Error while migrating the database', {
-      error: serializeError(error),
+      error,
     });
   }
 
@@ -90,7 +89,7 @@ async function initializeData() {
       throw new Error('Migrations failed');
     } catch (error) {
       logger.error('Error while undoing last migration', {
-        error: serializeError(error),
+        error,
       });
     }
   }
@@ -105,7 +104,7 @@ async function initializeData() {
         await knexInstance.seed.run();
       } catch (error) {
         logger.error('Error while seeding database', {
-          error: serializeError(error),
+          error,
         });
       }
     }

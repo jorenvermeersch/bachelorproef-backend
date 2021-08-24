@@ -1,5 +1,4 @@
 const { tables, getKnex } = require('../data/index');
-const { serializeError } = require('serialize-error');
 const { getChildLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
 
@@ -76,7 +75,7 @@ const create = async ({
   } catch (error) {
     const logger = getChildLogger('places-repo');
     logger.error('Error in create', {
-      error: serializeError(error),
+      error,
     });
     throw error;
   }
@@ -108,7 +107,7 @@ const updateById = async (id, {
   } catch (error) {
     const logger = getChildLogger('places-repo');
     logger.error('Error in updateById', {
-      error: serializeError(error),
+      error,
     });
     throw error;
   }
@@ -131,7 +130,7 @@ const deleteById = async (id) => {
   } catch (error) {
     const logger = getChildLogger('places-repo');
     logger.error('Error in deleteById', {
-      error: serializeError(error),
+      error,
     });
     throw error;
   }

@@ -1,5 +1,4 @@
 const { tables, getKnex } = require('../data');
-const { serializeError } = require('serialize-error');
 const { getChildLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
 
@@ -82,7 +81,7 @@ const create = async ({
   } catch (error) {
     const logger = getChildLogger('users-repo');
     logger.error('Error in create', {
-      error: serializeError(error),
+      error,
     });
     throw error;
   }

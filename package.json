@@ -53,7 +53,6 @@
     "koa2-swagger-ui": "^5.1.0",
     "mysql2": "^2.2.5",
     "node-emoji": "^1.10.0",
-    "serialize-error": "^8.1.0",
     "swagger-jsdoc": "^6",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
