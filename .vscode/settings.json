@@ -3,5 +3,6 @@
   "jest.autoRun": {
     "watch": true,
     "onStartup": ["all-tests"]
-  }
+  },
+  "files.eol": "\n"
 }

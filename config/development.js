@@ -18,14 +18,14 @@ module.exports = {
     port: 3306,
     name: 'budget',
     username: 'root',
-    password: '',
+    password: 'everest1',
   },
   pagination: {
     limit: 100,
     offset: 0,
   },
   auth: {
-    disabled: false,
+    disabled: true,
     maxDelay: 300, // ms
     maxWrongPasswords: 3,
     lockTime: 30 * 1000, // ms (30 seconds)
