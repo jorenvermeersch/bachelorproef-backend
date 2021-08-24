@@ -1,5 +1,4 @@
 module.exports = {
-  env: process.env.NODE_ENV,
   protocol: 'http',
   host: 'localhost',
   port: 9000,
@@ -18,14 +17,14 @@ module.exports = {
     port: 3306,
     name: 'budget',
     username: 'root',
-    password: 'everest1',
+    password: '',
   },
   pagination: {
     limit: 100,
     offset: 0,
   },
   auth: {
-    disabled: true,
+    disabled: false,
     maxDelay: 300, // ms
     maxWrongPasswords: 3,
     lockTime: 30 * 1000, // ms (30 seconds)

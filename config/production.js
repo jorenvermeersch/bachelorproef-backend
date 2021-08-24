@@ -2,10 +2,10 @@ module.exports = {
   protocol: 'http',
   host: 'localhost',
   port: 9000,
-  exposeStack: false,
+  exposeStack: true,
   log: {
     level: 'info',
-    disabled: true,
+    disabled: false,
   },
   cors: {
     origins: ['http://localhost:3000'],
@@ -13,11 +13,7 @@ module.exports = {
   },
   database: {
     client: 'mysql2',
-    host: 'localhost',
-    port: 3306,
-    name: 'budget_test',
-    username: 'root',
-    password: '',
+    name: 'budget',
   },
   pagination: {
     limit: 100,
@@ -31,13 +27,12 @@ module.exports = {
     argon: {
       saltLength: 16,
       hashLength: 32,
-      timeCost: 2,
-      memoryCost: 2 ** 11,
+      timeCost: 6,
+      memoryCost: 2 ** 17,
     },
     jwt: {
       audience: 'budget.hogent.be',
       issuer: 'budget.hogent.be',
-      secret: 'eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked',
       expirationInterval: 60 * 60 * 1000, // ms (1 hour)
     },
   },
