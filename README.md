@@ -2,19 +2,34 @@
 
 This is the backend used in lessons Webservices.
 
+## Requirements
+
+- [NodeJS v14 or higher](https://nodejs.org/)
+- [Yarn](https://yarnpkg.com/)
+- [MySQL v8](https://dev.mysql.com/downloads/windows/installer/8.0.html) (no Oracle account needed, click the tiny link below the grey box)
+- [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) (no Oracle account needed, click the tiny link below the grey box)
+
+For users of [Chocolatey](https://chocolatey.org/):
+
+```powershell
+choco install nodejs -y
+choco install yarn -y
+choco install mysql -y
+choco install mysql.workbench -y
+```
 
 ## Start this project
 
-This server assumes a database named `budget` has been made before the server is started.
+This server will create a database named `budget` when the server is started.
 
 * Install all dependencies: `yarn`
-* One the following commands, depending on your needs: 
+* One the following commands, depending on your needs:
     * Start the development server: `yarn start:dev`
     * Start the production server: `yarn start`
 
 ## Test this project
 
-This server assumes a database named `budget_test` has been made before the server is started.
+This server will create a database named `budget_test` when the server is started.
 
 * Install all dependencies: `yarn`
 * Run the tests: `yarn test`

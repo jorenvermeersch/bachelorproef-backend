@@ -39,7 +39,6 @@ async function initializeData() {
       port: DATABASE_PORT,
       user: DATABASE_USERNAME,
       password: DATABASE_PASSWORD,
-      database: DATABASE_NAME,
       insecureAuth: isDevelopment,
     },
     debug: isDevelopment,
@@ -61,9 +60,11 @@ async function initializeData() {
     },
   });
 
-  // Check the connection
+  // Check the connection and create the database if not existing
   try {
     await knexInstance.raw('SELECT 1+1 AS result');
+    await knexInstance.raw(`CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}`);
+    await knexInstance.raw(`USE ${DATABASE_NAME}`);
   } catch (error) {
     logger.error(error.message, { error });
     throw new Error('Could not initialize the data layer');
