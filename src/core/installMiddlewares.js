@@ -6,7 +6,6 @@ const koaQs = require('koa-qs');
 const responseTime = require('koa-response-time');
 const { v4: uuid } = require('uuid');
 const emoji = require('node-emoji');
-const { serializeError } = require('serialize-error');
 const swaggerJsdoc = require('swagger-jsdoc');
 const { koaSwagger } = require('koa2-swagger-ui');
 
@@ -70,7 +69,7 @@ module.exports = function installMiddleware(app) {
       );
     } catch (error) {
       ctx.logger.error(`${emoji.get('x')} ${ctx.method} ${ctx.status} ${ctx.url}`, {
-        error: serializeError(error),
+        error,
       });
 
       // Rethrow the error for further handling by Koa
@@ -124,7 +123,7 @@ module.exports = function installMiddleware(app) {
     } catch (error) {
       const { logger } = ctx;
       logger.error('Error occured while handling a request', {
-        error: serializeError(error),
+        error,
       });
 
       let statusCode = error.status || 500;
