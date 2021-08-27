@@ -100,8 +100,7 @@ describe('Transactions', () => {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff88',
         user: {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-          firstName: 'Test',
-          lastName: 'User',
+          name: 'Test User',
         },
         place: {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
@@ -114,8 +113,7 @@ describe('Transactions', () => {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
         user: {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-          firstName: 'Test',
-          lastName: 'User',
+          name: 'Test User',
         },
         place: {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
@@ -213,8 +211,7 @@ describe('Transactions', () => {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
         user: {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-          firstName: 'Test',
-          lastName: 'User',
+          name: 'Test User',
         },
         place: {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
@@ -283,7 +280,6 @@ describe('Transactions', () => {
           amount: 102,
           date: '2021-05-27T13:00:00.000Z',
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(201);
@@ -296,8 +292,7 @@ describe('Transactions', () => {
       });
       expect(response.body.user).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        firstName: 'Test',
-        lastName: 'User',
+        name: 'Test User',
       });
 
       transactionsToDelete.push(response.body.id);
@@ -309,7 +304,6 @@ describe('Transactions', () => {
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(404);
@@ -328,7 +322,6 @@ describe('Transactions', () => {
         .send({
           date: '2021-05-27T13:00:00.000Z',
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(400);
@@ -342,7 +335,6 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(400);
@@ -356,42 +348,11 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           date: '2021-05-27T13:00:00.000Z',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('placeId');
-    });
-
-    test('it should 400 when missing userId', async () => {
-      const response = await supertest.post(url)
-        .set('Authorization', authHeader)
-        .send({
-          amount: 102,
-          date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('userId');
-    });
-
-    test('it should 404 with not existing user', async () => {
-      const response = await supertest.post(url)
-        .set('Authorization', authHeader)
-        .send({
-          amount: 123,
-          date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
-        });
-
-      expect(response.statusCode).toBe(404);
-      expect(response.body.code).toBe('NOT_FOUND');
-      expect(response.body.message).toBe('This user does not exist');
-      expect(response.body.details).toEqual({});
     });
 
     testAuthHeader(() => supertest.post(url)
@@ -443,7 +404,6 @@ describe('Transactions', () => {
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(200);
@@ -456,8 +416,7 @@ describe('Transactions', () => {
       });
       expect(response.body.user).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        firstName: 'Test',
-        lastName: 'User',
+        name: 'Test User',
       });
     });
 
@@ -467,7 +426,6 @@ describe('Transactions', () => {
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(404);
@@ -486,7 +444,6 @@ describe('Transactions', () => {
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(404);
@@ -505,7 +462,6 @@ describe('Transactions', () => {
         .send({
           date: '2021-05-27T13:00:00.000Z',
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(400);
@@ -519,7 +475,6 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(400);
@@ -533,7 +488,6 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           date: '2021-05-27T13:00:00.000Z',
-          userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
         });
 
       expect(response.statusCode).toBe(400);
@@ -541,26 +495,11 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('placeId');
     });
 
-    test('it should 400 when missing userId', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
-        .set('Authorization', authHeader)
-        .send({
-          amount: 102,
-          date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('userId');
-    });
-
     testAuthHeader(() => supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
       .send({
         amount: -125,
         date: '2021-05-27T13:00:00.000Z',
         placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-        userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
       }));
   });
 

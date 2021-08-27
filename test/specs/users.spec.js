@@ -23,8 +23,7 @@ describe('Users', () => {
       // Insert a test user with password 12345678
       await knex(tables.user).insert([{
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
-        first_name: 'Login',
-        last_name: 'User',
+        name: 'Login User',
         email: 'login@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
@@ -50,8 +49,7 @@ describe('Users', () => {
       expect(response.body.token).toBeTruthy();
       expect(response.body.user).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
-        firstName: 'Login',
-        lastName: 'User',
+        name: 'Login User',
         email: 'login@hogent.be',
       });
     });
@@ -128,8 +126,7 @@ describe('Users', () => {
     beforeAll(async () => {
       await knex(tables.user).insert([{
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
-        first_name: 'Duplicate',
-        last_name: 'User',
+        name: 'Duplicate User',
         email: 'duplicate@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
@@ -149,8 +146,7 @@ describe('Users', () => {
     test('it should 200 and return the registered user', async () => {
       const response = await supertest.post(url)
         .send({
-          firstName: 'Register',
-          lastName: 'User',
+          name: 'Register User',
           email: 'register@hogent.be',
           password: '12345678',
         });
@@ -158,16 +154,14 @@ describe('Users', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.token).toBeTruthy();
       expect(response.body.user.id).toBeTruthy();
-      expect(response.body.user.firstName).toBe('Register');
-      expect(response.body.user.lastName).toBe('User');
+      expect(response.body.user.name).toBe('Register User');
       expect(response.body.user.email).toBe('register@hogent.be');
     });
 
     test('it should 400 when using duplicate email', async () => {
       const response = await supertest.post(url)
         .send({
-          firstName: 'Duplicate',
-          lastName: 'User',
+          name: 'Duplicate User',
           email: 'duplicate@hogent.be',
           password: '12345678',
         });
@@ -180,37 +174,22 @@ describe('Users', () => {
       });
     });
 
-    test('it should 400 when missing firstName', async () => {
+    test('it should 400 when missing name', async () => {
       const response = await supertest.post(url)
         .send({
-          lastName: 'User',
           email: 'register@hogent.be',
           password: '12345678',
         });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('firstName');
-    });
-
-    test('it should 400 when missing lastName', async () => {
-      const response = await supertest.post(url)
-        .send({
-          firstName: 'Register',
-          email: 'register@hogent.be',
-          password: '12345678',
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('lastName');
+      expect(response.body.details.body).toHaveProperty('name');
     });
 
     test('it should 400 when missing email', async () => {
       const response = await supertest.post(url)
         .send({
-          firstName: 'Register',
-          lastName: 'User',
+          name: 'Register User',
           password: '12345678',
         });
 
@@ -222,8 +201,7 @@ describe('Users', () => {
     test('it should 400 when missing passsword', async () => {
       const response = await supertest.post(url)
         .send({
-          firstName: 'Register',
-          lastName: 'User',
+          name: 'Register User',
           email: 'register@hogent.be',
         });
 
@@ -235,8 +213,7 @@ describe('Users', () => {
     test('it should 400 when passsword too short', async () => {
       const response = await supertest.post(url)
         .send({
-          firstName: 'Register',
-          lastName: 'User',
+          name: 'Register User',
           email: 'register@hogent.be',
           password: 'short',
         });
@@ -249,8 +226,7 @@ describe('Users', () => {
     test('it should 400 when passsword too long', async () => {
       const response = await supertest.post(url)
         .send({
-          firstName: 'Register',
-          lastName: 'User',
+          name: 'Register User',
           email: 'register@hogent.be',
           password: 'thisismuchtoolongbutwhocaresafterall?',
         });
@@ -268,8 +244,7 @@ describe('Users', () => {
     beforeAll(async () => {
       await knex(tables.user).insert([{
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
-        first_name: 'User',
-        last_name: 'One',
+        name: 'User One',
         email: 'user1@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
@@ -277,8 +252,7 @@ describe('Users', () => {
       },
       {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
-        first_name: 'User',
-        last_name: 'Two',
+        name: 'User Two',
         email: 'user2@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
@@ -286,8 +260,7 @@ describe('Users', () => {
       },
       {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
-        first_name: 'User',
-        last_name: 'Three',
+        name: 'User Three',
         email: 'user3@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
@@ -330,14 +303,12 @@ describe('Users', () => {
       expect(response.body.data.length).toBe(2);
       expect(response.body.data[0]).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
-        firstName: 'User',
-        lastName: 'One',
+        name: 'User One',
         email: 'user1@hogent.be',
       });
       expect(response.body.data[1]).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
-        firstName: 'User',
-        lastName: 'Three',
+        name: 'User Three',
         email: 'user3@hogent.be',
       });
     });
@@ -396,8 +367,7 @@ describe('Users', () => {
     beforeAll(async () => {
       await knex(tables.user).insert([{
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
-        first_name: 'User',
-        last_name: 'One',
+        name: 'User One',
         email: 'user1@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
@@ -418,8 +388,7 @@ describe('Users', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        firstName: 'Test',
-        lastName: 'User',
+        name: 'Test User',
         email: 'test.user@hogent.be',
       });
     });
@@ -430,7 +399,7 @@ describe('Users', () => {
 
       expect(response.statusCode).toBe(403);
       expect(response.body).toEqual({
-        code: 'UNAUTHORIZED',
+        code: 'FORBIDDEN',
         message: 'You are not allowed to view this user\'s information',
         details: {},
       });

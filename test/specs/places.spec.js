@@ -308,7 +308,7 @@ describe('Places', () => {
     });
 
     test('it should 200 and return the updated place', async () => {
-      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -324,7 +324,7 @@ describe('Places', () => {
     });
 
     test('it should 400 for duplicate place name', async () => {
-      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff84`)
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff84`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -340,7 +340,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when missing name', async () => {
-      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
         .set('Authorization', authHeader)
         .send({
           rating: 3,
@@ -352,7 +352,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when missing rating', async () => {
-      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
         .set('Authorization', authHeader)
         .send({
           name: 'The name',
@@ -364,7 +364,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when rating lower than one', async () => {
-      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -377,7 +377,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when rating higher than five', async () => {
-      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -390,7 +390,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when rating is a decimal', async () => {
-      const response = await supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -402,7 +402,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    testAuthHeader(() => supertest.patch(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+    testAuthHeader(() => supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
       .send({
         name: 'The wrong place',
         rating: 3,
