@@ -48,6 +48,23 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *       id: "8f4153f6-939e-4dcf-9019-724999265f0c"
  *       name: Loon
  *       rating: 4
+ *   requestBodies:
+ *     Place:
+ *       description: The place info to save
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               rating:
+ *                 type: number
+ *                 minimum: 1
+ *                 maximum: 5
+ *             required:
+ *               - name
  */
 
 /**
@@ -126,15 +143,7 @@ getPlaceById.validationScheme = validationSchemeFactory((Joi) => ({
  *     tags:
  *      - Places
  *     requestBody:
- *       description: The place info to save
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
+ *       $ref: "#/components/requestBodies/Place"
  *     responses:
  *       200:
  *         description: The created place
@@ -163,21 +172,14 @@ createPlace.validationScheme = validationSchemeFactory((Joi) => ({
 /**
  * @swagger
  * /api/places/{id}:
- *   patch:
+ *   put:
  *     summary: Update an existing place
  *     tags:
  *      - Places
  *     parameters:
  *       - $ref: "#/components/parameters/idParam"
  *     requestBody:
- *       description: The place info to save, you can leave out unchanged properties
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
+ *       $ref: "#/components/requestBodies/Place"
  *     responses:
  *       200:
  *         description: The updated place
@@ -220,13 +222,7 @@ updatePlace.validationScheme = validationSchemeFactory((Joi) => ({
  *     tags:
  *      - Places
  *     parameters:
- *       - in: path
- *         name: id
- *         description: Id of the place to delete
- *         required: true
- *         schema:
- *           type: string
- *           format: "uuid"
+ *       - $ref: "#/components/parameters/idParam"
  *     responses:
  *       204:
  *         description: No response, the delete was successful
@@ -262,7 +258,7 @@ module.exports = function installPlacesRoutes(app) {
   router.get('/', validate(getAllPlaces.validationScheme), getAllPlaces);
   router.get('/:id', validate(getPlaceById.validationScheme), getPlaceById);
   router.post('/', validate(createPlace.validationScheme), createPlace);
-  router.patch('/:id', validate(updatePlace.validationScheme), updatePlace);
+  router.put('/:id', validate(updatePlace.validationScheme), updatePlace);
   router.delete('/:id', validate(deletePlace.validationScheme), deletePlace);
 
   app
