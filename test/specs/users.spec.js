@@ -417,6 +417,144 @@ describe('Users', () => {
     testAuthHeader(() => supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`));
   });
 
+  describe('PUT /api/users/:id', () => {
+
+    const url = '/api/users';
+    let updateAuthHeader;
+    let adminAuthHeader;
+
+    beforeAll(async () => {
+      await knex(tables.user).insert([{
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        name: 'Update User',
+        email: 'update.user@hogent.be',
+        password_hash:
+        '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
+        roles: JSON.stringify(['user']),
+      },
+      {
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff91',
+        name: 'Admin User',
+        email: 'Admin.user@hogent.be',
+        password_hash:
+        '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
+        roles: JSON.stringify(['admin']),
+      }]);
+
+      let response = await supertest.post(`${url}/login`)
+        .send({
+          email: 'update.user@hogent.be',
+          password: '12345678',
+        });
+      updateAuthHeader = `Bearer ${response.body.token}`;
+
+      response = await supertest.post(`${url}/login`)
+        .send({
+          email: 'admin.user@hogent.be',
+          password: '12345678',
+        });
+      adminAuthHeader = `Bearer ${response.body.token}`;
+    });
+
+    afterAll(async () => {
+      // Delete the update users
+      await knex(tables.user)
+        .delete()
+        .whereIn('id', [
+          '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          '7f28c5f9-d711-4cd6-ac15-d13d71abff91',
+        ]);
+    });
+
+    test('it should 200 and return the updated user', async () => {
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`)
+        .set('Authorization', updateAuthHeader)
+        .send({
+          name: 'Changed name',
+          email: 'update.user@hogent.be',
+        });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual({
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        name: 'Changed name',
+        email: 'update.user@hogent.be',
+      });
+    });
+
+    test('it should 400 for duplicate email', async () => {
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`)
+        .set('Authorization', authHeader)
+        .send({
+          name: 'Changed name',
+          email: 'update.user@hogent.be',
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toEqual({
+        code: 'VALIDATION_FAILED',
+        message: 'There is already a user with this email address',
+        details: {},
+      });
+    });
+
+    test('it should 400 when missing name', async () => {
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`)
+        .set('Authorization', updateAuthHeader)
+        .send({
+          email: 'update.user@hogent.be',
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.code).toBe('VALIDATION_FAILED');
+      expect(response.body.details.body).toHaveProperty('name');
+    });
+
+    test('it should 400 when missing email', async () => {
+      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`)
+        .set('Authorization', updateAuthHeader)
+        .send({
+          name: 'Changed name',
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.code).toBe('VALIDATION_FAILED');
+      expect(response.body.details.body).toHaveProperty('email');
+    });
+
+    test('it should 403 with other than signed in user', async () => {
+      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+        .set('Authorization', updateAuthHeader);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body).toEqual({
+        code: 'FORBIDDEN',
+        message: 'You are not allowed to view this user\'s information',
+        details: {},
+      });
+    });
+
+    test('it should 404 with not existing user', async () => {
+      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff92`)
+        .set('Authorization', adminAuthHeader);
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body).toEqual({
+        code: 'NOT_FOUND',
+        message: 'No user with id 7f28c5f9-d711-4cd6-ac15-d13d71abff92 exists',
+        details: {
+          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff92',
+        },
+      });
+    });
+
+    testAuthHeader(() => supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      .send({
+        name: 'The wrong user',
+        email: 'update.user@hogent.be',
+      }));
+  });
+
   describe('DELETE /api/users/:id', () => {
     const url = '/api/users';
     let deleteAuthHeader;

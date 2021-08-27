@@ -287,7 +287,7 @@ describe('Places', () => {
       }));
   });
 
-  describe('PATCH /api/places/:id', () => {
+  describe('PUT /api/places/:id', () => {
 
     const url = '/api/places';
 
