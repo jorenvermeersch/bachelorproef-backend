@@ -48,7 +48,7 @@ const getAll = async ({
   offset = DEFAULT_PAGINATION_OFFSET,
 }) => {
   const data = await transactionRepository.findAll({ limit, offset }, userId);
-  const totalCount = await transactionRepository.findCount();
+  const totalCount = await transactionRepository.findCount(userId);
   return {
     data: data.map(makeExposedTransaction),
     totalCount,
@@ -62,12 +62,13 @@ const getAll = async ({
  * Get the transaction with the given `id`.
  *
  * @param {number} id - Id of the transaction to find.
+ * @param {string} userId - Id of the user requesting the transaction.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction with the given id could be found.
  */
-const getById = async (id) => {
-  const transaction = await transactionRepository.findById(id);
+const getById = async (id, userId) => {
+  const transaction = await transactionRepository.findById(id, userId);
 
   if (!transaction) {
     throw ServiceError.notFound(`No transaction with id ${id} exists`, { id });
@@ -87,7 +88,6 @@ const getById = async (id) => {
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No place with the given id could be found.
- * - VALIDATION_FAILED: Transactions created in the future, no place could be created
  */
 const create = async ({
   amount,
@@ -107,7 +107,7 @@ const create = async ({
     userId,
     placeId,
   }).catch(handleDBError);
-  return getById(id);
+  return getById(id, userId);
 };
 
 /**
@@ -122,7 +122,6 @@ const create = async ({
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction/place with the given id could be found.
- * - VALIDATION_FAILED: Transactions created in the future, no place could be created
  */
 const updateById = async (id, {
   amount,
@@ -145,19 +144,20 @@ const updateById = async (id, {
     userId,
     placeId,
   }).catch(handleDBError);
-  return getById(id);
+  return getById(id, userId);
 };
 
 /**
  * Delete the transaction with the given `id`.
  *
  * @param {number} id - Id of the transaction to delete.
+ * @param {string} userId - Id of the user deleting the transaction.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction with the given id could be found.
  */
-const deleteById = async (id) => {
-  const deleted = await transactionRepository.deleteById(id);
+const deleteById = async (id, userId) => {
+  const deleted = await transactionRepository.deleteById(id, userId);
 
   if (!deleted) {
     throw ServiceError.notFound(`No transaction with id ${id} exists`, { id });

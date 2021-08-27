@@ -54,6 +54,11 @@ const requireAuthentication = async (ctx, next) => {
   // Allow any user if authentication/authorization is disabled
   // DO NOT use this config parameter in any production worthy application!
   if (AUTH_DISABLED) {
+    // Create a session for user Thomas Aelbrecht
+    ctx.state.session = {
+      userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+      roles: ['user'],
+    };
     return next();
   }
 

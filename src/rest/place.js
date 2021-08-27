@@ -31,8 +31,7 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *               minimum: 1
  *               maximum: 5
  *           example:
- *             name: "Loon"
- *             rating: 5
+ *             $ref: "#/components/examples/Place"
  *     PlacesList:
  *       allOf:
  *         - $ref: "#/components/schemas/ListResponse"
@@ -44,6 +43,11 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/Place"
+ *   examples:
+ *     Place:
+ *       id: "8f4153f6-939e-4dcf-9019-724999265f0c"
+ *       name: Loon
+ *       rating: 4
  */
 
 /**

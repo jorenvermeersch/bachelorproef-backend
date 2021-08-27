@@ -46,9 +46,7 @@ const authDelay = async (_, next) => {
  *               type: "string"
  *               format: email
  *           example:
- *             firstName: "Thomas"
- *             lastName: "Aelbrecht"
- *             email: "thomas.aelbrecht@hogent.be"
+ *             $ref: "#/components/examples/User"
  *     UsersList:
  *       allOf:
  *         - $ref: "#/components/schemas/ListResponse"
@@ -60,6 +58,11 @@ const authDelay = async (_, next) => {
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/User"
+ *   examples:
+ *     User:
+ *       id: "8f4153f6-939e-4dcf-9019-724999265f0d"
+ *       name: "Thomas Aelbecht"
+ *       email: "thomas.aelbrecht@hogent.be"
  */
 
 /**

@@ -31,14 +31,11 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *               type: "string"
  *               format: date-time
  *             place:
- *               type: "string"
+ *               $ref: "#/components/schemas/Place"
  *             user:
- *               type: "string"
+ *               $ref: "#/components/schemas/User"
  *           example:
- *             amount: 3000
- *             date: "2021-05-28T14:27:32.534Z"
- *             place: "Loon"
- *             user: "Thomas"
+ *             $ref: "#/components/examples/Transaction"
  *     TransactionsList:
  *       allOf:
  *         - $ref: "#/components/schemas/ListResponse"
@@ -50,6 +47,33 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/Transaction"
+ *   examples:
+ *     Transaction:
+ *       id: "7b25d1fc-a15c-49bd-8d3f-6365bfa1ca04"
+ *       amount: 3000
+ *       date: "2021-05-28T14:27:32.534Z"
+ *       place:
+ *         $ref: "#/components/examples/Place"
+ *       user:
+ *         $ref: "#/components/examples/User"
+ *   requestBodies:
+ *     Transaction:
+ *       description: The transaction info to save.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: integer
+ *                 example: 101
+ *               date:
+ *                 type: string
+ *                 format: "date-time"
+ *               placeId:
+ *                 type: string
+ *                 format: uuid
  */
 
 /**
@@ -68,10 +92,7 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   $ref: "#/components/schemas/TransactionsList"
+ *               $ref: "#/components/schemas/TransactionsList"
  */
 const getAllTransactions = async (ctx) => {
   const { userId } = ctx.state.session;
@@ -113,7 +134,8 @@ getAllTransactions.validationScheme = validationSchemeFactory((Joi) => ({
  *               $ref: '#/components/responses/404NotFound'
  */
 const getTransactionById = async (ctx) => {
-  const transaction = await transactionService.getById(ctx.params.id);
+  const { userId } = ctx.state.session;
+  const transaction = await transactionService.getById(ctx.params.id, userId);
   ctx.sendResponse(200, transaction);
 };
 getTransactionById.validationScheme = validationSchemeFactory((Joi) => ({
@@ -127,27 +149,11 @@ getTransactionById.validationScheme = validationSchemeFactory((Joi) => ({
  * /api/transactions:
  *   post:
  *     summary: Create a new transaction
+ *     description: Creates a new transaction for the signed in user.
  *     tags:
  *      - Transactions
  *     requestBody:
- *       description: The transaction info to save
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               amount:
- *                 type: integer
- *               date:
- *                 type: string
- *                 format: "date-time"
- *               placeId:
- *                 type: string
- *                 format: uuid
- *               userId:
- *                 type: string
- *                 format: uuid
+ *       $ref: "#/components/requestBodies/Transaction"
  *     responses:
  *       200:
  *         description: The created transaction
@@ -161,11 +167,19 @@ getTransactionById.validationScheme = validationSchemeFactory((Joi) => ({
  *           application/json:
  *             schema:
  *               $ref: '#/components/responses/400BadRequest'
+ *       404:
+ *         description: No place with the given id could be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/404NotFound'
  */
 const createTransaction = async (ctx) => {
+  const { userId } = ctx.state.session;
   const transaction = await transactionService.create({
     ...ctx.request.body,
     date: new Date(ctx.request.body.date),
+    userId,
   });
   ctx.sendResponse(201, transaction);
 };
@@ -174,7 +188,6 @@ createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
     amount: Joi.number().invalid(0),
     date: Joi.date().iso().less('now'),
     placeId: Joi.string().uuid(),
-    userId: Joi.string().uuid(),
   },
 }));
 
@@ -188,23 +201,7 @@ createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
  *     parameters:
  *       - $ref: "#/components/parameters/idParam"
  *     requestBody:
- *       description: The transaction info to save, you can leave out unchanged properties
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               amount:
- *                 type: integer
- *               date:
- *                 type: string
- *                 format: "date-time"
- *               placeId:
- *                 type: string
- *                 format: uuid
- *               userId:
- *                 type: string
- *                 format: uuid
+ *       $ref: "#/components/requestBodies/Transaction"
  *     responses:
  *       200:
  *         description: The updated transaction
@@ -219,16 +216,18 @@ createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
  *             schema:
  *               $ref: '#/components/responses/400BadRequest'
  *       404:
- *         description: No transaction with the given id could be found
+ *         description: No transaction/place with the given id could be found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/responses/404NotFound'
  */
 const updateTransaction = async (ctx) => {
+  const { userId } = ctx.state.session;
   const transaction = await transactionService.updateById(ctx.params.id, {
     ...ctx.request.body,
     date: ctx.request.body.date && new Date(ctx.request.body.date),
+    userId,
   });
   ctx.sendResponse(200, transaction);
 };
@@ -240,7 +239,6 @@ updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
     amount: Joi.number().invalid(0),
     date: Joi.date().iso().less('now'),
     placeId: Joi.string().uuid(),
-    userId: Joi.string().uuid(),
   },
 }));
 
@@ -264,7 +262,8 @@ updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
  *               $ref: '#/components/responses/404NotFound'
  */
 const deleteTransaction = async (ctx) => {
-  await transactionService.deleteById(ctx.params.id);
+  const { userId } = ctx.state.session;
+  await transactionService.deleteById(ctx.params.id, userId);
   ctx.sendResponse(204);
 };
 deleteTransaction.validationScheme = validationSchemeFactory((Joi) => ({

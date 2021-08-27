@@ -27,15 +27,19 @@ const installHealthRoutes = require('./health');
  *         totalCount:
  *           type: integer
  *           description: Total number of items in the database
+ *           example: 10
  *         count:
  *           type: integer
  *           description: Number of items returned
+ *           example: 1
  *         limit:
  *           type: integer
  *           description: Limit actually used
+ *           example: 1
  *         offset:
  *           type: integer
  *           description: Offset actually used
+ *           example: 1
  */
 
 /**

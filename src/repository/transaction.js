@@ -33,10 +33,14 @@ const findAll = ({
 
 /**
  * Calculate the total number of transactions.
+ *
+ * @param {string} userId - Id of the user to fetch transactions for.
  */
-const findCount = async () => {
+const findCount = async (userId) => {
   const [count] = await getKnex()(tables.transaction)
-    .count();
+    .count()
+    .where(`${tables.transaction}.user_id`, userId);
+
   return count['count(*)'];
 };
 
@@ -44,11 +48,13 @@ const findCount = async () => {
  * Find a transaction with the given `id`.
  *
  * @param {string} id - Id of the transaction to find.
+ * @param {string} userId - Id of the user requesting the transaction.
  */
-const findById = (id) => {
+const findById = (id, userId) => {
   return getKnex()(tables.transaction)
     .first(SELECT_COLUMNS)
     .where(`${tables.transaction}.id`, id)
+    .andWhere(`${tables.transaction}.user_id`, userId)
     .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
     .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`);
 };
@@ -112,9 +118,9 @@ const updateById = async (id, {
         amount,
         date,
         place_id: placeId,
-        user_id: userId,
       })
-      .where(`${tables.transaction}.id`, id);
+      .where(`${tables.transaction}.id`, id)
+      .andWhere(`${tables.transaction}.user_id`, userId);
     return await getLastId();
   } catch (error) {
     const logger = getChildLogger('transactions-repo');
@@ -129,14 +135,16 @@ const updateById = async (id, {
  * Delete a transaction with the given `id`.
  *
  * @param {string} id - Id of the transaction to delete.
+ * @param {string} userId - Id of the user deleting the transaction.
  *
  * @returns {Promise<boolean>} Whether the transaction was deleted.
  */
-const deleteById = async (id) => {
+const deleteById = async (id, userId) => {
   try {
     const rowsAffected = await getKnex()(tables.transaction)
       .delete()
-      .where(`${tables.transaction}.id`, id);
+      .where(`${tables.transaction}.id`, id)
+      .andWhere(`${tables.transaction}.user_id`, userId);
     return rowsAffected > 0;
   } catch (error) {
     const logger = getChildLogger('transactions-repo');
