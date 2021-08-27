@@ -38,9 +38,7 @@ const authDelay = async (_, next) => {
  *           required:
  *             - name
  *           properties:
- *             firstName:
- *               type: "string"
- *             lastName:
+ *             name:
  *               type: "string"
  *             email:
  *               type: "string"
@@ -99,10 +97,7 @@ const authDelay = async (_, next) => {
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   $ref: "#/components/schemas/UsersList"
+ *               $ref: "#/components/schemas/UsersList"
  */
 const getAllUsers = async (ctx) => {
   const users = await userService.getAll(
@@ -200,9 +195,7 @@ login.validationScheme = validationSchemeFactory((Joi) => ({
  *           schema:
  *             type: object
  *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
+ *               name:
  *                 type: string
  *               email:
  *                 type: string
@@ -229,8 +222,7 @@ const register = async (ctx) => {
 };
 register.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
-    firstName: Joi.string().max(255),
-    lastName: Joi.string().max(255),
+    name: Joi.string().max(255),
     email: Joi.string().email(),
     password: Joi.string().min(8).max(30),
   },
@@ -252,6 +244,12 @@ register.validationScheme = validationSchemeFactory((Joi) => ({
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/User"
+ *       403:
+ *         description: You can only request your own information unless you're an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/403Forbidden'
  *       404:
  *         description: No user with the given id could be found
  *         content:
@@ -266,7 +264,7 @@ const getUserById = async (ctx) => {
   // You can only get our own data unless you're an admin
   if (id !== userId && !roles.includes('admin')) {
     return ctx.throw(403, 'You are not allowed to view this user\'s information', {
-      code: 'UNAUTHORIZED',
+      code: 'FORBIDDEN',
     });
   }
 

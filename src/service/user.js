@@ -11,10 +11,9 @@ const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 /**
  * Only return the public information about the given user.
  */
-const makeExposedUser = ({ id, first_name, last_name, email }) => ({
+const makeExposedUser = ({ id, name, email }) => ({
   id,
-  firstName: first_name,
-  lastName: last_name,
+  name,
   email,
 });
 
@@ -60,24 +59,21 @@ const login = async (email, password) => {
  * Register a new user
  *
  * @param {object} user - The user's data.
- * @param {string} user.firstName - The user's first name.
- * @param {string} user.lastName - The user's last name.
+ * @param {string} user.name - The user's name.
  * @param {string} user.email - The user's email.
  * @param {string} user.password - The user's password.
  *
  * @returns {Promise<object>} - Promise whichs resolves in an object containing the token and signed in user.
  */
 const register = async ({
-  firstName,
-  lastName,
+  name,
   email,
   password,
 }) => {
   const passwordHash = await hashPassword(password);
 
   const userId = await userRepository.create({
-    firstName,
-    lastName,
+    name,
     email,
     passwordHash,
     roles: ['user'],

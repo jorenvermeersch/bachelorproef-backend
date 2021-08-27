@@ -15,8 +15,7 @@ module.exports = async () => {
 
   await knex(tables.user).insert([{
     id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-    first_name: 'Test',
-    last_name: 'User',
+    name: 'Test User',
     email: 'test.user@hogent.be',
     password_hash:
       '$argon2id$v=19$m=2048,t=2,p=1$NF6PFLTgSYpDSex0iFeFQQ$Rz5ouoM9q3EH40hrq67BC3Ajsu/ohaHnkKBLunELLzU',

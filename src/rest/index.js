@@ -127,6 +127,33 @@ const installHealthRoutes = require('./health');
  */
 
 /**
+ * @swagger
+ * components:
+ *   responses:
+ *     403Forbidden:
+ *       description: You don't have access to this resource
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *               - details
+ *             properties:
+ *               code:
+ *                 type: string
+ *               details:
+ *                 type: string
+ *                 description: Extra information about the specific forbidden error that occured
+ *               stack:
+ *                 type: string
+ *                 description: Stack trace (only available if set in configuration)
+ *             example:
+ *               code: "FORBIDDEN"
+ *               details: "You are not allowed to view this user's information"
+ */
+
+/**
  * Install all routes in the given Koa application.
  *
  * @param {Koa} app - The Koa application.

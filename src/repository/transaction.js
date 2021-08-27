@@ -4,9 +4,8 @@ const { getLastId } = require('./_repository.helpers');
 
 const SELECT_COLUMNS = [
   `${tables.transaction}.id`, 'amount', 'date',
-  `${tables.place}.id as place_id`, `${tables.place}.name`,
-  `${tables.user}.id as user_id`, `${tables.user}.first_name`,
-  `${tables.user}.last_name`,
+  `${tables.place}.id as place_id`, `${tables.place}.name as place_name`,
+  `${tables.user}.id as user_id`, `${tables.user}.name as user_name`,
 ];
 
 /**

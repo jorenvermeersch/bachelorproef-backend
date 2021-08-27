@@ -83,10 +83,7 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   $ref: "#/components/schemas/PlacesList"
+ *               $ref: "#/components/schemas/PlacesList"
  */
 const getAllPlaces = async (ctx) => {
   const places = await placeService.getAll(

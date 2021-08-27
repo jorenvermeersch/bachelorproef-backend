@@ -10,9 +10,8 @@ const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 const makeExposedTransaction = ({
   user_id,
   place_id,
-  name,
-  first_name,
-  last_name,
+  place_name,
+  user_name,
   email,
   ...transaction
 }) => {
@@ -23,13 +22,12 @@ const makeExposedTransaction = ({
     ...transaction,
     user: {
       id: user_id,
-      firstName: first_name,
-      lastName: last_name,
+      name: user_name,
       email,
     },
     place: {
       id: place_id,
-      name,
+      name: place_name,
     },
   };
 };
