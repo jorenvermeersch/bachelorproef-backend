@@ -84,10 +84,61 @@ const create = async ({
   }
 };
 
+/**
+ * Update a user with the given `id`.
+ *
+ * @param {string} id - Id of the user to update.
+ * @param {object} user - User to save.
+ * @param {string} user.name - Name of the user.
+ * @param {string} user.email - Email of the user.
+ */
+const updateById = async (id, {
+  name,
+  email,
+}) => {
+  try {
+    await getKnex()(tables.user)
+      .update({
+        name,
+        email,
+      })
+      .where('id', id);
+    return await getLastId();
+  } catch (error) {
+    const logger = getChildLogger('users-repo');
+    logger.error('Error in updateById', {
+      error,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Update a user with the given `id`.
+ *
+ * @param {string} id - Id of the user to delete.
+ */
+const deleteById = async (id) => {
+  try {
+    const rowsAffected = await getKnex()(tables.user)
+      .delete()
+      .where('id', id);
+    return rowsAffected > 0;
+  } catch (error) {
+    const logger = getChildLogger('users-repo');
+    logger.error('Error in deleteById', {
+      error,
+    });
+    throw error;
+  }
+};
+
 module.exports = {
   findAll,
   findCount,
   findById,
   findByEmail,
   create,
+  updateById,
+  deleteById,
 };

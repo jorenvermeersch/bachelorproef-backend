@@ -21,6 +21,22 @@ const authDelay = async (_, next) => {
 };
 
 /**
+ * Check if the signed in user can access the given user's information.
+ */
+const checkUserId = (ctx, next) => {
+  const { userId, roles } = ctx.state.session;
+  const { id } = ctx.params;
+
+  // You can only get our own data unless you're an admin
+  if (id !== userId && !roles.includes('admin')) {
+    return ctx.throw(403, 'You are not allowed to view this user\'s information', {
+      code: 'FORBIDDEN',
+    });
+  }
+  return next();
+};
+
+/**
  * @swagger
  * tags:
  *   name: Users
@@ -258,20 +274,88 @@ register.validationScheme = validationSchemeFactory((Joi) => ({
  *               $ref: '#/components/responses/404NotFound'
  */
 const getUserById = async (ctx) => {
-  const { userId, roles } = ctx.state.session;
-  const { id } = ctx.params;
-
-  // You can only get our own data unless you're an admin
-  if (id !== userId && !roles.includes('admin')) {
-    return ctx.throw(403, 'You are not allowed to view this user\'s information', {
-      code: 'FORBIDDEN',
-    });
-  }
-
-  const user = await userService.getById(id);
+  const user = await userService.getById(ctx.params.id);
   ctx.sendResponse(200, user);
 };
 getUserById.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+}));
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update an existing user
+ *     tags:
+ *      - Users
+ *     parameters:
+ *       - $ref: "#/components/parameters/idParam"
+ *     responses:
+ *       200:
+ *         description: The updated user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/User"
+ *       403:
+ *         description: You can only update your own information unless you're an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/403Forbidden'
+ *       404:
+ *         description: No user with the given id could be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/404NotFound'
+ */
+const updateUserById = async (ctx) => {
+  const user = await userService.updateById(ctx.params.id, ctx.request.body);
+  ctx.sendResponse(200, user);
+};
+updateUserById.validationScheme = validationSchemeFactory((Joi) => ({
+  params: {
+    id: Joi.string().uuid(),
+  },
+  body: {
+    name: Joi.string().max(255),
+    email: Joi.string().email(),
+  },
+}));
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Delete a user
+ *     tags:
+ *      - Users
+ *     parameters:
+ *       - $ref: "#/components/parameters/idParam"
+ *     responses:
+ *       204:
+ *         description: No response, the delete was successful
+ *       403:
+ *         description: You can only update your own information unless you're an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/403Forbidden'
+ *       404:
+ *         description: No user with the given id could be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/404NotFound'
+ */
+const deleteUserById = async (ctx) => {
+  await userService.deleteById(ctx.params.id);
+  ctx.sendResponse(204);
+};
+deleteUserById.validationScheme = validationSchemeFactory((Joi) => ({
   params: {
     id: Joi.string().uuid(),
   },
@@ -297,7 +381,9 @@ module.exports = function installUsersRoutes(app) {
 
   // Routes with authentication
   router.get('/', requireAuthentication, validate(getAllUsers.validationScheme), getAllUsers);
-  router.get('/:id', requireAuthentication, validate(getUserById.validationScheme), getUserById);
+  router.get('/:id', requireAuthentication, validate(getUserById.validationScheme), checkUserId, getUserById);
+  router.put('/:id', requireAuthentication, validate(updateUserById.validationScheme), checkUserId, updateUserById);
+  router.delete('/:id', requireAuthentication, validate(deleteUserById.validationScheme), checkUserId, deleteUserById);
 
   app
     .use(router.routes())
