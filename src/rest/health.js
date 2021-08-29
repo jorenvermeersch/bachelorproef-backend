@@ -1,21 +1,14 @@
 const Router = require('@koa/router');
-
-const packageJson = require('../../package.json');
 const { validate, validationSchemeFactory } = require('./_validation');
+const { healthService } = require('../service');
 
 const ping = async (ctx) => {
-  ctx.sendResponse(200, {
-    pong: true,
-  });
+  ctx.sendResponse(200, healthService.ping());
 };
 ping.validationScheme = validationSchemeFactory(null);
 
 const getVersion = async (ctx) => {
-  ctx.sendResponse(200, {
-    env: process.env.NODE_ENV,
-    version: packageJson.version,
-    name: packageJson.name,
-  });
+  ctx.sendResponse(200, healthService.getVersion());
 };
 getVersion.validationScheme = validationSchemeFactory(null);
 
