@@ -146,6 +146,10 @@ module.exports = function installMiddleware(app) {
         if (error.isUnauthorized) {
           statusCode = 401;
         }
+
+        if (error.isForbidden) {
+          statusCode = 403;
+        }
       }
 
       ctx.sendResponse(statusCode, errorBody);

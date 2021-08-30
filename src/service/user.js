@@ -1,10 +1,12 @@
 const config = require('config');
 const ServiceError = require('../core/serviceError');
-const { verifyPassword, hashPassword } = require('../core/auth');
-const { generateJWT } = require('../core/jwt');
+const { verifyPassword, hashPassword } = require('../core/password');
+const { generateJWT, verifyJWT } = require('../core/jwt');
+const { getLogger } = require('../core/logging');
 const { userRepository } = require('../repository');
 const handleDBError = require('./_handleDBError');
 
+const AUTH_DISABLED = config.get('auth.disabled');
 const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
 const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 
@@ -85,6 +87,82 @@ const register = async ({
 };
 
 /**
+ * Check and parse a JWT from the given header into a valid session
+ * if possible.
+ *
+ * @param {string} authHeader - The bare 'Authorization' header to parse
+ *
+ * @throws {ServiceError} One of:
+ * - UNAUTHORIZED: Invalid JWT token provided, possible errors:
+ *   - no token provided
+ *   - incorrect 'Bearer' prefix
+ *   - expired JWT
+ *   - other unknown error
+ */
+const checkAndParseSession = async (authHeader) => {
+  // Allow any user if authentication/authorization is disabled
+  // DO NOT use this config parameter in any production worthy application!
+  if (AUTH_DISABLED) {
+    // Create a session for user Thomas Aelbrecht
+    return {
+      userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+      roles: ['user'],
+    };
+  }
+
+  if (!authHeader) {
+    throw ServiceError.unauthorized('You need to be signed in');
+  }
+
+  if (!authHeader.startsWith('Bearer ')) {
+    throw ServiceError.unauthorized('Invalid authentication token');
+  }
+
+  const authToken = authHeader.substr(7);
+  try {
+    const {
+      roles, userId,
+    } = await verifyJWT(authToken);
+
+    // Save the decoded session data in the current context's state
+    return {
+      userId,
+      roles,
+      authToken,
+    };
+  } catch (error) {
+    const logger = getLogger('user-service');
+    logger.error(error.message, { error });
+    throw ServiceError.unauthorized(error.message);
+  }
+};
+
+/**
+ * Check if the given roles include the given required role.
+ *
+ * @param {string} role - Role to require.
+ * @param {string[]} roles - Roles of the user.
+ *
+ * @returns {void} Only throws if role included.
+ *
+ * @throws {ServiceError} One of:
+ * - UNAUTHORIZED: Role not included in the array.
+ */
+const checkRole = (role, roles) => {
+  // Allow any user if authentication/authorization is disabled
+  // DO NOT use this config parameter in any production worthy application!
+  if (AUTH_DISABLED) {
+    return;
+  }
+
+  const hasPermission = roles.includes(role);
+
+  if (!hasPermission) {
+    throw ServiceError.forbidden('You are not allowed to view this part of the application');
+  }
+};
+
+/**
  * Get all `limit` users, skip the first `offset`.
  *
  * @param {number} [limit] - Nr of users to fetch.
@@ -161,6 +239,8 @@ const deleteById = async (id) => {
 module.exports = {
   login,
   register,
+  checkAndParseSession,
+  checkRole,
   getAll,
   getById,
   updateById,
