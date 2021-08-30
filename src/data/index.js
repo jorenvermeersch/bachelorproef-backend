@@ -31,12 +31,11 @@ async function initializeData() {
   const logger = getChildLogger('database');
   logger.info('Initializing connection to the database');
 
-  knexInstance = knex({
+  const knexOptions = {
     client: DATABASE_CLIENT,
     connection: {
       host: DATABASE_HOST,
       port: DATABASE_PORT,
-      database: DATABASE_NAME,
       user: DATABASE_USERNAME,
       password: DATABASE_PASSWORD,
       insecureAuth: isDevelopment,
@@ -58,10 +57,21 @@ async function initializeData() {
     seeds: {
       directory: join('src', 'data', 'seeds'),
     },
-  });
+  };
 
-  // Check the connection
+  knexInstance = knex(knexOptions);
+
+  // Check the connection, create the database and then reconnect
   try {
+    await knexInstance.raw('SELECT 1+1 AS result');
+    await knexInstance.raw(`CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}`);
+
+    // We need to update the Knex configuration and reconnect to use the created database by default
+    // USE ... would not work because a pool of connections is used
+    await knexInstance.destroy();
+
+    knexOptions.connection.database = DATABASE_NAME;
+    knexInstance = knex(knexOptions);
     await knexInstance.raw('SELECT 1+1 AS result');
   } catch (error) {
     logger.error(error.message, { error });

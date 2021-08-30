@@ -45,15 +45,9 @@ AUTH_DISABLED=
 AUTH_JWT_SECRET="eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked"
 ```
 
-Create the database you passed in the environment variable named `DATABASE_NAME`, e.g.:
-
-```sql
-CREATE DATABASE IF NOT EXISTS budget;
-```
-
 ## Start this project
 
-**This server assumes the given database is created.**
+This server will create the given database when the server is started.
 
 * Install all dependencies: `yarn`
 * Make sure `.env` (production) or `.env.dev` (development) exists
@@ -63,7 +57,7 @@ CREATE DATABASE IF NOT EXISTS budget;
 
 ## Test this project
 
-**This server assumes the given database is created.**
+This server will create the given database when the server is started.
 
 * Install all dependencies: `yarn`
 * Make sure `.env.test` exists (it's recommended to disabled logging in the testing environment)
