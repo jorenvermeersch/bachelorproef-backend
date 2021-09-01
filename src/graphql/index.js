@@ -1,4 +1,5 @@
 const config = require('config');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { ApolloServer } = require('apollo-server-koa');
 const {
   ApolloServerPluginLandingPageGraphQLPlayground,
@@ -6,6 +7,7 @@ const {
 } = require('apollo-server-core');
 const typeDefs = require('./types');
 const resolvers = require('./resolvers');
+const authDirective = require('./directives/auth');
 
 const GRAPHQL_INTROSPECTION = config.get('graphql.introspection');
 const GRAPHQL_PLAYGROUND = config.get('graphql.playground');
@@ -16,10 +18,22 @@ const GRAPHQL_PLAYGROUND = config.get('graphql.playground');
  * @param {Koa} app - The koa application.
  */
 const installApolloServer = async (app) => {
-  const server = new ApolloServer({
-    typeDefs,
+  const { authDirectiveTypeDefs, authDirectiveTransformer } = authDirective('auth');
+
+  let schema = makeExecutableSchema({
+    typeDefs: [
+      ...typeDefs,
+      authDirectiveTypeDefs,
+    ],
     resolvers,
+  });
+  schema = authDirectiveTransformer(schema);
+
+  const server = new ApolloServer({
+    schema,
     introspection: GRAPHQL_INTROSPECTION,
+    // use the Koa context as GraphQL context
+    context: ({ ctx }) => ctx,
     plugins: [
       // only serve the playground in development mode
       GRAPHQL_PLAYGROUND
