@@ -4,7 +4,7 @@ const transactionTypeDefs = gql`
   type Transaction {
     id: ID!
     amount: Float!
-    date: String!
+    date: Date!
     place: Place!
   }
 
@@ -17,9 +17,9 @@ const transactionTypeDefs = gql`
   }
 
   input TransactionInput {
-    name: String!
-    date: String!
-    place: ID!
+    amount: Float!
+    date: Date!
+    placeId: ID!
   }
 
   extend type Query {

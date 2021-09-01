@@ -1,4 +1,5 @@
 const { gql } = require('apollo-server-core');
+const { dateTypeDef } = require('../scalars/date');
 const healthTypeDefs = require('./_health');
 const placeTypeDefs = require('./_place');
 const transactionTypeDefs = require('./_transaction');
@@ -11,6 +12,7 @@ const rootTypeDefs = gql`
 `;
 
 module.exports = [
+  dateTypeDef,
   rootTypeDefs,
   healthTypeDefs,
   placeTypeDefs,
