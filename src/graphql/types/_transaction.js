@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-core');
 const transactionTypeDefs = gql`
   type Transaction {
     id: ID!
-    name: String!
+    amount: Float!
     date: String!
     place: Place!
   }
@@ -23,14 +23,14 @@ const transactionTypeDefs = gql`
   }
 
   extend type Query {
-    transactions(offset: Int, limit: Int): TransactionListResponse!
-    transaction(id: String!): Transaction!
+    transactions(offset: Int, limit: Int): TransactionListResponse! @auth
+    transaction(id: String!): Transaction! @auth
   }
 
   type Mutation {
-    createTransaction(input: TransactionInput!): Transaction!
-    updateTransaction(id: ID!, input: TransactionInput!): Transaction!
-    deleteTransaction(id: ID!): SuccessResponse!
+    createTransaction(input: TransactionInput!): Transaction! @auth
+    updateTransaction(id: ID!, input: TransactionInput!): Transaction! @auth
+    deleteTransaction(id: ID!): SuccessResponse! @auth
   }
 `;
 

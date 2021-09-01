@@ -45,8 +45,8 @@ const userTypeDefs = gql`
   }
 
   extend type Query {
-    users(offset: Int, limit: Int): UserListResponse!
-    user(id: String!): User!
+    users(offset: Int, limit: Int): UserListResponse! @auth
+    user(id: String!): User! @auth
   }
 
   extend type Mutation {

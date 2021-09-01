@@ -21,14 +21,14 @@ const placeTypeDefs = gql`
   }
 
   extend type Query {
-    places(offset: Int, limit: Int): PlaceListResponse!
-    place(id: String!): Place!
+    places(offset: Int, limit: Int): PlaceListResponse! @auth
+    place(id: String!): Place! @auth
   }
 
   type Mutation {
-    createPlace(input: PlaceInput!): Place!
-    updatePlace(id: ID!, input: PlaceInput!): Place!
-    deletePlace(id: ID!): SuccessResponse!
+    createPlace(input: PlaceInput!): Place! @auth
+    updatePlace(id: ID!, input: PlaceInput!): Place! @auth
+    deletePlace(id: ID!): SuccessResponse! @auth
   }
 `;
 
