@@ -24,6 +24,27 @@ const login = async (supertest) => {
 };
 
 /**
+ * Sign in using the admin test user.
+ *
+ * @param {supertest.SuperTest<supertest.Test>} supertest - The supertest agent to use
+ *
+ * @returns {Promise<string>} The Authorization header to use.
+ */
+const loginAdmin = async (supertest) => {
+  const response = await supertest.post('/api/users/login')
+    .send({
+      email: 'admin.user@hogent.be',
+      password: '12345678',
+    });
+
+  if (response.statusCode !== 200) {
+    throw new Error(response.body.message || 'Unknown error occured');
+  }
+
+  return `Bearer ${response.body.token}`;
+};
+
+/**
  * Ensure a server instance is running.
  *
  * @param {Function} setter - Setter which gives access to the supertest agent and the Knex instance
@@ -50,5 +71,6 @@ const withServer = (setter) => {
 
 module.exports = {
   login,
+  loginAdmin,
   withServer,
 };

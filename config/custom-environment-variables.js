@@ -18,4 +18,8 @@ module.exports = {
       secret: 'AUTH_JWT_SECRET',
     },
   },
+  graphql: {
+    introspection: 'GRAPHQL_INTROSPECTION',
+    playground: 'GRAPHQL_PLAYGROUND',
+  },
 };

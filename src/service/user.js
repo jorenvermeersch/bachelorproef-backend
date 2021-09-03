@@ -5,6 +5,7 @@ const { generateJWT, verifyJWT } = require('../core/jwt');
 const { getLogger } = require('../core/logging');
 const { userRepository } = require('../repository');
 const handleDBError = require('./_handleDBError');
+const Role = require('../core/roles');
 
 const AUTH_DISABLED = config.get('auth.disabled');
 const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
@@ -78,7 +79,7 @@ const register = async ({
     name,
     email,
     passwordHash,
-    roles: ['user'],
+    roles: [Role.USER],
   }).catch(handleDBError);
 
   const user = await userRepository.findById(userId);
@@ -106,7 +107,7 @@ const checkAndParseSession = async (authHeader) => {
     // Create a session for user Thomas Aelbrecht
     return {
       userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-      roles: ['user'],
+      roles: [Role.USER],
     };
   }
 

@@ -1,5 +1,6 @@
 const config = require('config');
 const Router = require('@koa/router');
+const Role = require('../core/roles');
 const { requireAuthentication, makeRequireRole } = require('../core/auth');
 const { userService } = require('../service');
 const { validate, validationSchemeFactory } = require('./_validation');
@@ -379,7 +380,7 @@ module.exports = function installUsersRoutes(app) {
     router.post('/register', authDelay, validate(register.validationScheme), register);
   }
 
-  const requireAdmin = makeRequireRole('admin');
+  const requireAdmin = makeRequireRole(Role.ADMIN);
 
   // Routes with authentication
   router.get('/', requireAuthentication, requireAdmin, validate(getAllUsers.validationScheme), getAllUsers);

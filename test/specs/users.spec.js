@@ -1,10 +1,11 @@
+const Role = require('../../src/core/roles');
 const { tables } = require('../../src/data');
 const { testAuthHeader } = require('../common/auth');
-const { withServer, login } = require('../supertest.setup');
+const { withServer, login, loginAdmin } = require('../supertest.setup');
 
 describe('Users', () => {
 
-  let supertest, knex, authHeader;
+  let supertest, knex, authHeader, adminAuthHeader;
 
   withServer(({ supertest: s, knex: k }) => {
     supertest = s;
@@ -13,6 +14,7 @@ describe('Users', () => {
 
   beforeAll(async () => {
     authHeader = await login(supertest);
+    adminAuthHeader = await loginAdmin(supertest);
   });
 
   describe('POST /api/users/login', () => {
@@ -27,7 +29,7 @@ describe('Users', () => {
         email: 'login@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
+        roles: JSON.stringify([Role.USER]),
       }]);
     });
 
@@ -130,7 +132,7 @@ describe('Users', () => {
         email: 'duplicate@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
+        roles: JSON.stringify([Role.USER]),
       }]);
     });
 
@@ -248,7 +250,7 @@ describe('Users', () => {
         email: 'user1@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
+        roles: JSON.stringify([Role.USER]),
       },
       {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
@@ -256,7 +258,7 @@ describe('Users', () => {
         email: 'user2@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
+        roles: JSON.stringify([Role.USER]),
       },
       {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
@@ -264,7 +266,7 @@ describe('Users', () => {
         email: 'user3@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
+        roles: JSON.stringify([Role.USER]),
       }]);
     });
 
@@ -280,42 +282,41 @@ describe('Users', () => {
 
     test('it should 200 and return all users', async () => {
       const response = await supertest.get(url)
-        .set('Authorization', authHeader);
+        .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(4); // 3 created here + test user (global setup)
-      expect(response.body.count).toBe(4);
+      expect(response.body.totalCount).toBe(5); // 3 created here + test and admin user (global setup)
+      expect(response.body.count).toBe(5);
       expect(response.body.limit).toBe(100);
       expect(response.body.offset).toBe(0);
-      expect(response.body.data.length).toBe(4);
+      expect(response.body.data.length).toBe(5);
     });
 
     test('it should 200 and paginate the list of users', async () => {
-      const response = await supertest.get(`${url}?limit=2&offset=1`)
-        .set('Authorization', authHeader);
+      const response = await supertest.get(`${url}?limit=2&offset=2`)
+        .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(4); // 3 created here + test user (global setup)
+      expect(response.body.totalCount).toBe(5); // 3 created here + test and admin user (global setup)
       expect(response.body.count).toBe(2);
       expect(response.body.limit).toBe(2);
-      expect(response.body.offset).toBe(1);
+      expect(response.body.offset).toBe(2);
 
       expect(response.body.data.length).toBe(2);
-      expect(response.body.data[0]).toEqual({
+      expect(response.body.data).toEqual(expect.arrayContaining([{
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
         name: 'User One',
         email: 'user1@hogent.be',
-      });
-      expect(response.body.data[1]).toEqual({
+      }, {
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
         name: 'User Three',
         email: 'user3@hogent.be',
-      });
+      }]));
     });
 
     test('it should 400 when offset is missing', async () => {
       const response = await supertest.get(`${url}?limit=2`)
-        .set('Authorization', authHeader);
+        .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
@@ -324,7 +325,7 @@ describe('Users', () => {
 
     test('it should 400 when limit is missing', async () => {
       const response = await supertest.get(`${url}?offset=1`)
-        .set('Authorization', authHeader);
+        .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
@@ -333,7 +334,7 @@ describe('Users', () => {
 
     test('it should 400 when limit is zero', async () => {
       const response = await supertest.get(`${url}?limit=0offset=1`)
-        .set('Authorization', authHeader);
+        .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
@@ -342,7 +343,7 @@ describe('Users', () => {
 
     test('it should 400 when limit is negative', async () => {
       const response = await supertest.get(`${url}?limit=-10offset=1`)
-        .set('Authorization', authHeader);
+        .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
@@ -351,7 +352,7 @@ describe('Users', () => {
 
     test('it should 400 when offset is negative', async () => {
       const response = await supertest.get(`${url}?limit=10&offset=-15`)
-        .set('Authorization', authHeader);
+        .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
@@ -371,7 +372,7 @@ describe('Users', () => {
         email: 'user1@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
+        roles: JSON.stringify([Role.USER]),
       }]);
     });
 
@@ -421,7 +422,6 @@ describe('Users', () => {
 
     const url = '/api/users';
     let updateAuthHeader;
-    let adminAuthHeader;
 
     beforeAll(async () => {
       await knex(tables.user).insert([{
@@ -430,15 +430,7 @@ describe('Users', () => {
         email: 'update.user@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
-      },
-      {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff91',
-        name: 'Admin User',
-        email: 'Admin.user@hogent.be',
-        password_hash:
-        '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['admin']),
+        roles: JSON.stringify([Role.USER]),
       }]);
 
       let response = await supertest.post(`${url}/login`)
@@ -447,13 +439,6 @@ describe('Users', () => {
           password: '12345678',
         });
       updateAuthHeader = `Bearer ${response.body.token}`;
-
-      response = await supertest.post(`${url}/login`)
-        .send({
-          email: 'admin.user@hogent.be',
-          password: '12345678',
-        });
-      adminAuthHeader = `Bearer ${response.body.token}`;
     });
 
     afterAll(async () => {
@@ -558,7 +543,6 @@ describe('Users', () => {
   describe('DELETE /api/users/:id', () => {
     const url = '/api/users';
     let deleteAuthHeader;
-    let adminAuthHeader;
 
     beforeAll(async () => {
       await knex(tables.user).insert([{
@@ -567,15 +551,7 @@ describe('Users', () => {
         email: 'delete.user@hogent.be',
         password_hash:
         '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['user']),
-      },
-      {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff91',
-        name: 'Admin User',
-        email: 'Admin.user@hogent.be',
-        password_hash:
-        '$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4',
-        roles: JSON.stringify(['admin']),
+        roles: JSON.stringify([Role.USER]),
       }]);
 
       let response = await supertest.post(`${url}/login`)
@@ -584,13 +560,6 @@ describe('Users', () => {
           password: '12345678',
         });
       deleteAuthHeader = `Bearer ${response.body.token}`;
-
-      response = await supertest.post(`${url}/login`)
-        .send({
-          email: 'admin.user@hogent.be',
-          password: '12345678',
-        });
-      adminAuthHeader = `Bearer ${response.body.token}`;
     });
 
     afterAll(async () => {
