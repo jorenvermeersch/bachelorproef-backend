@@ -1,6 +1,6 @@
 const config = require('config');
 const Router = require('@koa/router');
-const { requireAuthentication } = require('../core/auth');
+const { requireAuthentication, makeRequireRole } = require('../core/auth');
 const { userService } = require('../service');
 const { validate, validationSchemeFactory } = require('./_validation');
 
@@ -379,8 +379,10 @@ module.exports = function installUsersRoutes(app) {
     router.post('/register', authDelay, validate(register.validationScheme), register);
   }
 
+  const requireAdmin = makeRequireRole('admin');
+
   // Routes with authentication
-  router.get('/', requireAuthentication, validate(getAllUsers.validationScheme), getAllUsers);
+  router.get('/', requireAuthentication, requireAdmin, validate(getAllUsers.validationScheme), getAllUsers);
   router.get('/:id', requireAuthentication, validate(getUserById.validationScheme), checkUserId, getUserById);
   router.put('/:id', requireAuthentication, validate(updateUserById.validationScheme), checkUserId, updateUserById);
   router.delete('/:id', requireAuthentication, validate(deleteUserById.validationScheme), checkUserId, deleteUserById);
