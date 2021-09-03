@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "npx env-cmd node src/index.js",
-    "start:dev": "npx killports 9001 && npx env-cmd -f .env.dev nodemon",
+    "start:dev": "npx killports 9001 && npx env-cmd -f .env.test nodemon",
     "lint": "npx eslint . --fix",
     "test": "npx env-cmd -f .env.test jest",
     "test:coverage": "yarn test --coverage"
