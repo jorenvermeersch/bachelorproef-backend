@@ -2,6 +2,8 @@ const { mapSchema, getDirective, MapperKind } = require('@graphql-tools/utils');
 const { defaultFieldResolver } = require('graphql');
 const { userService } = require('../../service');
 
+const mapGraphQLRoleToOurRole = (role) => role.toLowerCase();
+
 /**
  * Create an authentication and authorization directive.
  *
@@ -11,7 +13,16 @@ const authDirective = (
   directiveName,
 ) => ({
   // We only allow the directive on field definitions
-  authDirectiveTypeDefs: `directive @${directiveName} on FIELD_DEFINITION`,
+  authDirectiveTypeDefs: `
+    directive @${directiveName}(
+      requires: Role = USER
+    ) on FIELD_DEFINITION
+
+    enum Role {
+      ADMIN
+      USER
+    }
+  `,
 
   // Create a transform function which add the directive behavior to the given schema
   authDirectiveTransformer: (schema) => mapSchema(schema, {
@@ -21,6 +32,7 @@ const authDirective = (
       const authDirective = getDirective(schema, fieldConfig, directiveName)?.[0];
 
       if (authDirective) {
+        const { requires } = authDirective;
         // If the field has this directive, get its resolver (or the default if not existing)
         const { resolve = defaultFieldResolver } = fieldConfig;
 
@@ -38,6 +50,9 @@ const authDirective = (
           context.state.session = session;
           // Also save the JWT in case we e.g. need to perform a request in the name of the current user
           context.state.authToken = authToken;
+
+          // Check if user has the right role
+          userService.checkRole(mapGraphQLRoleToOurRole(requires), session.roles);
 
           // Perform the original resolver (if everything went well)
           return resolve(source, args, context, info);

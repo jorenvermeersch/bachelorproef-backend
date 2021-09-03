@@ -45,7 +45,7 @@ const userTypeDefs = gql`
   }
 
   extend type Query {
-    users(offset: Int, limit: Int): UserListResponse! @auth
+    users(offset: Int, limit: Int): UserListResponse! @auth(requires: ADMIN)
     user(id: String!): User! @auth
   }
 
