@@ -93,14 +93,14 @@ async function initializeData() {
   if (migrationsFailed) {
     try {
       await knexInstance.migrate.down();
-
-      // No point in starting the server
-      throw new Error('Migrations failed');
     } catch (error) {
       logger.error('Error while undoing last migration', {
         error,
       });
     }
+
+    // No point in starting the server
+    throw new Error('Migrations failed');
   }
 
   // Run seeds in development
