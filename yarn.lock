@@ -3508,11 +3508,6 @@ keyv@^3.0.0:
   dependencies:
     json-buffer "3.0.0"
 
-killports@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/killports/-/killports-1.0.3.tgz#6317a31f2d15096694fec89237a037225817618f"
-  integrity sha512-AfgQcXfSB/1paVmhMNe1w+jagwg9aA/MwMiR6CPQ1uZavg6ytMktGbOd+Av6NwKw/d7TzBWbkGaiUesgYJBdYw==
-
 kleur@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
