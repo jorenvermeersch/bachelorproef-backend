@@ -84,10 +84,7 @@ module.exports = function installMiddleware(app) {
   app.use(bodyParser());
 
   // Add some security headers
-  app.use(koaHelmet({
-    // Not needed in development (destroys GraphQL Playground)
-    contentSecurityPolicy: isDevelopment ? false : undefined,
-  }));
+  app.use(koaHelmet());
 
   // Add CORS
   app.use(koaCors({

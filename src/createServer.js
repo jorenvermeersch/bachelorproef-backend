@@ -5,7 +5,6 @@ const { initializeLogging } = require('./core/logging');
 const installMiddlewares = require('./core/installMiddlewares');
 const { initializeData, shutdownData } = require('./data');
 const installRouter = require('./rest');
-const installApolloServer = require('./graphql');
 
 const NODE_ENV = config.get('env');
 const PROTOCOL = config.get('protocol');
@@ -25,7 +24,6 @@ module.exports = async function createServer() {
   installMiddlewares(app);
   await initializeData();
   installRouter(app);
-  installApolloServer(app);
 
   return {
     getApp() {
