@@ -102,7 +102,7 @@ const checkUserId = (ctx, next) => {
  * @swagger
  * /api/users:
  *   get:
- *     summary: Get all users (paginated)
+ *     summary: Get all users
  *     tags:
  *      - Users
  *     responses:
@@ -115,7 +115,7 @@ const checkUserId = (ctx, next) => {
  */
 const getAllUsers = async (ctx) => {
   const users = await userService.getAll();
-  ctx.sendResponse(200, users);
+  ctx.body = users;
 };
 getAllUsers.validationScheme = validationSchemeFactory(null);
 
@@ -177,7 +177,8 @@ getAllUsers.validationScheme = validationSchemeFactory(null);
 const login = async (ctx) => {
   const { email, password } = ctx.request.body;
   const token = await userService.login(email, password);
-  ctx.sendResponse(200, token);
+  ctx.status = 200;
+  ctx.body = token;
 };
 login.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
@@ -224,7 +225,8 @@ login.validationScheme = validationSchemeFactory((Joi) => ({
  */
 const register = async (ctx) => {
   const token = await userService.register(ctx.request.body);
-  ctx.sendResponse(200, token);
+  ctx.status = 200;
+  ctx.body = token;
 };
 register.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
@@ -265,7 +267,8 @@ register.validationScheme = validationSchemeFactory((Joi) => ({
  */
 const getUserById = async (ctx) => {
   const user = await userService.getById(ctx.params.id);
-  ctx.sendResponse(200, user);
+  ctx.status = 200;
+  ctx.body = user;
 };
 getUserById.validationScheme = validationSchemeFactory((Joi) => ({
   params: {
@@ -304,7 +307,8 @@ getUserById.validationScheme = validationSchemeFactory((Joi) => ({
  */
 const updateUserById = async (ctx) => {
   const user = await userService.updateById(ctx.params.id, ctx.request.body);
-  ctx.sendResponse(200, user);
+  ctx.status = 200;
+  ctx.body = user;
 };
 updateUserById.validationScheme = validationSchemeFactory((Joi) => ({
   params: {
@@ -343,7 +347,7 @@ updateUserById.validationScheme = validationSchemeFactory((Joi) => ({
  */
 const deleteUserById = async (ctx) => {
   await userService.deleteById(ctx.params.id);
-  ctx.sendResponse(204);
+  ctx.status = 204;
 };
 deleteUserById.validationScheme = validationSchemeFactory((Joi) => ({
   params: {

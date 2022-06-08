@@ -51,9 +51,9 @@ const getAll = async (userId) => {
  * - NOT_FOUND: No transaction with the given id could be found.
  */
 const getById = async (id, userId) => {
-  const transaction = await transactionRepository.findById(id, userId);
+  const transaction = await transactionRepository.findById(id);
 
-  if (!transaction) {
+  if (!transaction || transaction.user_id !== userId) {
     throw ServiceError.notFound(`No transaction with id ${id} exists`, { id });
   }
 

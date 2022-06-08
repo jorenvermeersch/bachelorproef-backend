@@ -71,7 +71,7 @@ const { validate, validationSchemeFactory } = require('./_validation');
  * @swagger
  * /api/places:
  *   get:
- *     summary: Get all places (paginated)
+ *     summary: Get all places
  *     tags:
  *      - Places
  *     responses:
@@ -84,7 +84,7 @@ const { validate, validationSchemeFactory } = require('./_validation');
  */
 const getAllPlaces = async (ctx) => {
   const places = await placeService.getAll();
-  ctx.sendResponse(200, places);
+  ctx.body = places;
 };
 getAllPlaces.validationScheme = validationSchemeFactory(null);
 
@@ -113,7 +113,7 @@ getAllPlaces.validationScheme = validationSchemeFactory(null);
  */
 const getPlaceById = async (ctx) => {
   const place = await placeService.getById(ctx.params.id);
-  ctx.sendResponse(200, place);
+  ctx.body = place;
 };
 getPlaceById.validationScheme = validationSchemeFactory((Joi) => ({
   params: {
@@ -146,7 +146,8 @@ getPlaceById.validationScheme = validationSchemeFactory((Joi) => ({
  */
 const createPlace = async (ctx) => {
   const place = await placeService.create(ctx.request.body);
-  ctx.sendResponse(201, place);
+  ctx.status = 201;
+  ctx.body = place;
 };
 createPlace.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
@@ -188,7 +189,7 @@ createPlace.validationScheme = validationSchemeFactory((Joi) => ({
  */
 const updatePlace = async (ctx) => {
   const place = await placeService.updateById(ctx.params.id, ctx.request.body);
-  ctx.sendResponse(200, place);
+  ctx.body = place;
 };
 updatePlace.validationScheme = validationSchemeFactory((Joi) => ({
   params: {
@@ -221,7 +222,7 @@ updatePlace.validationScheme = validationSchemeFactory((Joi) => ({
  */
 const deletePlace = async (ctx) => {
   await placeService.deleteById(ctx.params.id);
-  ctx.sendResponse(204);
+  ctx.status = 204;
 };
 deletePlace.validationScheme = validationSchemeFactory((Joi) => ({
   params: {

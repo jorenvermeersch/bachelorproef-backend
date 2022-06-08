@@ -106,16 +106,6 @@ module.exports = function installMiddleware(app) {
     maxAge: CORS_MAX_AGE,
   }));
 
-  // Add response utility function to context
-  app.use((ctx, next) => {
-    ctx.sendResponse = (status, body = {}) => {
-      ctx.status = status;
-      ctx.body = body;
-    };
-    // Don't wait for other middlewares, return here
-    return next();
-  });
-
   // Add a handler for known errors
   app.use(async (ctx, next) => {
     try {
@@ -152,7 +142,8 @@ module.exports = function installMiddleware(app) {
         }
       }
 
-      ctx.sendResponse(statusCode, errorBody);
+      ctx.status = statusCode;
+      ctx.body = errorBody;
     }
   });
 
@@ -176,10 +167,11 @@ module.exports = function installMiddleware(app) {
     await next();
 
     if (ctx.status === 404) {
-      ctx.sendResponse(404, {
+      ctx.status = 404;
+      ctx.body = {
         code: 'NOT_FOUND',
         message: `Unknown resource: ${ctx.url}`,
-      });
+      };
     }
   });
 };

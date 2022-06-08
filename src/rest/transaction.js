@@ -80,7 +80,7 @@ const { validate, validationSchemeFactory } = require('./_validation');
  * @swagger
  * /api/transactions:
  *   get:
- *     summary: Get all transactions (paginated)
+ *     summary: Get all transactions
  *     tags:
  *      - Transactions
  *     responses:
@@ -94,7 +94,7 @@ const { validate, validationSchemeFactory } = require('./_validation');
 const getAllTransactions = async (ctx) => {
   const { userId } = ctx.state.session;
   const transactions = await transactionService.getAll(userId);
-  ctx.sendResponse(200, transactions);
+  ctx.body = transactions;
 };
 getAllTransactions.validationScheme = validationSchemeFactory(null);
 
@@ -124,7 +124,7 @@ getAllTransactions.validationScheme = validationSchemeFactory(null);
 const getTransactionById = async (ctx) => {
   const { userId } = ctx.state.session;
   const transaction = await transactionService.getById(ctx.params.id, userId);
-  ctx.sendResponse(200, transaction);
+  ctx.body = transaction;
 };
 getTransactionById.validationScheme = validationSchemeFactory((Joi) => ({
   params: {
@@ -169,7 +169,8 @@ const createTransaction = async (ctx) => {
     date: new Date(ctx.request.body.date),
     userId,
   });
-  ctx.sendResponse(201, transaction);
+  ctx.status = 201;
+  ctx.body = transaction;
 };
 createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
   body: {
@@ -217,7 +218,8 @@ const updateTransaction = async (ctx) => {
     date: ctx.request.body.date && new Date(ctx.request.body.date),
     userId,
   });
-  ctx.sendResponse(200, transaction);
+  ctx.status = 200;
+  ctx.body = transaction;
 };
 updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
   params: {
@@ -252,7 +254,7 @@ updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
 const deleteTransaction = async (ctx) => {
   const { userId } = ctx.state.session;
   await transactionService.deleteById(ctx.params.id, userId);
-  ctx.sendResponse(204);
+  ctx.status = 204;
 };
 deleteTransaction.validationScheme = validationSchemeFactory((Joi) => ({
   params: {

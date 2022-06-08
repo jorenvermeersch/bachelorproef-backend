@@ -287,16 +287,7 @@ describe('Users', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.count).toBe(5);
       expect(response.body.data.length).toBe(5);
-    });
 
-    test('it should 200 and paginate the list of users', async () => {
-      const response = await supertest.get(url)
-        .set('Authorization', adminAuthHeader);
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.count).toBe(5);
-
-      expect(response.body.data.length).toBe(5);
       expect(response.body.data).toEqual(expect.arrayContaining([{
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
         name: 'User One',

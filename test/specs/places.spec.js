@@ -42,16 +42,7 @@ describe('Places', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body.data.length).toBeGreaterThanOrEqual(3); // one place from transactions could be present
-    });
 
-    test('it should 200 and paginate the list of places', async () => {
-      const response = await supertest.get(url)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.count).toBe(3);
-
-      expect(response.body.data.length).toBe(3);
       expect(response.body.data[0]).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
         name: 'Benzine',

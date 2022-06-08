@@ -80,16 +80,7 @@ describe('Transactions', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.count).toBe(3);
       expect(response.body.data.length).toBe(3);
-    });
 
-    test('it should 200 and paginate the list of transactions', async () => {
-      const response = await supertest.get(url)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.count).toBe(3);
-
-      expect(response.body.data.length).toBe(3);
       expect(response.body.data[0]).toEqual({ // Test User
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff87',
         user: {

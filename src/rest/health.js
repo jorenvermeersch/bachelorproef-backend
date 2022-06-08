@@ -23,7 +23,8 @@ const { healthService } = require('../service');
  *                   type: boolean
  */
 const ping = async (ctx) => {
-  ctx.sendResponse(200, healthService.ping());
+  ctx.status = 200;
+  ctx.body = healthService.ping();
 };
 ping.validationScheme = validationSchemeFactory(null);
 
@@ -54,7 +55,8 @@ ping.validationScheme = validationSchemeFactory(null);
  *                   type: string
  */
 const getVersion = async (ctx) => {
-  ctx.sendResponse(200, healthService.getVersion());
+  ctx.status = 200;
+  ctx.body = healthService.getVersion();
 };
 getVersion.validationScheme = validationSchemeFactory(null);
 

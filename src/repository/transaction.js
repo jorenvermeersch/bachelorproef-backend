@@ -39,13 +39,11 @@ const findCount = async (userId) => {
  * Find a transaction with the given `id`.
  *
  * @param {string} id - Id of the transaction to find.
- * @param {string} userId - Id of the user requesting the transaction.
  */
-const findById = (id, userId) => {
+const findById = (id) => {
   return getKnex()(tables.transaction)
     .first(SELECT_COLUMNS)
     .where(`${tables.transaction}.id`, id)
-    .andWhere(`${tables.transaction}.user_id`, userId)
     .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
     .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`);
 };
