@@ -84,7 +84,10 @@ module.exports = function installMiddleware(app) {
   app.use(bodyParser());
 
   // Add some security headers
-  app.use(koaHelmet());
+  app.use(koaHelmet({
+    // Not needed in development (destroys Swagger UI)
+    contentSecurityPolicy: isDevelopment ? false : undefined,
+  }));
 
   // Add CORS
   app.use(koaCors({
