@@ -105,9 +105,6 @@ const checkUserId = (ctx, next) => {
  *     summary: Get all users (paginated)
  *     tags:
  *      - Users
- *     parameters:
- *       - $ref: "#/components/parameters/limitParam"
- *       - $ref: "#/components/parameters/offsetParam"
  *     responses:
  *       200:
  *         description: List of users
@@ -117,18 +114,10 @@ const checkUserId = (ctx, next) => {
  *               $ref: "#/components/schemas/UsersList"
  */
 const getAllUsers = async (ctx) => {
-  const users = await userService.getAll(
-    ctx.query.limit && Number(ctx.query.limit),
-    ctx.query.offset && Number(ctx.query.offset),
-  );
+  const users = await userService.getAll();
   ctx.sendResponse(200, users);
 };
-getAllUsers.validationScheme = validationSchemeFactory((Joi) => ({
-  query: Joi.object({
-    limit: Joi.number().positive().max(1000).optional(),
-    offset: Joi.number().min(0).optional(),
-  }).and('limit', 'offset'),
-}));
+getAllUsers.validationScheme = validationSchemeFactory(null);
 
 /**
  * @swagger

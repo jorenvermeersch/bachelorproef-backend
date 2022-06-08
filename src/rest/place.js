@@ -74,9 +74,6 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *     summary: Get all places (paginated)
  *     tags:
  *      - Places
- *     parameters:
- *       - $ref: "#/components/parameters/limitParam"
- *       - $ref: "#/components/parameters/offsetParam"
  *     responses:
  *       200:
  *         description: List of places
@@ -86,18 +83,10 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *               $ref: "#/components/schemas/PlacesList"
  */
 const getAllPlaces = async (ctx) => {
-  const places = await placeService.getAll(
-    ctx.query.limit && Number(ctx.query.limit),
-    ctx.query.offset && Number(ctx.query.offset),
-  );
+  const places = await placeService.getAll();
   ctx.sendResponse(200, places);
 };
-getAllPlaces.validationScheme = validationSchemeFactory((Joi) => ({
-  query: Joi.object({
-    limit: Joi.number().positive().max(1000).optional(),
-    offset: Joi.number().min(0).optional(),
-  }).and('limit', 'offset'),
-}));
+getAllPlaces.validationScheme = validationSchemeFactory(null);
 
 /**
  * @swagger

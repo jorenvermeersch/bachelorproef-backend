@@ -9,24 +9,16 @@ const SELECT_COLUMNS = [
 ];
 
 /**
- * Get all `limit` transactions, throws on error.
+ * Get all transactions for the given user.
  *
- * @param {object} pagination - Pagination options
- * @param {number} pagination.limit - Nr of transactions to return.
- * @param {number} pagination.offset - Nr of transactions to skip.
  * @param {string} userId - Id of the user to fetch transactions for.
  */
-const findAll = ({
-  limit,
-  offset,
-}, userId) => {
+const findAll = (userId) => {
   return getKnex()(tables.transaction)
     .select(SELECT_COLUMNS)
     .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
     .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`)
     .where(`${tables.transaction}.user_id`, userId)
-    .limit(limit)
-    .offset(offset)
     .orderBy('date', 'ASC');
 };
 

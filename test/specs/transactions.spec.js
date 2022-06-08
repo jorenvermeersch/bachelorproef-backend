@@ -78,25 +78,32 @@ describe('Transactions', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(3);
       expect(response.body.count).toBe(3);
-      expect(response.body.limit).toBe(100);
-      expect(response.body.offset).toBe(0);
       expect(response.body.data.length).toBe(3);
     });
 
     test('it should 200 and paginate the list of transactions', async () => {
-      const response = await supertest.get(`${url}?limit=2&offset=1`)
+      const response = await supertest.get(url)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(3);
-      expect(response.body.count).toBe(2);
-      expect(response.body.limit).toBe(2);
-      expect(response.body.offset).toBe(1);
+      expect(response.body.count).toBe(3);
 
-      expect(response.body.data.length).toBe(2);
+      expect(response.body.data.length).toBe(3);
       expect(response.body.data[0]).toEqual({ // Test User
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff87',
+        user: {
+          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+          name: 'Test User',
+        },
+        place: {
+          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          name: 'Test place',
+        },
+        amount: -220,
+        date: new Date(2021, 4, 8, 20, 0).toJSON(),
+      });
+      expect(response.body.data[1]).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff88',
         user: {
           id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
@@ -109,64 +116,15 @@ describe('Transactions', () => {
         amount: -74,
         date: new Date(2021, 4, 21, 14, 30).toJSON(),
       });
-      expect(response.body.data[1]).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
-        user: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-          name: 'Test User',
-        },
-        place: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          name: 'Test place',
-        },
-        amount: 3500,
-        date: new Date(2021, 4, 25, 19, 40).toJSON(),
-      });
     });
 
-    test('it should 400 when offset is missing', async () => {
-      const response = await supertest.get(`${url}?limit=2`)
+    test('it should 400 when given an argument', async () => {
+      const response = await supertest.get(`${url}?invalid=true`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('value');
-    });
-
-    test('it should 400 when limit is missing', async () => {
-      const response = await supertest.get(`${url}?offset=1`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('value');
-    });
-
-    test('it should 400 when limit is zero', async () => {
-      const response = await supertest.get(`${url}?limit=0offset=1`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('limit');
-    });
-
-    test('it should 400 when limit is negative', async () => {
-      const response = await supertest.get(`${url}?limit=-10offset=1`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('limit');
-    });
-
-    test('it should 400 when offset is negative', async () => {
-      const response = await supertest.get(`${url}?limit=10&offset=-15`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('offset');
+      expect(response.body.details.query).toHaveProperty('invalid');
     });
 
     testAuthHeader(() => supertest.get(url));

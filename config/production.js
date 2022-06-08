@@ -15,10 +15,6 @@ module.exports = {
     client: 'mysql2',
     name: 'budget',
   },
-  pagination: {
-    limit: 100,
-    offset: 0,
-  },
   auth: {
     disabled: false,
     maxDelay: 300, // ms

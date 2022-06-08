@@ -19,26 +19,11 @@ const installHealthRoutes = require('./health');
  *         id: "6d560fca-e7f9-4583-af2d-b05ccd1a0c58"
  *     ListResponse:
  *       required:
- *         - totalCount
  *         - count
- *         - limit
- *         - offset
  *       properties:
- *         totalCount:
- *           type: integer
- *           description: Total number of items in the database
- *           example: 10
  *         count:
  *           type: integer
  *           description: Number of items returned
- *           example: 1
- *         limit:
- *           type: integer
- *           description: Limit actually used
- *           example: 1
- *         offset:
- *           type: integer
- *           description: Offset actually used
  *           example: 1
  */
 
@@ -54,22 +39,6 @@ const installHealthRoutes = require('./health');
  *       schema:
  *         type: string
  *         format: "uuid"
- *     limitParam:
- *       in: query
- *       name: limit
- *       description: Maximum amount of items to return
- *       required: false
- *       schema:
- *         type: integer
- *         default: 100
- *     offsetParam:
- *       in: query
- *       name: offset
- *       description: Number of items to skip
- *       required: false
- *       schema:
- *         type: integer
- *         default: 0
  */
 
 /**

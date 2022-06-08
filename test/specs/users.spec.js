@@ -285,24 +285,18 @@ describe('Users', () => {
         .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(5); // 3 created here + test and admin user (global setup)
       expect(response.body.count).toBe(5);
-      expect(response.body.limit).toBe(100);
-      expect(response.body.offset).toBe(0);
       expect(response.body.data.length).toBe(5);
     });
 
     test('it should 200 and paginate the list of users', async () => {
-      const response = await supertest.get(`${url}?limit=2&offset=2`)
+      const response = await supertest.get(url)
         .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBe(5); // 3 created here + test and admin user (global setup)
-      expect(response.body.count).toBe(2);
-      expect(response.body.limit).toBe(2);
-      expect(response.body.offset).toBe(2);
+      expect(response.body.count).toBe(5);
 
-      expect(response.body.data.length).toBe(2);
+      expect(response.body.data.length).toBe(5);
       expect(response.body.data).toEqual(expect.arrayContaining([{
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
         name: 'User One',
@@ -314,49 +308,13 @@ describe('Users', () => {
       }]));
     });
 
-    test('it should 400 when offset is missing', async () => {
-      const response = await supertest.get(`${url}?limit=2`)
+    test('it should 400 when given an argument', async () => {
+      const response = await supertest.get(`${url}?invalid=true`)
         .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('value');
-    });
-
-    test('it should 400 when limit is missing', async () => {
-      const response = await supertest.get(`${url}?offset=1`)
-        .set('Authorization', adminAuthHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('value');
-    });
-
-    test('it should 400 when limit is zero', async () => {
-      const response = await supertest.get(`${url}?limit=0offset=1`)
-        .set('Authorization', adminAuthHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('limit');
-    });
-
-    test('it should 400 when limit is negative', async () => {
-      const response = await supertest.get(`${url}?limit=-10offset=1`)
-        .set('Authorization', adminAuthHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('limit');
-    });
-
-    test('it should 400 when offset is negative', async () => {
-      const response = await supertest.get(`${url}?limit=10&offset=-15`)
-        .set('Authorization', adminAuthHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('offset');
+      expect(response.body.details.query).toHaveProperty('invalid');
     });
 
     testAuthHeader(() => supertest.get(url));

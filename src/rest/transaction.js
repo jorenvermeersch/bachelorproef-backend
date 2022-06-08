@@ -83,9 +83,6 @@ const { validate, validationSchemeFactory } = require('./_validation');
  *     summary: Get all transactions (paginated)
  *     tags:
  *      - Transactions
- *     parameters:
- *       - $ref: "#/components/parameters/limitParam"
- *       - $ref: "#/components/parameters/offsetParam"
  *     responses:
  *       200:
  *         description: List of transactions
@@ -96,19 +93,10 @@ const { validate, validationSchemeFactory } = require('./_validation');
  */
 const getAllTransactions = async (ctx) => {
   const { userId } = ctx.state.session;
-  const transactions = await transactionService.getAll({
-    userId,
-    limit: ctx.query.limit && Number(ctx.query.limit),
-    offset: ctx.query.offset && Number(ctx.query.offset),
-  });
+  const transactions = await transactionService.getAll(userId);
   ctx.sendResponse(200, transactions);
 };
-getAllTransactions.validationScheme = validationSchemeFactory((Joi) => ({
-  query: Joi.object({
-    limit: Joi.number().positive().max(1000).optional(),
-    offset: Joi.number().min(0).optional(),
-  }).and('limit', 'offset'),
-}));
+getAllTransactions.validationScheme = validationSchemeFactory(null);
 
 /**
  * @swagger

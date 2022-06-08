@@ -3,20 +3,11 @@ const { getChildLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
 
 /**
- * Find all `limit` places, skip the first `offset`.
- *
- * @param {object} pagination - Pagination options
- * @param {number} pagination.limit - Nr of places to return.
- * @param {number} pagination.offset - Nr of places to skip.
+ * Find all places.
  */
-const findAll = ({
-  limit,
-  offset,
-}) => {
+const findAll = () => {
   return getKnex()(tables.place)
     .select()
-    .limit(limit)
-    .offset(offset)
     .orderBy('name', 'ASC');
 };
 
@@ -40,15 +31,6 @@ const findById = (id) => {
   return getKnex()(tables.place)
     .where('id', id)
     .first();
-};
-
-/**
- * Calculate the total number of places.
- */
-const findCount = async () => {
-  const [count] = await getKnex()(tables.place)
-    .count();
-  return count['count(*)'];
 };
 
 /**
@@ -139,7 +121,6 @@ const deleteById = async (id) => {
 module.exports = {
   findAll,
   findById,
-  findCount,
   findByName,
   create,
   updateById,

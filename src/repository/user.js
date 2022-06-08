@@ -3,20 +3,11 @@ const { getChildLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
 
 /**
- * Get all `limit` users, skip the first `offset`.
- *
- * @param {object} pagination - Pagination options
- * @param {number} pagination.limit - Nr of transactions to return.
- * @param {number} pagination.offset - Nr of transactions to skip.
+ * Get all users.
  */
-const findAll = ({
-  limit,
-  offset,
-}) => {
+const findAll = () => {
   return getKnex()(tables.user)
     .select()
-    .limit(limit)
-    .offset(offset)
     .orderBy('name', 'ASC');
 };
 

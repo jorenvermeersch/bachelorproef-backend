@@ -1,11 +1,7 @@
-const config = require('config');
 const ServiceError = require('../core/serviceError');
 const { transactionRepository } = require('../repository');
 const placeService = require('./place');
 const handleDBError = require('./_handleDBError');
-
-const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
-const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 
 const makeExposedTransaction = ({
   user_id,
@@ -33,26 +29,15 @@ const makeExposedTransaction = ({
 };
 
 /**
- * Get all `limit` transactions, skip the first `offset`.
+ * Get all transactions for the given user.
  *
- * @param {object} params - The parameters for this function.
- * @param {number} [params.limit] - Nr of transactions to fetch.
- * @param {number} [params.offset] - Nr of transactions to skip.
- * @param {string} params.userId - Id of the user to fetch transactions for.
+ * @param {string} userId - Id of the user to fetch transactions for.
  */
-const getAll = async ({
-  userId,
-  limit = DEFAULT_PAGINATION_LIMIT,
-  offset = DEFAULT_PAGINATION_OFFSET,
-}) => {
-  const data = await transactionRepository.findAll({ limit, offset }, userId);
-  const totalCount = await transactionRepository.findCount(userId);
+const getAll = async (userId) => {
+  const data = await transactionRepository.findAll(userId);
   return {
     data: data.map(makeExposedTransaction),
-    totalCount,
     count: data.length,
-    limit,
-    offset,
   };
 };
 

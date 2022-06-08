@@ -8,8 +8,6 @@ const handleDBError = require('./_handleDBError');
 const Role = require('../core/roles');
 
 const AUTH_DISABLED = config.get('auth.disabled');
-const DEFAULT_PAGINATION_LIMIT = config.get('pagination.limit');
-const DEFAULT_PAGINATION_OFFSET = config.get('pagination.offset');
 
 /**
  * Only return the public information about the given user.
@@ -164,23 +162,13 @@ const checkRole = (role, roles) => {
 };
 
 /**
- * Get all `limit` users, skip the first `offset`.
- *
- * @param {number} [limit] - Nr of users to fetch.
- * @param {number} [offset] - Nr of users to skip.
+ * Get all users.
  */
-const getAll = async (
-  limit = DEFAULT_PAGINATION_LIMIT,
-  offset = DEFAULT_PAGINATION_OFFSET,
-) => {
-  const data = await userRepository.findAll({ limit, offset });
-  const totalCount = await userRepository.findCount();
+const getAll = async () => {
+  const data = await userRepository.findAll();
   return {
     data: data.map(makeExposedUser),
-    totalCount,
     count: data.length,
-    limit,
-    offset,
   };
 };
 

@@ -21,7 +21,7 @@ describe('Places', () => {
     beforeAll(async () => {
       await knex(tables.place).insert([
         { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83', name: 'Loon', rating: 5 },
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84', name: 'Bezine', rating: 2 },
+        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84', name: 'Benzine', rating: 2 },
         { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff85', name: 'Irish pub', rating: 4 },
       ]);
     });
@@ -41,78 +41,36 @@ describe('Places', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBeGreaterThanOrEqual(3); // one place from transactions could be present
-      expect(response.body.limit).toBe(100);
-      expect(response.body.offset).toBe(0);
       expect(response.body.data.length).toBeGreaterThanOrEqual(3); // one place from transactions could be present
     });
 
     test('it should 200 and paginate the list of places', async () => {
-      const response = await supertest.get(`${url}?limit=2&offset=1`)
+      const response = await supertest.get(url)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.totalCount).toBeGreaterThanOrEqual(3); // one place from transactions could be present
-      expect(response.body.count).toBe(2);
-      expect(response.body.limit).toBe(2);
-      expect(response.body.offset).toBe(1);
+      expect(response.body.count).toBe(3);
 
-      expect(response.body.data.length).toBe(2);
+      expect(response.body.data.length).toBe(3);
       expect(response.body.data[0]).toEqual({
+        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
+        name: 'Benzine',
+        rating: 2,
+      });
+      expect(response.body.data[1]).toEqual({
         id: '7f28c5f9-d711-4cd6-ac15-d13d71abff85',
         name: 'Irish pub',
         rating: 4,
       });
-      expect(response.body.data[1]).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
-        name: 'Loon',
-        rating: 5,
-      });
     });
 
-    test('it should 400 when offset is missing', async () => {
-      const response = await supertest.get(`${url}?limit=2`)
+    test('it should 400 when given an argument', async () => {
+      const response = await supertest.get(`${url}?invalid=true`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('value');
-    });
-
-    test('it should 400 when limit is missing', async () => {
-      const response = await supertest.get(`${url}?offset=1`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('value');
-    });
-
-    test('it should 400 when limit is zero', async () => {
-      const response = await supertest.get(`${url}?limit=0offset=1`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('limit');
-    });
-
-    test('it should 400 when limit is negative', async () => {
-      const response = await supertest.get(`${url}?limit=-10offset=1`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('limit');
-    });
-
-    test('it should 400 when offset is negative', async () => {
-      const response = await supertest.get(`${url}?limit=10&offset=-15`)
-        .set('Authorization', authHeader);
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.query).toHaveProperty('offset');
+      expect(response.body.details.query).toHaveProperty('invalid');
     });
 
     testAuthHeader(() => supertest.get(url));
