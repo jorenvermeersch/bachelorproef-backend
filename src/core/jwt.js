@@ -11,7 +11,7 @@ const JWT_EXPIRATION_INTERVAL = config.get('auth.jwt.expirationInterval');
  *
  * @typedef {Object} Session
  *
- * @property {string} userId - Id of the user
+ * @property {number} userId - Id of the user
  * @property {string[]} roles - Roles of the user
  */
 

@@ -24,7 +24,7 @@ describe('Users', () => {
     beforeAll(async () => {
       // Insert a test user with password 12345678
       await knex(tables.user).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
+        id: 3,
         name: 'Login User',
         email: 'login@hogent.be',
         password_hash:
@@ -36,7 +36,7 @@ describe('Users', () => {
     afterAll(async () => {
       // Remove the created user
       await knex(tables.user)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff81')
+        .where('id', 3)
         .delete();
     });
 
@@ -50,7 +50,7 @@ describe('Users', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.token).toBeTruthy();
       expect(response.body.user).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
+        id: 3,
         name: 'Login User',
         email: 'login@hogent.be',
       });
@@ -127,7 +127,7 @@ describe('Users', () => {
 
     beforeAll(async () => {
       await knex(tables.user).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
+        id: 4,
         name: 'Duplicate User',
         email: 'duplicate@hogent.be',
         password_hash:
@@ -245,7 +245,7 @@ describe('Users', () => {
 
     beforeAll(async () => {
       await knex(tables.user).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
+        id: 4,
         name: 'User One',
         email: 'user1@hogent.be',
         password_hash:
@@ -253,7 +253,7 @@ describe('Users', () => {
         roles: JSON.stringify([Role.USER]),
       },
       {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
+        id: 5,
         name: 'User Two',
         email: 'user2@hogent.be',
         password_hash:
@@ -261,7 +261,7 @@ describe('Users', () => {
         roles: JSON.stringify([Role.USER]),
       },
       {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
+        id: 6,
         name: 'User Three',
         email: 'user3@hogent.be',
         password_hash:
@@ -273,9 +273,7 @@ describe('Users', () => {
     afterAll(async () => {
       await knex(tables.user)
         .whereIn('id', [
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
+          4, 5, 6,
         ])
         .delete();
     });
@@ -289,11 +287,11 @@ describe('Users', () => {
       expect(response.body.data.length).toBe(5);
 
       expect(response.body.data).toEqual(expect.arrayContaining([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
+        id: 4,
         name: 'User One',
         email: 'user1@hogent.be',
       }, {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
+        id: 6,
         name: 'User Three',
         email: 'user3@hogent.be',
       }]));
@@ -316,7 +314,7 @@ describe('Users', () => {
 
     beforeAll(async () => {
       await knex(tables.user).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
+        id: 4,
         name: 'User One',
         email: 'user1@hogent.be',
         password_hash:
@@ -327,24 +325,24 @@ describe('Users', () => {
 
     afterAll(async () => {
       await knex(tables.user)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff82')
+        .where('id', 4)
         .delete();
     });
 
     test('it should 200 and return the requested user', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`)
+      const response = await supertest.get(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        id: 1,
         name: 'Test User',
         email: 'test.user@hogent.be',
       });
     });
 
     test('it should 403 when requesting other user\'s info', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff82`)
+      const response = await supertest.get(`${url}/2`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(403);
@@ -364,7 +362,7 @@ describe('Users', () => {
       expect(response.body.details.params).toHaveProperty('id');
     });
 
-    testAuthHeader(() => supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`));
+    testAuthHeader(() => supertest.get(`${url}/1`));
   });
 
   describe('PUT /api/users/:id', () => {
@@ -374,7 +372,7 @@ describe('Users', () => {
 
     beforeAll(async () => {
       await knex(tables.user).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 5,
         name: 'Update User',
         email: 'update.user@hogent.be',
         password_hash:
@@ -394,14 +392,11 @@ describe('Users', () => {
       // Delete the update users
       await knex(tables.user)
         .delete()
-        .whereIn('id', [
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff91',
-        ]);
+        .where('id', 5);
     });
 
     test('it should 200 and return the updated user', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`)
+      const response = await supertest.put(`${url}/5`)
         .set('Authorization', updateAuthHeader)
         .send({
           name: 'Changed name',
@@ -410,14 +405,14 @@ describe('Users', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 5,
         name: 'Changed name',
         email: 'update.user@hogent.be',
       });
     });
 
     test('it should 400 for duplicate email', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff80`)
+      const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -433,7 +428,7 @@ describe('Users', () => {
     });
 
     test('it should 400 when missing name', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`)
+      const response = await supertest.put(`${url}/5`)
         .set('Authorization', updateAuthHeader)
         .send({
           email: 'update.user@hogent.be',
@@ -445,7 +440,7 @@ describe('Users', () => {
     });
 
     test('it should 400 when missing email', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`)
+      const response = await supertest.put(`${url}/5`)
         .set('Authorization', updateAuthHeader)
         .send({
           name: 'Changed name',
@@ -457,7 +452,7 @@ describe('Users', () => {
     });
 
     test('it should 403 with other than signed in user', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.delete(`${url}/3`)
         .set('Authorization', updateAuthHeader);
 
       expect(response.statusCode).toBe(403);
@@ -469,20 +464,20 @@ describe('Users', () => {
     });
 
     test('it should 404 with not existing user', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff92`)
+      const response = await supertest.delete(`${url}/123`)
         .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No user with id 7f28c5f9-d711-4cd6-ac15-d13d71abff92 exists',
+        message: 'No user with id 123 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff92',
+          id: 123,
         },
       });
     });
 
-    testAuthHeader(() => supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+    testAuthHeader(() => supertest.put(`${url}/3`)
       .send({
         name: 'The wrong user',
         email: 'update.user@hogent.be',
@@ -495,7 +490,7 @@ describe('Users', () => {
 
     beforeAll(async () => {
       await knex(tables.user).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 5,
         name: 'Delete User',
         email: 'delete.user@hogent.be',
         password_hash:
@@ -511,15 +506,8 @@ describe('Users', () => {
       deleteAuthHeader = `Bearer ${response.body.token}`;
     });
 
-    afterAll(async () => {
-      // Delete the admin user
-      await knex(tables.user)
-        .delete()
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff91');
-    });
-
     test('it should 403 with other than signed in user', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff93`)
+      const response = await supertest.delete(`${url}/7`)
         .set('Authorization', deleteAuthHeader);
 
       expect(response.statusCode).toBe(403);
@@ -531,27 +519,27 @@ describe('Users', () => {
     });
 
     test('it should 404 with not existing user', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff92`)
+      const response = await supertest.delete(`${url}/123`)
         .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No user with id 7f28c5f9-d711-4cd6-ac15-d13d71abff92 exists',
+        message: 'No user with id 123 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff92',
+          id: 123,
         },
       });
     });
 
     test('it should 204 and return nothing', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`)
+      const response = await supertest.delete(`${url}/5`)
         .set('Authorization', deleteAuthHeader);
 
       expect(response.statusCode).toBe(204);
       expect(response.body).toEqual({});
     });
 
-    testAuthHeader(() => supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff90`));
+    testAuthHeader(() => supertest.delete(`${url}/5`));
   });
 });

@@ -50,7 +50,7 @@ const validate = require('./_validation');
  *                 $ref: "#/components/schemas/Transaction"
  *   examples:
  *     Transaction:
- *       id: "7b25d1fc-a15c-49bd-8d3f-6365bfa1ca04"
+ *       id: 123
  *       amount: 3000
  *       date: "2021-05-28T14:27:32.534Z"
  *       place:
@@ -73,8 +73,8 @@ const validate = require('./_validation');
  *                 type: string
  *                 format: "date-time"
  *               placeId:
- *                 type: string
- *                 format: uuid
+ *                 type: integer
+ *                 format: int32
  */
 
 /**
@@ -134,7 +134,7 @@ const getTransactionById = async (ctx) => {
 };
 getTransactionById.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
 };
 
@@ -182,7 +182,7 @@ createTransaction.validationScheme = {
   body: {
     amount: Joi.number().invalid(0),
     date: Joi.date().iso().less('now'),
-    placeId: Joi.string().uuid(),
+    placeId: Joi.number().integer().positive(),
   },
 };
 
@@ -229,12 +229,12 @@ const updateTransaction = async (ctx) => {
 };
 updateTransaction.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
   body: {
     amount: Joi.number().invalid(0),
     date: Joi.date().iso().less('now'),
-    placeId: Joi.string().uuid(),
+    placeId: Joi.number().integer().positive(),
   },
 };
 
@@ -264,7 +264,7 @@ const deleteTransaction = async (ctx) => {
 };
 deleteTransaction.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
 };
 

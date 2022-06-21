@@ -9,7 +9,7 @@ module.exports = {
     // then add the fresh users (all passwords are 12345678)
     await knex(tables.user).insert([
       {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        id: 1,
         name: 'Thomas Aelbrecht',
         email: 'thomas.aelbrecht@hogent.be',
         password_hash:
@@ -17,7 +17,7 @@ module.exports = {
         roles: JSON.stringify([Role.ADMIN, Role.USER]),
       },
       {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff81',
+        id: 2,
         name: 'Pieter Van Der Helst',
         email: 'pieter.vanderhelst@hogent.be',
         password_hash:
@@ -25,7 +25,7 @@ module.exports = {
         roles: JSON.stringify([Role.USER]),
       },
       {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff82',
+        id: 3,
         name: 'Karine Samyn',
         email: 'karine.samyn@hogent.be',
         password_hash:

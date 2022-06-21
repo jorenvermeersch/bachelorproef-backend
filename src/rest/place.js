@@ -46,7 +46,7 @@ const validate = require('./_validation');
  *                 $ref: "#/components/schemas/Place"
  *   examples:
  *     Place:
- *       id: "8f4153f6-939e-4dcf-9019-724999265f0c"
+ *       id: 123
  *       name: Loon
  *       rating: 4
  *   requestBodies:
@@ -123,7 +123,7 @@ const getPlaceById = async (ctx) => {
 };
 getPlaceById.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
 };
 
@@ -158,7 +158,7 @@ const createPlace = async (ctx) => {
 createPlace.validationScheme = {
   body: {
     name: Joi.string().max(255),
-    rating: Joi.number().min(1).max(5).integer().optional(),
+    rating: Joi.number().integer().min(1).max(5).optional(),
   },
 };
 
@@ -199,11 +199,11 @@ const updatePlace = async (ctx) => {
 };
 updatePlace.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
   body: {
     name: Joi.string().max(255),
-    rating: Joi.number().min(1).max(5).integer(),
+    rating: Joi.number().integer().min(1).max(5),
   },
 };
 
@@ -232,7 +232,7 @@ const deletePlace = async (ctx) => {
 };
 deletePlace.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
 };
 

@@ -26,7 +26,7 @@ const getByName = async (name) => {
 /**
  * Get the place with the given `id`.
  *
- * @param {string} id - Id of the place to get.
+ * @param {number} id - Id of the place to get.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No place with the given id could be found.
@@ -59,7 +59,7 @@ const create = async ({ name, rating }) => {
 /**
  * Update an existing place.
  *
- * @param {string} id - Id of the place to update.
+ * @param {number} id - Id of the place to update.
  * @param {object} place - Place to save.
  * @param {string} [place.name] - Name of the place.
  * @param {number} [place.rating] - Rating of the place (between 1 and 5).
@@ -77,7 +77,7 @@ const updateById = async (id, { name, rating }) => {
 /**
  * Delete an existing place.
  *
- * @param {string} id - Id of the place to delete.
+ * @param {number} id - Id of the place to delete.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No place with the given id could be found.

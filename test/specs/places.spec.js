@@ -20,18 +20,18 @@ describe('Places', () => {
 
     beforeAll(async () => {
       await knex(tables.place).insert([
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83', name: 'Loon', rating: 5 },
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84', name: 'Benzine', rating: 2 },
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff85', name: 'Irish pub', rating: 4 },
+        { id: 1, name: 'Loon', rating: 5 },
+        { id: 2, name: 'Benzine', rating: 2 },
+        { id: 3, name: 'Irish pub', rating: 4 },
       ]);
     });
 
     afterAll(async () => {
       await knex(tables.place)
         .whereIn('id', [
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff85',
+          1,
+          2,
+          3,
         ])
         .delete();
     });
@@ -44,12 +44,12 @@ describe('Places', () => {
       expect(response.body.data.length).toBeGreaterThanOrEqual(3); // one place from transactions could be present
 
       expect(response.body.data[0]).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
+        id: 2,
         name: 'Benzine',
         rating: 2,
       });
       expect(response.body.data[1]).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff85',
+        id: 3,
         name: 'Irish pub',
         rating: 4,
       });
@@ -73,38 +73,38 @@ describe('Places', () => {
 
     beforeAll(async () => {
       await knex(tables.place).insert([
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83', name: 'Loon', rating: 5 },
+        { id: 1, name: 'Loon', rating: 5 },
       ]);
     });
 
     afterAll(async () => {
       await knex(tables.place)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff83')
+        .where('id', 1)
         .delete();
     });
 
     test('it should 200 and return the requested place', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.get(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
+        id: 1,
         name: 'Loon',
         rating: 5,
       });
     });
 
     test('it should 404 when requesting not existing place', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abffaa`)
+      const response = await supertest.get(`${url}/2`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abffaa exists',
+        message: 'No place with id 2 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
+          id: 2,
         },
       });
     });
@@ -118,7 +118,7 @@ describe('Places', () => {
       expect(response.body.details.params).toHaveProperty('id');
     });
 
-    testAuthHeader(() => supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abffaa`));
+    testAuthHeader(() => supertest.get(`${url}/2`));
   });
 
   describe('POST /api/places', () => {
@@ -242,22 +242,22 @@ describe('Places', () => {
 
     beforeAll(async () => {
       await knex(tables.place).insert([
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83', name: 'Loon', rating: 4 },
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff84', name: 'Duplicate name', rating: 1 },
+        { id: 1, name: 'Loon', rating: 4 },
+        { id: 2, name: 'Duplicate name', rating: 1 },
       ]);
     });
 
     afterAll(async () => {
       await knex(tables.place)
         .whereIn('id', [
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff84',
+          1,
+          2,
         ])
         .delete();
     });
 
     test('it should 200 and return the updated place', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -266,14 +266,14 @@ describe('Places', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
+        id: 1,
         name: 'Changed name',
         rating: 1,
       });
     });
 
     test('it should 400 for duplicate place name', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff84`)
+      const response = await supertest.put(`${url}/2`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -289,7 +289,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when missing name', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           rating: 3,
@@ -301,7 +301,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when missing rating', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The name',
@@ -313,7 +313,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when rating lower than one', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -326,7 +326,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when rating higher than five', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -339,7 +339,7 @@ describe('Places', () => {
     });
 
     test('it should 400 when rating is a decimal', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -351,7 +351,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    testAuthHeader(() => supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+    testAuthHeader(() => supertest.put(`${url}/1`)
       .send({
         name: 'The wrong place',
         rating: 3,
@@ -363,12 +363,12 @@ describe('Places', () => {
 
     beforeAll(async () => {
       await knex(tables.place).insert([
-        { id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83', name: 'Loon', rating: 4 },
+        { id: 1, name: 'Loon', rating: 4 },
       ]);
     });
 
     test('it should 204 and return nothing', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.delete(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(204);
@@ -376,19 +376,19 @@ describe('Places', () => {
     });
 
     test('it should 404 with not existing place', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`)
+      const response = await supertest.delete(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff83 exists',
+        message: 'No place with id 1 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff83',
+          id: 1,
         },
       });
     });
 
-    testAuthHeader(() => supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff83`));
+    testAuthHeader(() => supertest.delete(`${url}/1`));
   });
 });

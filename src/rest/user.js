@@ -56,6 +56,7 @@ const checkUserId = (ctx, next) => {
  *         - type: object
  *           required:
  *             - name
+ *             - email
  *           properties:
  *             name:
  *               type: "string"
@@ -77,7 +78,7 @@ const checkUserId = (ctx, next) => {
  *                 $ref: "#/components/schemas/User"
  *   examples:
  *     User:
- *       id: "8f4153f6-939e-4dcf-9019-724999265f0d"
+ *       id: 123
  *       name: "Thomas Aelbecht"
  *       email: "thomas.aelbrecht@hogent.be"
  */
@@ -279,7 +280,7 @@ const getUserById = async (ctx) => {
 };
 getUserById.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
 };
 
@@ -319,7 +320,7 @@ const updateUserById = async (ctx) => {
 };
 updateUserById.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
   body: {
     name: Joi.string().max(255),
@@ -358,7 +359,7 @@ const deleteUserById = async (ctx) => {
 };
 deleteUserById.validationScheme = {
   params: {
-    id: Joi.string().uuid(),
+    id: Joi.number().integer().positive(),
   },
 };
 

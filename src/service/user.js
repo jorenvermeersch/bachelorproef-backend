@@ -105,7 +105,7 @@ const checkAndParseSession = async (authHeader) => {
   if (AUTH_DISABLED) {
     // Create a session for user Thomas Aelbrecht
     return {
-      userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+      userId: 1,
       roles: [Role.USER],
     };
   }
@@ -175,7 +175,7 @@ const getAll = async () => {
 /**
  * Get the user with the given id.
  *
- * @param {string} id - Id of the user to get.
+ * @param {number} id - Id of the user to get.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No user with the given id could be found.
@@ -194,7 +194,7 @@ const getById = async (id) => {
 /**
  * Update an existing user.
  *
- * @param {string} id - Id of the user to update.
+ * @param {number} id - Id of the user to update.
  * @param {object} user - User to save.
  * @param {string} [user.name] - Name of the user.
  * @param {number} [user.email] - Email of the user.
@@ -212,7 +212,7 @@ const updateById = async (id, { name, email }) => {
 /**
  * Delete an existing user.
  *
- * @param {string} id - Id of the user to delete.
+ * @param {number} id - Id of the user to delete.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No user with the given id could be found.

@@ -1,6 +1,5 @@
 const { getLogger } = require('../core/logging');
 const { tables, getKnex } = require('../data/index');
-const { getLastId } = require('./_repository.helpers');
 
 /**
  * Find all places.
@@ -25,7 +24,7 @@ const findByName = (name) => {
 /**
  * Find a place with the given `id`.
  *
- * @param {string} id - Id of the place to find.
+ * @param {number} id - Id of the place to find.
  */
 const findById = (id) => {
   return getKnex()(tables.place)
@@ -40,20 +39,20 @@ const findById = (id) => {
  * @param {string} place.name - Name of the place.
  * @param {number} [place.rating] - Rating given to the place (1 to 5).
  *
- * @returns {Promise<string>} Created place's id
+ * @returns {Promise<number>} Created place's id
  */
 const create = async ({
   name,
   rating,
 }) => {
   try {
-    await getKnex()(tables.place)
+    const [id] = await getKnex()(tables.place)
       .insert({
         name,
         rating,
       });
 
-    return await getLastId();
+    return id;
   } catch (error) {
     getLogger().error('Error in create', {
       error,
@@ -65,12 +64,12 @@ const create = async ({
 /**
  * Update an existing place with the given `name` and `rating`.
  *
- * @param {string} id - Id of the place to update.
+ * @param {number} id - Id of the place to update.
  * @param {object} place - Place to create.
  * @param {string} [place.name] - Name of the place.
  * @param {number} [place.rating] - Rating given to the place (1 to 5).
  *
- * @returns {Promise<string>} Place's id
+ * @returns {Promise<number>} Place's id
  */
 const updateById = async (id, {
   name,
@@ -84,7 +83,7 @@ const updateById = async (id, {
       })
       .where('id', id);
 
-    return await getLastId();
+    return id;
   } catch (error) {
     getLogger().error('Error in updateById', {
       error,
@@ -96,7 +95,7 @@ const updateById = async (id, {
 /**
  * Delete a place.
  *
- * @param {string} id - Id of the place to delete.
+ * @param {number} id - Id of the place to delete.
  *
  * @returns {Promise<boolean>} Whether the place was deleted.
  */

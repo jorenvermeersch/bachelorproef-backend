@@ -30,29 +30,29 @@ describe('Transactions', () => {
 
     beforeAll(async () => {
       await knex(tables.place).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 4,
         name: 'Test place',
         rating: 3,
       }]);
 
       await knex(tables.transaction).insert([{ // Test User
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
-        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 1,
+        user_id: 1,
+        place_id: 4,
         amount: 3500,
         date: new Date(2021, 4, 25, 19, 40),
       },
       {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff87',
-        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 2,
+        user_id: 1,
+        place_id: 4,
         amount: -220,
         date: new Date(2021, 4, 8, 20, 0),
       },
       {
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff88',
-        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 3,
+        user_id: 1,
+        place_id: 4,
         amount: -74,
         date: new Date(2021, 4, 21, 14, 30),
       },
@@ -62,14 +62,14 @@ describe('Transactions', () => {
     afterAll(async () => {
       await knex(tables.transaction)
         .whereIn('id', [
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff87',
-          '7f28c5f9-d711-4cd6-ac15-d13d71abff88',
+          1,
+          2,
+          3,
         ])
         .delete();
 
       await knex(tables.place)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff90')
+        .where('id', 4)
         .delete();
     });
 
@@ -82,26 +82,26 @@ describe('Transactions', () => {
       expect(response.body.data.length).toBe(3);
 
       expect(response.body.data[0]).toEqual({ // Test User
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff87',
+        id: 2,
         user: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+          id: 1,
           name: 'Test User',
         },
         place: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          id: 4,
           name: 'Test place',
         },
         amount: -220,
         date: new Date(2021, 4, 8, 20, 0).toJSON(),
       });
       expect(response.body.data[1]).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff88',
+        id: 3,
         user: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+          id: 1,
           name: 'Test User',
         },
         place: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          id: 4,
           name: 'Test place',
         },
         amount: -74,
@@ -127,15 +127,15 @@ describe('Transactions', () => {
 
     beforeAll(async () => {
       await knex(tables.place).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 4,
         name: 'Test place',
         rating: 3,
       }]);
 
       await knex(tables.transaction).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
-        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
-        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 1,
+        user_id: 1,
+        place_id: 4,
         amount: 3500,
         date: new Date(2021, 4, 25, 19, 40),
       }]);
@@ -143,27 +143,27 @@ describe('Transactions', () => {
 
     afterAll(async () => {
       await knex(tables.transaction)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff86')
+        .where('id', 1)
         .delete();
 
       await knex(tables.place)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff90')
+        .where('id', 4)
         .delete();
     });
 
     test('it should 200 and return the requested transaction', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff86`)
+      const response = await supertest.get(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff86',
+        id: 1,
         user: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+          id: 1,
           name: 'Test User',
         },
         place: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          id: 4,
           name: 'Test place',
         },
         amount: 3500,
@@ -172,15 +172,15 @@ describe('Transactions', () => {
     });
 
     test('it should 404 when requesting not existing transaction', async () => {
-      const response = await supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abffaa`)
+      const response = await supertest.get(`${url}/2`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No transaction with id 7f28c5f9-d711-4cd6-ac15-d13d71abffaa exists',
+        message: 'No transaction with id 2 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
+          id: 2,
         },
       });
     });
@@ -194,22 +194,20 @@ describe('Transactions', () => {
       expect(response.body.details.params).toHaveProperty('id');
     });
 
-    testAuthHeader(() => supertest.get(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff86`));
+    testAuthHeader(() => supertest.get(`${url}/1`));
   });
 
   describe('POST /api/transactions', () => {
 
     const transactionsToDelete = [];
-    const placesToDelete = [];
     const url = '/api/transactions';
 
     beforeAll(async () => {
       await knex(tables.place).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 4,
         name: 'Test place',
         rating: 3,
       }]);
-      placesToDelete.push('7f28c5f9-d711-4cd6-ac15-d13d71abff90');
     });
 
     afterAll(async () => {
@@ -218,7 +216,7 @@ describe('Transactions', () => {
         .delete();
 
       await knex(tables.place)
-        .whereIn('id', placesToDelete)
+        .where('id', 4)
         .delete();
     });
 
@@ -228,7 +226,7 @@ describe('Transactions', () => {
         .send({
           amount: 102,
           date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          placeId: 4,
         });
 
       expect(response.statusCode).toBe(201);
@@ -236,11 +234,11 @@ describe('Transactions', () => {
       expect(response.body.amount).toBe(102);
       expect(response.body.date).toBe('2021-05-27T13:00:00.000Z');
       expect(response.body.place).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 4,
         name: 'Test place',
       });
       expect(response.body.user).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        id: 1,
         name: 'Test User',
       });
 
@@ -252,15 +250,15 @@ describe('Transactions', () => {
         .set('Authorization', authHeader).send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
+          placeId: 123,
         });
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff00 exists',
+        message: 'No place with id 123 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
+          id: 123,
         },
       });
     });
@@ -270,7 +268,7 @@ describe('Transactions', () => {
         .set('Authorization', authHeader)
         .send({
           date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          placeId: 4,
         });
 
       expect(response.statusCode).toBe(400);
@@ -283,7 +281,7 @@ describe('Transactions', () => {
         .set('Authorization', authHeader)
         .send({
           amount: 102,
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          placeId: 4,
         });
 
       expect(response.statusCode).toBe(400);
@@ -309,50 +307,47 @@ describe('Transactions', () => {
         amount: 102,
         date: '2021-05-27T13:00:00.000Z',
         place: 'Test place',
-        userId: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        userId: 1,
       }));
   });
 
   describe('PUT /api/transactions/:id', () => {
 
-    const placesToDelete = [];
     const url = '/api/transactions';
 
     beforeAll(async () => {
       await knex(tables.place).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 4,
         name: 'Test place',
         rating: 3,
       }]);
 
       await knex(tables.transaction).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff89',
+        id: 4,
         amount: 102,
         date: new Date(2021, 4, 25, 19, 40),
-        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        place_id: 4,
+        user_id: 1,
       }]);
-
-      placesToDelete.push('7f28c5f9-d711-4cd6-ac15-d13d71abff90');
     });
 
     afterAll(async () => {
       await knex(tables.transaction)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff89')
+        .where('id', 4)
         .delete();
 
       await knex(tables.place)
-        .whereIn('id', placesToDelete)
+        .where('id', 4)
         .delete();
     });
 
     test('it should 200 and return the updated transaction', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+      const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          placeId: 4,
         });
 
       expect(response.statusCode).toBe(200);
@@ -360,57 +355,57 @@ describe('Transactions', () => {
       expect(response.body.amount).toBe(-125);
       expect(response.body.date).toBe('2021-05-27T13:00:00.000Z');
       expect(response.body.place).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 4,
         name: 'Test place',
       });
       expect(response.body.user).toEqual({
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        id: 1,
         name: 'Test User',
       });
     });
 
     test('it should 404 when updating not existing transaction', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abffaa`)
+      const response = await supertest.put(`${url}/2`)
         .set('Authorization', authHeader).send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          placeId: 4,
         });
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No transaction with id 7f28c5f9-d711-4cd6-ac15-d13d71abffaa exists',
+        message: 'No transaction with id 2 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abffaa',
+          id: 2,
         },
       });
     });
 
     test('it should 404 when place does not exist', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+      const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader).send({
           amount: -125,
           date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
+          placeId: 123,
         });
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No place with id 7f28c5f9-d711-4cd6-ac15-d13d71abff00 exists',
+        message: 'No place with id 123 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff00',
+          id: 123,
         },
       });
     });
 
     test('it should 400 when missing amount', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+      const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
           date: '2021-05-27T13:00:00.000Z',
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          placeId: 4,
         });
 
       expect(response.statusCode).toBe(400);
@@ -419,11 +414,11 @@ describe('Transactions', () => {
     });
 
     test('it should 400 when missing date', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+      const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
           amount: 102,
-          placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+          placeId: 4,
         });
 
       expect(response.statusCode).toBe(400);
@@ -432,7 +427,7 @@ describe('Transactions', () => {
     });
 
     test('it should 400 when missing placeId', async () => {
-      const response = await supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+      const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
           amount: 102,
@@ -444,11 +439,11 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('placeId');
     });
 
-    testAuthHeader(() => supertest.put(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+    testAuthHeader(() => supertest.put(`${url}/4`)
       .send({
         amount: -125,
         date: '2021-05-27T13:00:00.000Z',
-        placeId: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        placeId: 4,
       }));
   });
 
@@ -457,28 +452,28 @@ describe('Transactions', () => {
 
     beforeAll(async () => {
       await knex(tables.place).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
+        id: 4,
         name: 'Test place',
         rating: 3,
       }]);
 
       await knex(tables.transaction).insert([{
-        id: '7f28c5f9-d711-4cd6-ac15-d13d71abff89',
+        id: 4,
         amount: 102,
         date: new Date(2021, 4, 25, 19, 40),
-        place_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff90',
-        user_id: '7f28c5f9-d711-4cd6-ac15-d13d71abff80',
+        place_id: 4,
+        user_id: 1,
       }]);
     });
 
     afterAll(async () => {
       await knex(tables.place)
-        .where('id', '7f28c5f9-d711-4cd6-ac15-d13d71abff90')
+        .where('id', 4)
         .delete();
     });
 
     test('it should 204 and return nothing', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+      const response = await supertest.delete(`${url}/4`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(204);
@@ -486,19 +481,19 @@ describe('Transactions', () => {
     });
 
     test('it should 404 with not existing place', async () => {
-      const response = await supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`)
+      const response = await supertest.delete(`${url}/4`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toEqual({
         code: 'NOT_FOUND',
-        message: 'No transaction with id 7f28c5f9-d711-4cd6-ac15-d13d71abff89 exists',
+        message: 'No transaction with id 4 exists',
         details: {
-          id: '7f28c5f9-d711-4cd6-ac15-d13d71abff89',
+          id: 4,
         },
       });
     });
 
-    testAuthHeader(() => supertest.delete(`${url}/7f28c5f9-d711-4cd6-ac15-d13d71abff89`));
+    testAuthHeader(() => supertest.delete(`${url}/4`));
   });
 });

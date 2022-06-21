@@ -1,6 +1,5 @@
 const { getLogger } = require('../core/logging');
 const { tables, getKnex } = require('../data/index');
-const { getLastId } = require('./_repository.helpers');
 
 const SELECT_COLUMNS = [
   `${tables.transaction}.id`, 'amount', 'date',
@@ -11,7 +10,7 @@ const SELECT_COLUMNS = [
 /**
  * Get all transactions for the given user.
  *
- * @param {string} userId - Id of the user to fetch transactions for.
+ * @param {number} userId - Id of the user to fetch transactions for.
  */
 const findAll = (userId) => {
   return getKnex()(tables.transaction)
@@ -25,7 +24,7 @@ const findAll = (userId) => {
 /**
  * Calculate the total number of transactions.
  *
- * @param {string} userId - Id of the user to fetch transactions for.
+ * @param {number} userId - Id of the user to fetch transactions for.
  */
 const findCount = async (userId) => {
   const [count] = await getKnex()(tables.transaction)
@@ -38,7 +37,7 @@ const findCount = async (userId) => {
 /**
  * Find a transaction with the given `id`.
  *
- * @param {string} id - Id of the transaction to find.
+ * @param {number} id - Id of the transaction to find.
  */
 const findById = (id) => {
   return getKnex()(tables.transaction)
@@ -52,12 +51,12 @@ const findById = (id) => {
  * Create a new transaction.
  *
  * @param {object} transaction - The transaction to create.
- * @param {string} transaction.amount - Amount deposited/withdrawn.
+ * @param {number} transaction.amount - Amount deposited/withdrawn.
  * @param {Date} transaction.date - Date of the transaction.
- * @param {string} transaction.placeId - Id of the place the transaction happened.
- * @param {string} transaction.userId - Id of the user who did the transaction.
+ * @param {number} transaction.placeId - Id of the place the transaction happened.
+ * @param {number} transaction.userId - Id of the user who did the transaction.
  *
- * @returns {Promise<string>} Created transaction's id
+ * @returns {Promise<number>} Created transaction's id
  */
 const create = async ({
   amount,
@@ -66,14 +65,14 @@ const create = async ({
   userId,
 }) => {
   try {
-    await getKnex()(tables.transaction)
+    const [id] = await getKnex()(tables.transaction)
       .insert({
         amount,
         date,
         place_id: placeId,
         user_id: userId,
       });
-    return await getLastId();
+    return id;
   } catch (error) {
     getLogger().error('Error in create', {
       error,
@@ -85,14 +84,14 @@ const create = async ({
 /**
  * Update an existing transaction.
  *
- * @param {string} id - Id of the transaction to update.
+ * @param {number} id - Id of the transaction to update.
  * @param {object} transaction - The transaction data to save.
- * @param {string} [transaction.amount] - Amount deposited/withdrawn.
+ * @param {number} [transaction.amount] - Amount deposited/withdrawn.
  * @param {Date} [transaction.date] - Date of the transaction.
- * @param {string} [transaction.placeId] - Id of the place the transaction happened.
- * @param {string} [transaction.userId] - Id of the user who did the transaction.
+ * @param {number} [transaction.placeId] - Id of the place the transaction happened.
+ * @param {number} [transaction.userId] - Id of the user who did the transaction.
  *
- * @returns {Promise<string>} Transaction's id
+ * @returns {Promise<number>} Transaction's id
  */
 const updateById = async (id, {
   amount,
@@ -109,7 +108,7 @@ const updateById = async (id, {
       })
       .where(`${tables.transaction}.id`, id)
       .andWhere(`${tables.transaction}.user_id`, userId);
-    return await getLastId();
+    return id;
   } catch (error) {
     getLogger().error('Error in updateById', {
       error,
@@ -121,8 +120,8 @@ const updateById = async (id, {
 /**
  * Delete a transaction with the given `id`.
  *
- * @param {string} id - Id of the transaction to delete.
- * @param {string} userId - Id of the user deleting the transaction.
+ * @param {number} id - Id of the transaction to delete.
+ * @param {number} userId - Id of the user deleting the transaction.
  *
  * @returns {Promise<boolean>} Whether the transaction was deleted.
  */

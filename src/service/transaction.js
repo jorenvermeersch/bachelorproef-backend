@@ -31,7 +31,7 @@ const makeExposedTransaction = ({
 /**
  * Get all transactions for the given user.
  *
- * @param {string} userId - Id of the user to fetch transactions for.
+ * @param {number} userId - Id of the user to fetch transactions for.
  */
 const getAll = async (userId) => {
   const data = await transactionRepository.findAll(userId);
@@ -45,7 +45,7 @@ const getAll = async (userId) => {
  * Get the transaction with the given `id`.
  *
  * @param {number} id - Id of the transaction to find.
- * @param {string} userId - Id of the user requesting the transaction.
+ * @param {number} userId - Id of the user requesting the transaction.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction with the given id could be found.
@@ -64,10 +64,10 @@ const getById = async (id, userId) => {
  * Create a new transaction, will create a new place if necessary.
  *
  * @param {object} transaction - The transaction to create.
- * @param {string} transaction.amount - Amount deposited/withdrawn.
+ * @param {number} transaction.amount - Amount deposited/withdrawn.
  * @param {Date} transaction.date - Date of the transaction.
- * @param {string} transaction.placeId - Id of the place the transaction happened.
- * @param {string} transaction.userId - Id of the user who did the transaction.
+ * @param {number} transaction.placeId - Id of the place the transaction happened.
+ * @param {number} transaction.userId - Id of the user who did the transaction.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No place with the given id could be found.
@@ -96,12 +96,12 @@ const create = async ({
 /**
  * Update an existing transaction, will create a new place if necessary.
  *
- * @param {string} id - Id of the transaction to update.
+ * @param {number} id - Id of the transaction to update.
  * @param {object} transaction - The transaction data to save.
- * @param {string} [transaction.amount] - Amount deposited/withdrawn.
+ * @param {number} [transaction.amount] - Amount deposited/withdrawn.
  * @param {Date} [transaction.date] - Date of the transaction.
- * @param {string} [transaction.placeId] - Id of the place the transaction happened.
- * @param {string} [transaction.userId] - Id of the user who did the transaction.
+ * @param {number} [transaction.placeId] - Id of the place the transaction happened.
+ * @param {number} [transaction.userId] - Id of the user who did the transaction.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction/place with the given id could be found.
@@ -134,7 +134,7 @@ const updateById = async (id, {
  * Delete the transaction with the given `id`.
  *
  * @param {number} id - Id of the transaction to delete.
- * @param {string} userId - Id of the user deleting the transaction.
+ * @param {number} userId - Id of the user deleting the transaction.
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction with the given id could be found.

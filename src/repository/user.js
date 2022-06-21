@@ -1,6 +1,5 @@
 const { getLogger } = require('../core/logging');
 const { tables, getKnex } = require('../data');
-const { getLastId } = require('./_repository.helpers');
 
 /**
  * Get all users.
@@ -23,7 +22,7 @@ const findCount = async () => {
 /**
  * Find a user with the given id.
  *
- * @param {string} id - The id to search for.
+ * @param {number} id - The id to search for.
  */
 const findById = (id) => {
   return getKnex()(tables.user)
@@ -58,14 +57,14 @@ const create = async ({
   roles,
 }) => {
   try {
-    await getKnex()(tables.user)
+    const [id] = await getKnex()(tables.user)
       .insert({
         name,
         email,
         password_hash: passwordHash,
         roles: JSON.stringify(roles),
       });
-    return await getLastId();
+    return id;
   } catch (error) {
     getLogger().error('Error in create', {
       error,
@@ -77,7 +76,7 @@ const create = async ({
 /**
  * Update a user with the given `id`.
  *
- * @param {string} id - Id of the user to update.
+ * @param {number} id - Id of the user to update.
  * @param {object} user - User to save.
  * @param {string} user.name - Name of the user.
  * @param {string} user.email - Email of the user.
@@ -93,7 +92,7 @@ const updateById = async (id, {
         email,
       })
       .where('id', id);
-    return await getLastId();
+    return id;
   } catch (error) {
     getLogger().error('Error in updateById', {
       error,
@@ -105,7 +104,7 @@ const updateById = async (id, {
 /**
  * Update a user with the given `id`.
  *
- * @param {string} id - Id of the user to delete.
+ * @param {number} id - Id of the user to delete.
  */
 const deleteById = async (id) => {
   try {

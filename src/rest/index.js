@@ -14,10 +14,10 @@ const installUsersRoutes = require('./user');
  *         - id
  *       properties:
  *         id:
- *           type: string
- *           format: "uuid"
+ *           type: integer
+ *           format: "int32"
  *       example:
- *         id: "6d560fca-e7f9-4583-af2d-b05ccd1a0c58"
+ *         id: 123
  *     ListResponse:
  *       required:
  *         - count
@@ -38,8 +38,8 @@ const installUsersRoutes = require('./user');
  *       description: Id of the item to fetch/update/delete
  *       required: true
  *       schema:
- *         type: string
- *         format: "uuid"
+ *         type: integer
+ *         format: "int32"
  */
 
 /**
@@ -66,7 +66,7 @@ const installUsersRoutes = require('./user');
  *                 description: Stack trace (only available if set in configuration)
  *             example:
  *               code: "NOT_FOUND"
- *               details: "No user with the id 99dada36-de4a-42ba-b329-3b1d88778c72 exists"
+ *               details: "No user with the id 123 exists"
  */
 
 /**
