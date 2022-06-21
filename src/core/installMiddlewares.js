@@ -153,7 +153,7 @@ module.exports = function installMiddleware(app) {
     app.use(
       koaSwagger({
         routePrefix: '/swagger',
-        specPrefix: '/swagger/spec',
+        specPrefix: '/openapi.json',
         exposeSpec: true,
         swaggerOptions: {
           spec,

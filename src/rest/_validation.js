@@ -1,7 +1,5 @@
 const Joi = require('joi');
 
-const ALLOWED_KEYS = ['body', 'params', 'query'];
-
 const JOI_OPTIONS = {
   abortEarly: true, // stop when first error occured
   allowUnknown: false, // disallow unknown fields
@@ -10,7 +8,11 @@ const JOI_OPTIONS = {
   presence: 'required', // default require all fields
 };
 
-const cleanupJoiError = (error) => error.details.reduce((resultObj, { message, path, type }) => {
+const cleanupJoiError = (error) => error.details.reduce((resultObj, {
+  message,
+  path,
+  type,
+}) => {
   const joinedPath = path.join('.') || 'value';
   if (!resultObj[joinedPath]) {
     resultObj[joinedPath] = [];
@@ -26,30 +28,75 @@ const cleanupJoiError = (error) => error.details.reduce((resultObj, { message, p
 
 // Create our own validator function which only takes the schema as an argument
 const validate = (schema) => {
+  // Be sure we have a schema that isn't null or undefined
+  if (!schema) {
+    schema = {};
+  }
+
   return (ctx, next) => {
-    const errors = ALLOWED_KEYS.reduce((errors, key) => {
-      if (key in schema) {
-        const {
-          error,
-          value,
-        } = schema[key].validate(
-          key === 'body' ? ctx.request.body : ctx[key],
-          JOI_OPTIONS,
-        );
-
-        if (error) {
-          errors[key] = cleanupJoiError(error);
-        }
-
-        if (key === 'body') {
-          ctx.request.body = value;
-        } else {
-          ctx[key] = value;
-        }
+    const errors = {};
+    if (schema.body) {
+      // Be sure the schema is a Joi instance
+      if (!Joi.isSchema(schema.body)) {
+        schema.body = Joi.object(schema.body);
       }
 
-      return errors;
-    }, {});
+      const {
+        error: bodyErrors,
+        value: bodyValue,
+      } = schema.body.validate(
+        ctx.request.body,
+        JOI_OPTIONS,
+      );
+
+      if (bodyErrors) {
+        errors.body = cleanupJoiError(bodyErrors);
+      } else {
+        ctx.request.body = bodyValue;
+      }
+    }
+
+    if (schema.params) {
+      // Be sure the schema is a Joi instance
+      if (!Joi.isSchema(schema.params)) {
+        schema.params = Joi.object(schema.params);
+      }
+
+      const {
+        error: paramsErrors,
+        value: paramsValue,
+      } = schema.params.validate(
+        ctx.params,
+        JOI_OPTIONS,
+      );
+
+      if (paramsErrors) {
+        errors.params = cleanupJoiError(paramsErrors);
+      } else {
+        ctx.params = paramsValue;
+      }
+    }
+
+    if (schema.query) {
+      // Be sure the schema is a Joi instance
+      if (!Joi.isSchema(schema.query)) {
+        schema.query = Joi.object(schema.query);
+      }
+
+      const {
+        error: queryErrors,
+        value: queryValue,
+      } = schema.query.validate(
+        ctx.query,
+        JOI_OPTIONS,
+      );
+
+      if (queryErrors) {
+        errors.query = cleanupJoiError(queryErrors);
+      } else {
+        ctx.query = queryValue;
+      }
+    }
 
     if (Object.keys(errors).length) {
       ctx.throw(400, 'Validation failed, check details for more information', {
@@ -62,23 +109,4 @@ const validate = (schema) => {
   };
 };
 
-/**
- * Validation scheme factory which gets the Joi instance
- * as a first argument.
- *
- * @param {Function} schemeGenerator - Function whichs creates the Joi-Scheme.
- */
-const validationSchemeFactory = (schemeGenerator) => {
-  const scheme = schemeGenerator === null ? {} : schemeGenerator(Joi);
-  return ALLOWED_KEYS.reduce((newScheme, key) => {
-    return {
-      ...newScheme,
-      [key]: Joi.isSchema(scheme[key]) ? scheme[key] : Joi.object(scheme[key] || {}),
-    };
-  }, {});
-};
-
-module.exports = {
-  validationSchemeFactory,
-  validate,
-};
+module.exports = validate;

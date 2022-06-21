@@ -1,5 +1,5 @@
 const Router = require('@koa/router');
-const { validate, validationSchemeFactory } = require('./_validation');
+const validate = require('./_validation');
 const { healthService } = require('../service');
 
 /**
@@ -26,7 +26,7 @@ const ping = async (ctx) => {
   ctx.status = 200;
   ctx.body = healthService.ping();
 };
-ping.validationScheme = validationSchemeFactory(null);
+ping.validationScheme = null;
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ const getVersion = async (ctx) => {
   ctx.status = 200;
   ctx.body = healthService.getVersion();
 };
-getVersion.validationScheme = validationSchemeFactory(null);
+getVersion.validationScheme = null;
 
 /**
  * Install health routes in the given router.

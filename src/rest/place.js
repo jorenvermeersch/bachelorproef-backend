@@ -1,8 +1,9 @@
 const Router = require('@koa/router');
+const Joi = require('joi');
 
 const { requireAuthentication } = require('../core/auth');
 const { placeService } = require('../service');
-const { validate, validationSchemeFactory } = require('./_validation');
+const validate = require('./_validation');
 
 /**
  * @swagger
@@ -86,7 +87,12 @@ const getAllPlaces = async (ctx) => {
   const places = await placeService.getAll();
   ctx.body = places;
 };
-getAllPlaces.validationScheme = validationSchemeFactory(null);
+getAllPlaces.validationScheme = {
+  query: Joi.object({
+    limit: Joi.number().positive().max(1000).optional(),
+    offset: Joi.number().min(0).optional(),
+  }).and('limit', 'offset'),
+};
 
 /**
  * @swagger
@@ -115,11 +121,11 @@ const getPlaceById = async (ctx) => {
   const place = await placeService.getById(ctx.params.id);
   ctx.body = place;
 };
-getPlaceById.validationScheme = validationSchemeFactory((Joi) => ({
+getPlaceById.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -149,12 +155,12 @@ const createPlace = async (ctx) => {
   ctx.status = 201;
   ctx.body = place;
 };
-createPlace.validationScheme = validationSchemeFactory((Joi) => ({
+createPlace.validationScheme = {
   body: {
     name: Joi.string().max(255),
     rating: Joi.number().min(1).max(5).integer().optional(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -191,7 +197,7 @@ const updatePlace = async (ctx) => {
   const place = await placeService.updateById(ctx.params.id, ctx.request.body);
   ctx.body = place;
 };
-updatePlace.validationScheme = validationSchemeFactory((Joi) => ({
+updatePlace.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
@@ -199,7 +205,7 @@ updatePlace.validationScheme = validationSchemeFactory((Joi) => ({
     name: Joi.string().max(255),
     rating: Joi.number().min(1).max(5).integer(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -224,11 +230,11 @@ const deletePlace = async (ctx) => {
   await placeService.deleteById(ctx.params.id);
   ctx.status = 204;
 };
-deletePlace.validationScheme = validationSchemeFactory((Joi) => ({
+deletePlace.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * Install places routes in the given router.

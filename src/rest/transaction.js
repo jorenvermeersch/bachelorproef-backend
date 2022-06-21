@@ -1,8 +1,9 @@
 const Router = require('@koa/router');
+const Joi = require('joi');
 
 const { requireAuthentication } = require('../core/auth');
 const { transactionService } = require('../service');
-const { validate, validationSchemeFactory } = require('./_validation');
+const validate = require('./_validation');
 
 /**
  * @swagger
@@ -96,7 +97,12 @@ const getAllTransactions = async (ctx) => {
   const transactions = await transactionService.getAll(userId);
   ctx.body = transactions;
 };
-getAllTransactions.validationScheme = validationSchemeFactory(null);
+getAllTransactions.validationScheme = {
+  query: Joi.object({
+    limit: Joi.number().positive().max(1000).optional(),
+    offset: Joi.number().min(0).optional(),
+  }).and('limit', 'offset'),
+};
 
 /**
  * @swagger
@@ -126,11 +132,11 @@ const getTransactionById = async (ctx) => {
   const transaction = await transactionService.getById(ctx.params.id, userId);
   ctx.body = transaction;
 };
-getTransactionById.validationScheme = validationSchemeFactory((Joi) => ({
+getTransactionById.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -172,13 +178,13 @@ const createTransaction = async (ctx) => {
   ctx.status = 201;
   ctx.body = transaction;
 };
-createTransaction.validationScheme = validationSchemeFactory((Joi) => ({
+createTransaction.validationScheme = {
   body: {
     amount: Joi.number().invalid(0),
     date: Joi.date().iso().less('now'),
     placeId: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -221,7 +227,7 @@ const updateTransaction = async (ctx) => {
   ctx.status = 200;
   ctx.body = transaction;
 };
-updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
+updateTransaction.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
@@ -230,7 +236,7 @@ updateTransaction.validationScheme = validationSchemeFactory((Joi) => ({
     date: Joi.date().iso().less('now'),
     placeId: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -256,11 +262,11 @@ const deleteTransaction = async (ctx) => {
   await transactionService.deleteById(ctx.params.id, userId);
   ctx.status = 204;
 };
-deleteTransaction.validationScheme = validationSchemeFactory((Joi) => ({
+deleteTransaction.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * Install transaction routes in the given router.

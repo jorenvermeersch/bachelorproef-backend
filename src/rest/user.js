@@ -1,9 +1,10 @@
 const config = require('config');
 const Router = require('@koa/router');
+const Joi = require('joi');
 const Role = require('../core/roles');
 const { requireAuthentication, makeRequireRole } = require('../core/auth');
 const { userService } = require('../service');
-const { validate, validationSchemeFactory } = require('./_validation');
+const validate = require('./_validation');
 
 const AUTH_DISABLED = config.get('auth.disabled');
 const AUTH_MAX_DELAY = config.get('auth.maxDelay');
@@ -117,7 +118,12 @@ const getAllUsers = async (ctx) => {
   const users = await userService.getAll();
   ctx.body = users;
 };
-getAllUsers.validationScheme = validationSchemeFactory(null);
+getAllUsers.validationScheme = {
+  query: Joi.object({
+    limit: Joi.number().positive().max(1000).optional(),
+    offset: Joi.number().min(0).optional(),
+  }).and('limit', 'offset'),
+};
 
 /**
  * @swagger
@@ -180,12 +186,12 @@ const login = async (ctx) => {
   ctx.status = 200;
   ctx.body = token;
 };
-login.validationScheme = validationSchemeFactory((Joi) => ({
+login.validationScheme = {
   body: {
     email: Joi.string().email(),
     password: Joi.string(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -228,13 +234,13 @@ const register = async (ctx) => {
   ctx.status = 200;
   ctx.body = token;
 };
-register.validationScheme = validationSchemeFactory((Joi) => ({
+register.validationScheme = {
   body: {
     name: Joi.string().max(255),
     email: Joi.string().email(),
     password: Joi.string().min(8).max(30),
   },
-}));
+};
 
 /**
  * @swagger
@@ -270,11 +276,11 @@ const getUserById = async (ctx) => {
   ctx.status = 200;
   ctx.body = user;
 };
-getUserById.validationScheme = validationSchemeFactory((Joi) => ({
+getUserById.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -310,7 +316,7 @@ const updateUserById = async (ctx) => {
   ctx.status = 200;
   ctx.body = user;
 };
-updateUserById.validationScheme = validationSchemeFactory((Joi) => ({
+updateUserById.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
@@ -318,7 +324,7 @@ updateUserById.validationScheme = validationSchemeFactory((Joi) => ({
     name: Joi.string().max(255),
     email: Joi.string().email(),
   },
-}));
+};
 
 /**
  * @swagger
@@ -349,11 +355,11 @@ const deleteUserById = async (ctx) => {
   await userService.deleteById(ctx.params.id);
   ctx.status = 204;
 };
-deleteUserById.validationScheme = validationSchemeFactory((Joi) => ({
+deleteUserById.validationScheme = {
   params: {
     id: Joi.string().uuid(),
   },
-}));
+};
 
 /**
  * Install transaction routes in the given router.
