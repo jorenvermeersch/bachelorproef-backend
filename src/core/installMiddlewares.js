@@ -6,7 +6,6 @@ const koaQs = require('koa-qs');
 const { koaSwagger } = require('koa2-swagger-ui');
 const emoji = require('node-emoji');
 const swaggerJsdoc = require('swagger-jsdoc');
-const { v4: uuid } = require('uuid');
 
 const swaggerOptions = require('../swagger.config');
 const { getLogger } = require('./logging');
@@ -26,18 +25,6 @@ const isDevelopment = NODE_ENV === 'development';
 module.exports = function installMiddleware(app) {
   // Add support for nested query parameters
   koaQs(app);
-
-  // Create a Request ID if not provided
-  app.use((ctx, next) => {
-    const header = 'x-request-id';
-    if (!ctx.headers[header]) {
-      // Let's generate an id and set the header + keep it in context state
-      const id = uuid();
-      ctx.headers[header] = id;
-      ctx.state.requestId = id;
-    }
-    return next();
-  });
 
   // Log when requests come in and go out
   app.use(async (ctx, next) => {
