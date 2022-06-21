@@ -2,7 +2,7 @@ const config = require('config');
 const knex = require('knex');
 const { join } = require('path');
 
-const { getChildLogger } = require('../core/logging');
+const { getLogger } = require('../core/logging');
 
 const NODE_ENV = config.get('env');
 const isDevelopment = NODE_ENV === 'development';
@@ -28,7 +28,7 @@ const getKnexLogger = (logger, level) => (message) => {
 };
 
 async function initializeData() {
-  const logger = getChildLogger('database');
+  const logger = getLogger();
   logger.info('Initializing connection to the database');
 
   const knexOptions = {
@@ -125,7 +125,7 @@ async function initializeData() {
 }
 
 async function shutdownData() {
-  const logger = getChildLogger('database');
+  const logger = getLogger();
 
   logger.info('Shutting down database connection');
 

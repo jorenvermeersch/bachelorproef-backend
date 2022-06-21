@@ -10,7 +10,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const { koaSwagger } = require('koa2-swagger-ui');
 
 const swaggerOptions = require('../swagger.config');
-const { getChildLogger } = require('./logging');
+const { getLogger } = require('./logging');
 const ServiceError = require('./serviceError');
 
 const NODE_ENV = config.get('env');
@@ -40,18 +40,11 @@ module.exports = function installMiddleware(app) {
     return next();
   });
 
-  // Attach the request logger
-  app.use((ctx, next) => {
-    const logger = getChildLogger(`request(${ctx.state.requestId})`);
-    ctx.logger = logger;
-    return next();
-  });
-
   // Log when requests come in and go out
   app.use(async (ctx, next) => {
     if (ctx.url === '/api/health/ping') return next();
 
-    ctx.logger.info(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
+    getLogger().info(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
 
     const getStatusEmoji = () => {
       if (ctx.status >= 500) return emoji.get('skull');
@@ -64,11 +57,11 @@ module.exports = function installMiddleware(app) {
     try {
       await next();
 
-      ctx.logger.info(
+      getLogger().info(
         `${getStatusEmoji()} ${ctx.method} ${ctx.status} (${ctx.response.get('X-Response-Time')}) ${ctx.url}`,
       );
     } catch (error) {
-      ctx.logger.error(`${emoji.get('x')} ${ctx.method} ${ctx.status} ${ctx.url}`, {
+      getLogger().error(`${emoji.get('x')} ${ctx.method} ${ctx.status} ${ctx.url}`, {
         error,
       });
 
@@ -111,8 +104,7 @@ module.exports = function installMiddleware(app) {
     try {
       await next();
     } catch (error) {
-      const { logger } = ctx;
-      logger.error('Error occured while handling a request', {
+      getLogger().error('Error occured while handling a request', {
         error,
       });
 

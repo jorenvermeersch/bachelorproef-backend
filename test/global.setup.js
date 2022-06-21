@@ -5,10 +5,10 @@ const Role = require('../src/core/roles');
 
 module.exports = async () => {
   // Create a database connection
-  initializeLogging({
-    level: config.get('log.level'),
-    disabled: config.get('log.disabled'),
-  });
+  initializeLogging(
+    config.get('log.level'),
+    config.get('log.disabled'),
+  );
   await initializeData();
 
   // Insert a test user with password 12345678

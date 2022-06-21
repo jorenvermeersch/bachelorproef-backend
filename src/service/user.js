@@ -130,8 +130,7 @@ const checkAndParseSession = async (authHeader) => {
       authToken,
     };
   } catch (error) {
-    const logger = getLogger('user-service');
-    logger.error(error.message, { error });
+    getLogger().error(error.message, { error });
     throw ServiceError.unauthorized(error.message);
   }
 };

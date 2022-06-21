@@ -1,5 +1,5 @@
 const { tables, getKnex } = require('../data');
-const { getChildLogger } = require('../core/logging');
+const { getLogger } = require('../core/logging');
 const { getLastId } = require('./_repository.helpers');
 
 /**
@@ -67,8 +67,7 @@ const create = async ({
       });
     return await getLastId();
   } catch (error) {
-    const logger = getChildLogger('users-repo');
-    logger.error('Error in create', {
+    getLogger().error('Error in create', {
       error,
     });
     throw error;
@@ -96,8 +95,7 @@ const updateById = async (id, {
       .where('id', id);
     return await getLastId();
   } catch (error) {
-    const logger = getChildLogger('users-repo');
-    logger.error('Error in updateById', {
+    getLogger().error('Error in updateById', {
       error,
     });
     throw error;
@@ -116,8 +114,7 @@ const deleteById = async (id) => {
       .where('id', id);
     return rowsAffected > 0;
   } catch (error) {
-    const logger = getChildLogger('users-repo');
-    logger.error('Error in deleteById', {
+    getLogger().error('Error in deleteById', {
       error,
     });
     throw error;
