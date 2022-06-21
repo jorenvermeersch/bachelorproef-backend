@@ -30,7 +30,11 @@ const cleanupJoiError = (error) => error.details.reduce((resultObj, {
 const validate = (schema) => {
   // Be sure we have a schema that isn't null or undefined
   if (!schema) {
-    schema = {};
+    schema = {
+      body: {},
+      params: {},
+      query: {},
+    };
   }
 
   return (ctx, next) => {
