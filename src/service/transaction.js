@@ -1,7 +1,7 @@
 const ServiceError = require('../core/serviceError');
 const { transactionRepository } = require('../repository');
-const placeService = require('./place');
 const handleDBError = require('./_handleDBError');
+const placeService = require('./place');
 
 const makeExposedTransaction = ({
   user_id,

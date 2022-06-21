@@ -1,13 +1,12 @@
-const config = require('config');
 const koaCors = require('@koa/cors');
+const config = require('config');
 const bodyParser = require('koa-bodyparser');
 const koaHelmet = require('koa-helmet');
 const koaQs = require('koa-qs');
-const responseTime = require('koa-response-time');
-const { v4: uuid } = require('uuid');
+const { koaSwagger } = require('koa2-swagger-ui');
 const emoji = require('node-emoji');
 const swaggerJsdoc = require('swagger-jsdoc');
-const { koaSwagger } = require('koa2-swagger-ui');
+const { v4: uuid } = require('uuid');
 
 const swaggerOptions = require('../swagger.config');
 const { getLogger } = require('./logging');
@@ -69,9 +68,6 @@ module.exports = function installMiddleware(app) {
       throw error;
     }
   });
-
-  // Add the response time
-  app.use(responseTime());
 
   // Add the body parser
   app.use(bodyParser());

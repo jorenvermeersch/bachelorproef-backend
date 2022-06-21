@@ -1,8 +1,9 @@
 const Router = require('@koa/router');
-const installTransactionRoutes = require('./transaction');
-const installPlacesRoutes = require('./place');
-const installUsersRoutes = require('./user');
+
 const installHealthRoutes = require('./health');
+const installPlacesRoutes = require('./place');
+const installTransactionRoutes = require('./transaction');
+const installUsersRoutes = require('./user');
 
 /**
  * @swagger

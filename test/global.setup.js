@@ -1,7 +1,8 @@
 const config = require('config');
-const { initializeData, getKnex, tables } = require('../src/data');
+
 const { initializeLogging } = require('../src/core/logging');
 const Role = require('../src/core/roles');
+const { initializeData, getKnex, tables } = require('../src/data');
 
 module.exports = async () => {
   // Create a database connection

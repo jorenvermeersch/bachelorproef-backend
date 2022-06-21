@@ -5,13 +5,13 @@
     "node": true
   },
   "extends": "eslint:recommended",
+  "plugins": [
+    "import"
+  ],
   "parserOptions": {
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": [
-    "simple-import-sort"
-  ],
   "rules": {
     "indent": ["error", 2, { "SwitchCase": 1 }],
     "linebreak-style": ["error", "unix"],
@@ -27,8 +27,18 @@
     "brace-style": ["error", "1tbs", {
       "allowSingleLine": false
     }],
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
-    "no-inner-declarations": "off"
+    "no-inner-declarations": "off",
+    "import/order": ["error", {
+      "groups": [
+        ["builtin", "external"],
+        ["internal", "parent", "sibling", "index"],
+        "object"
+      ],
+      "newlines-between": "always",
+      "alphabetize": {
+        "order": "asc",
+        "caseInsensitive": true
+      }
+    }]
   }
 }

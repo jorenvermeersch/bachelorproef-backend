@@ -1,5 +1,5 @@
-const { withServer } = require('../supertest.setup');
 const packageJson = require('../../package.json');
+const { withServer } = require('../supertest.setup');
 
 describe('Health', () => {
 

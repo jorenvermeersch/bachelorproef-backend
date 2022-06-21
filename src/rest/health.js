@@ -1,6 +1,7 @@
 const Router = require('@koa/router');
-const validate = require('./_validation');
+
 const { healthService } = require('../service');
+const validate = require('./_validation');
 
 /**
  * @swagger

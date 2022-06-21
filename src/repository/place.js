@@ -1,5 +1,5 @@
-const { tables, getKnex } = require('../data/index');
 const { getLogger } = require('../core/logging');
+const { tables, getKnex } = require('../data/index');
 const { getLastId } = require('./_repository.helpers');
 
 /**
