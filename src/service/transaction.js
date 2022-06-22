@@ -34,10 +34,10 @@ const makeExposedTransaction = ({
  * @param {number} userId - Id of the user to fetch transactions for.
  */
 const getAll = async (userId) => {
-  const data = await transactionRepository.findAll(userId);
+  const items = await transactionRepository.findAll(userId);
   return {
-    data: data.map(makeExposedTransaction),
-    count: data.length,
+    items: items.map(makeExposedTransaction),
+    count: items.length,
   };
 };
 

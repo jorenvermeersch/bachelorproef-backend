@@ -165,10 +165,10 @@ const checkRole = (role, roles) => {
  * Get all users.
  */
 const getAll = async () => {
-  const data = await userRepository.findAll();
+  const items = await userRepository.findAll();
   return {
-    data: data.map(makeExposedUser),
-    count: data.length,
+    items: items.map(makeExposedUser),
+    count: items.length,
   };
 };
 

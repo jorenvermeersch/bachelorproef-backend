@@ -70,9 +70,9 @@ const checkUserId = (ctx, next) => {
  *         - $ref: "#/components/schemas/ListResponse"
  *         - type: object
  *           required:
- *             - data
+ *             - items
  *           properties:
- *             data:
+ *             items:
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/User"

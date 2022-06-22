@@ -38,9 +38,9 @@ const validate = require('./_validation');
  *         - $ref: "#/components/schemas/ListResponse"
  *         - type: object
  *           required:
- *             - data
+ *             - items
  *           properties:
- *             data:
+ *             items:
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/Place"

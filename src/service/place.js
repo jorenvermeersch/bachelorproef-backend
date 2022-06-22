@@ -6,10 +6,10 @@ const handleDBError = require('./_handleDBError');
  * Get all places.
  */
 const getAll = async () => {
-  const data = await placeRepository.findAll();
+  const items = await placeRepository.findAll();
   return {
-    data,
-    count: data.length,
+    items,
+    count: items.length,
   };
 };
 
