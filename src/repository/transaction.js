@@ -1,6 +1,31 @@
 const { getLogger } = require('../core/logging');
 const { tables, getKnex } = require('../data/index');
 
+const formatTransaction = ({
+  user_id,
+  place_id,
+  place_name,
+  user_name,
+  email,
+  ...transaction
+}) => {
+  delete transaction.password_hash;
+  delete transaction.roles;
+
+  return {
+    ...transaction,
+    user: {
+      id: user_id,
+      name: user_name,
+      email,
+    },
+    place: {
+      id: place_id,
+      name: place_name,
+    },
+  };
+};
+
 const SELECT_COLUMNS = [
   `${tables.transaction}.id`, 'amount', 'date',
   `${tables.place}.id as place_id`, `${tables.place}.name as place_name`,
@@ -12,13 +37,15 @@ const SELECT_COLUMNS = [
  *
  * @param {number} userId - Id of the user to fetch transactions for.
  */
-const findAll = (userId) => {
-  return getKnex()(tables.transaction)
+const findAll = async (userId) => {
+  const transactions = await getKnex()(tables.transaction)
     .select(SELECT_COLUMNS)
     .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
     .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`)
     .where(`${tables.transaction}.user_id`, userId)
     .orderBy('date', 'ASC');
+
+  return transactions.map(formatTransaction);
 };
 
 /**
@@ -39,12 +66,14 @@ const findCount = async (userId) => {
  *
  * @param {number} id - Id of the transaction to find.
  */
-const findById = (id) => {
-  return getKnex()(tables.transaction)
+const findById = async (id) => {
+  const transaction = await getKnex()(tables.transaction)
     .first(SELECT_COLUMNS)
     .where(`${tables.transaction}.id`, id)
     .join(tables.place, `${tables.transaction}.place_id`, '=', `${tables.place}.id`)
     .join(tables.user, `${tables.transaction}.user_id`, '=', `${tables.user}.id`);
+
+  return transaction && formatTransaction(transaction);
 };
 
 /**

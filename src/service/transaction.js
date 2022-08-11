@@ -3,31 +3,6 @@ const { transactionRepository } = require('../repository');
 const handleDBError = require('./_handleDBError');
 const placeService = require('./place');
 
-const makeExposedTransaction = ({
-  user_id,
-  place_id,
-  place_name,
-  user_name,
-  email,
-  ...transaction
-}) => {
-  delete transaction.password_hash;
-  delete transaction.roles;
-
-  return {
-    ...transaction,
-    user: {
-      id: user_id,
-      name: user_name,
-      email,
-    },
-    place: {
-      id: place_id,
-      name: place_name,
-    },
-  };
-};
-
 /**
  * Get all transactions for the given user.
  *
@@ -36,7 +11,7 @@ const makeExposedTransaction = ({
 const getAll = async (userId) => {
   const items = await transactionRepository.findAll(userId);
   return {
-    items: items.map(makeExposedTransaction),
+    items,
     count: items.length,
   };
 };
@@ -53,11 +28,11 @@ const getAll = async (userId) => {
 const getById = async (id, userId) => {
   const transaction = await transactionRepository.findById(id);
 
-  if (!transaction || transaction.user_id !== userId) {
+  if (!transaction || transaction.user.id !== userId) {
     throw ServiceError.notFound(`No transaction with id ${id} exists`, { id });
   }
 
-  return makeExposedTransaction(transaction);
+  return transaction;
 };
 
 /**
