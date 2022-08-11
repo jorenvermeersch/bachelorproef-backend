@@ -41,18 +41,17 @@ describe('Places', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.data.length).toBeGreaterThanOrEqual(3); // one place from transactions could be present
+      expect(response.body.items.length).toBeGreaterThanOrEqual(3); // one place from transactions could be present
 
-      expect(response.body.data[0]).toEqual({
+      expect(response.body.items).toEqual(expect.arrayContaining([{
         id: 2,
         name: 'Benzine',
         rating: 2,
-      });
-      expect(response.body.data[1]).toEqual({
+      }, {
         id: 3,
         name: 'Irish pub',
         rating: 4,
-      });
+      }]));
     });
 
     test('it should 400 when given an argument', async () => {

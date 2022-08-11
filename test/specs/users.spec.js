@@ -284,9 +284,9 @@ describe('Users', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body.count).toBe(5);
-      expect(response.body.data.length).toBe(5);
+      expect(response.body.items.length).toBe(5);
 
-      expect(response.body.data).toEqual(expect.arrayContaining([{
+      expect(response.body.items).toEqual(expect.arrayContaining([{
         id: 4,
         name: 'User One',
         email: 'user1@hogent.be',

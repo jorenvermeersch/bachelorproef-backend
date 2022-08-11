@@ -79,9 +79,9 @@ describe('Transactions', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body.count).toBe(3);
-      expect(response.body.data.length).toBe(3);
+      expect(response.body.items.length).toBe(3);
 
-      expect(response.body.data[0]).toEqual({ // Test User
+      expect(response.body.items).toEqual(expect.arrayContaining([{ // Test User
         id: 2,
         user: {
           id: 1,
@@ -93,8 +93,7 @@ describe('Transactions', () => {
         },
         amount: -220,
         date: new Date(2021, 4, 8, 20, 0).toJSON(),
-      });
-      expect(response.body.data[1]).toEqual({
+      }, {
         id: 3,
         user: {
           id: 1,
@@ -106,7 +105,7 @@ describe('Transactions', () => {
         },
         amount: -74,
         date: new Date(2021, 4, 21, 14, 30).toJSON(),
-      });
+      }]));
     });
 
     test('it should 400 when given an argument', async () => {
