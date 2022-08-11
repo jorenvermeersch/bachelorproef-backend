@@ -4,7 +4,7 @@ const Joi = require('joi');
 
 const { requireAuthentication, makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
-const { userService } = require('../service');
+const userService = require('../service/user');
 const validate = require('./_validation');
 
 const AUTH_DISABLED = config.get('auth.disabled');

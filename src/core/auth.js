@@ -1,4 +1,4 @@
-const { userService } = require('../service');
+const userService = require('../service/user');
 
 /**
  * Middleware to enforce a JWT in every request.
