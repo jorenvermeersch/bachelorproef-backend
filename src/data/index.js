@@ -79,32 +79,19 @@ async function initializeData() {
   }
 
   // Run migrations
-  let migrationsFailed = true;
   try {
     await knexInstance.migrate.latest();
-    migrationsFailed = false;
   } catch (error) {
     logger.error('Error while migrating the database', {
       error,
     });
-  }
 
-  // Undo last migration if something failed
-  if (migrationsFailed) {
-    try {
-      await knexInstance.migrate.down();
-    } catch (error) {
-      logger.error('Error while undoing last migration', {
-        error,
-      });
-    }
-
-    // No point in starting the server
-    throw new Error('Migrations failed');
+    // No point in starting the server when migrations failed
+    throw new Error('Migrations failed, check the logs');
   }
 
   // Run seeds in development
-  if (!migrationsFailed && isDevelopment) {
+  if (isDevelopment) {
     // if no users exist, run the seed
     const [nrOfUsers] = await getKnex()(tables.user).count();
 
