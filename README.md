@@ -4,7 +4,7 @@ This is the backend used in lessons Webservices.
 
 ## Requirements
 
-- [NodeJS v14 or higher](https://nodejs.org/)
+- [NodeJS v17 or higher](https://nodejs.org/)
 - [Yarn](https://yarnpkg.com/)
 - [MySQL v8](https://dev.mysql.com/downloads/windows/installer/8.0.html) (no Oracle account needed, click the tiny link below the grey box)
 - [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) (no Oracle account needed, click the tiny link below the grey box)
