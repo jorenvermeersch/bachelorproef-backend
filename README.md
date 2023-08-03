@@ -47,24 +47,30 @@ AUTH_JWT_SECRET="eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegeha
 
 ## Start this project
 
-This server will create the given database when the server is started.
+### Development
 
-* Install all dependencies: `yarn`
-* Make sure `.env` (production) or `.env.dev` (development) exists
-* One the following commands, depending on your needs:
-    * Start the development server: `yarn start:dev`
-    * Start the production server: `yarn start`
+- Install all dependencies: `yarn`
+- Make sure a `.env.dev` exists (see above)
+- Create a database with the name given in the `.env.dev` file
+- Start the development server: `yarn start:dev`
+
+### Production
+
+- Install all dependencies: `yarn`
+- Make sure a `.env` exists (see above)
+- Create a database with the name given in the `.env` file
+- Start the production server: `yarn start`
 
 ## Test this project
 
 This server will create the given database when the server is started.
 
-* Install all dependencies: `yarn`
-* Make sure `.env.test` exists (it's recommended to disabled logging in the testing environment)
-* Run the tests: `yarn test`
-    * This will start a new server for each test suite that runs, you won't see any output as logging is disabled to make output more clean.
-    * To enable logging change the config parameter `log.disabled` to `true`.
-    * The user suite will take 'long' (around 6s) to complete, this is normal as many cryptographic operations are being performed.
+- Install all dependencies: `yarn`
+- Make sure `.env.test` exists (it's recommended to disabled logging in the testing environment)
+- Run the tests: `yarn test`
+  - This will start a new server for each test suite that runs, you won't see any output as logging is disabled to make output more clean.
+  - To enable logging change the config parameter `log.disabled` to `true`.
+  - The user suite will take 'long' (around 6s) to complete, this is normal as many cryptographic operations are being performed.
 
 ## Disable authentication
 
