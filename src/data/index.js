@@ -127,11 +127,11 @@ function getKnex() {
   return knexInstance;
 }
 
-const tables = {
+const tables = Object.freeze({
   transaction: 'transactions',
   user: 'users',
   place: 'places',
-};
+});
 
 module.exports = {
   tables,
