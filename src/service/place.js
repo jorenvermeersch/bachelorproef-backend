@@ -1,5 +1,5 @@
 const ServiceError = require('../core/serviceError');
-const { placeRepository } = require('../repository');
+const placeRepository = require('../repository/place');
 const handleDBError = require('./_handleDBError');
 
 /**
