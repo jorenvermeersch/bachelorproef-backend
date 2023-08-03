@@ -22,7 +22,7 @@ const JWT_EXPIRATION_INTERVAL = config.get('auth.jwt.expirationInterval');
  *
  * @returns {Promise<string>} A promise resolving in the JWT.
  */
-const generateJWT = (user) => {
+const generateJWT = async (user) => {
   const tokenData = {
     userId: user.id,
     roles: user.roles,
@@ -55,7 +55,7 @@ const generateJWT = (user) => {
  *
  * @returns {Session} The decoded token if valid.
  */
-const verifyJWT = (authToken) => {
+const verifyJWT = async (authToken) => {
   const verifyOptions = {
     audience: JWT_AUDIENCE,
     issuer: JWT_ISSUER,
