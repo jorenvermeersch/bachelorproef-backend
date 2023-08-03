@@ -1,36 +1,29 @@
-const { getLogger } = require('../core/logging');
-const { tables, getKnex } = require('../data/index');
+const { tables, getKnex } = require('../data');
 
 /**
  * Find all places.
  */
-const findAll = () => {
-  return getKnex()(tables.place)
-    .select()
-    .orderBy('name', 'ASC');
-};
+const findAll = () => getKnex()(tables.place)
+  .select()
+  .orderBy('name', 'ASC');
 
 /**
  * Find a place with the given `name`.
  *
  * @param {string} name - Name to look for.
  */
-const findByName = (name) => {
-  return getKnex()(tables.place)
-    .where('name', name)
-    .first();
-};
+const findByName = (name) => getKnex()(tables.place)
+  .where('name', name)
+  .first();
 
 /**
  * Find a place with the given `id`.
  *
  * @param {number} id - Id of the place to find.
  */
-const findById = (id) => {
-  return getKnex()(tables.place)
-    .where('id', id)
-    .first();
-};
+const findById = (id) => getKnex()(tables.place)
+  .where('id', id)
+  .first();
 
 /**
  * Create a new place with the given `name` and `rating`.
@@ -45,20 +38,13 @@ const create = async ({
   name,
   rating,
 }) => {
-  try {
-    const [id] = await getKnex()(tables.place)
-      .insert({
-        name,
-        rating,
-      });
-
-    return id;
-  } catch (error) {
-    getLogger().error('Error in create', {
-      error,
+  const [id] = await getKnex()(tables.place)
+    .insert({
+      name,
+      rating,
     });
-    throw error;
-  }
+
+  return id;
 };
 
 /**
@@ -75,21 +61,14 @@ const updateById = async (id, {
   name,
   rating,
 }) => {
-  try {
-    await getKnex()(tables.place)
-      .update({
-        name,
-        rating,
-      })
-      .where('id', id);
+  await getKnex()(tables.place)
+    .update({
+      name,
+      rating,
+    })
+    .where('id', id);
 
-    return id;
-  } catch (error) {
-    getLogger().error('Error in updateById', {
-      error,
-    });
-    throw error;
-  }
+  return id;
 };
 
 /**
@@ -100,18 +79,11 @@ const updateById = async (id, {
  * @returns {Promise<boolean>} Whether the place was deleted.
  */
 const deleteById = async (id) => {
-  try {
-    const rowsAffected = await getKnex()(tables.place)
-      .delete()
-      .where('id', id);
+  const rowsAffected = await getKnex()(tables.place)
+    .delete()
+    .where('id', id);
 
-    return rowsAffected > 0;
-  } catch (error) {
-    getLogger().error('Error in deleteById', {
-      error,
-    });
-    throw error;
-  }
+  return rowsAffected > 0;
 };
 
 module.exports = {

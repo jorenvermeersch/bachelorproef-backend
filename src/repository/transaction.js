@@ -1,5 +1,4 @@
-const { getLogger } = require('../core/logging');
-const { tables, getKnex } = require('../data/index');
+const { tables, getKnex } = require('../data');
 
 const formatTransaction = ({
   user_id,
@@ -93,21 +92,14 @@ const create = async ({
   placeId,
   userId,
 }) => {
-  try {
-    const [id] = await getKnex()(tables.transaction)
-      .insert({
-        amount,
-        date,
-        place_id: placeId,
-        user_id: userId,
-      });
-    return id;
-  } catch (error) {
-    getLogger().error('Error in create', {
-      error,
+  const [id] = await getKnex()(tables.transaction)
+    .insert({
+      amount,
+      date,
+      place_id: placeId,
+      user_id: userId,
     });
-    throw error;
-  }
+  return id;
 };
 
 /**
@@ -128,22 +120,15 @@ const updateById = async (id, {
   placeId,
   userId,
 }) => {
-  try {
-    await getKnex()(tables.transaction)
-      .update({
-        amount,
-        date,
-        place_id: placeId,
-      })
-      .where(`${tables.transaction}.id`, id)
-      .andWhere(`${tables.transaction}.user_id`, userId);
-    return id;
-  } catch (error) {
-    getLogger().error('Error in updateById', {
-      error,
-    });
-    throw error;
-  }
+  await getKnex()(tables.transaction)
+    .update({
+      amount,
+      date,
+      place_id: placeId,
+    })
+    .where(`${tables.transaction}.id`, id)
+    .andWhere(`${tables.transaction}.user_id`, userId);
+  return id;
 };
 
 /**
@@ -155,18 +140,11 @@ const updateById = async (id, {
  * @returns {Promise<boolean>} Whether the transaction was deleted.
  */
 const deleteById = async (id, userId) => {
-  try {
-    const rowsAffected = await getKnex()(tables.transaction)
-      .delete()
-      .where(`${tables.transaction}.id`, id)
-      .andWhere(`${tables.transaction}.user_id`, userId);
-    return rowsAffected > 0;
-  } catch (error) {
-    getLogger().error('Error in deleteById', {
-      error,
-    });
-    throw error;
-  }
+  const rowsAffected = await getKnex()(tables.transaction)
+    .delete()
+    .where(`${tables.transaction}.id`, id)
+    .andWhere(`${tables.transaction}.user_id`, userId);
+  return rowsAffected > 0;
 };
 
 module.exports = {
