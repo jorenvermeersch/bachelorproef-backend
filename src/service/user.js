@@ -118,7 +118,7 @@ const checkAndParseSession = async (authHeader) => {
     throw ServiceError.unauthorized('Invalid authentication token');
   }
 
-  const authToken = authHeader.substr(7);
+  const authToken = authHeader.substring(7);
   try {
     const {
       roles, userId,
