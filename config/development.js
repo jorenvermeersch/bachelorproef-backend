@@ -20,7 +20,7 @@ module.exports = {
     password: '',
   },
   auth: {
-    disabled: true,
+    disabled: false,
     maxDelay: 300, // ms
     maxWrongPasswords: 3,
     lockTime: 30 * 1000, // ms (30 seconds)
