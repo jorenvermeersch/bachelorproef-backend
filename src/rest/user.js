@@ -1,14 +1,13 @@
-const Router = require('@koa/router');
-const config = require('config');
-const Joi = require('joi');
+const Router = require("@koa/router");
+const Joi = require("joi");
 
-const { requireAuthentication, makeRequireRole } = require('../core/auth');
-const Role = require('../core/roles');
-const userService = require('../service/user');
-const validate = require('./_validation');
+const { requireAuthentication, makeRequireRole } = require("../core/auth");
+const Role = require("../core/roles");
+const userService = require("../service/user");
+const validate = require("./_validation");
 
-const AUTH_DISABLED = config.get('auth.disabled');
-const AUTH_MAX_DELAY = config.get('auth.maxDelay');
+const AUTH_DISABLED = process.env.AUTH_DISABLED;
+const AUTH_MAX_DELAY = process.env.AUTH_MAX_DELAY;
 
 /**
  * Middleware which waites for a certain amount of time
@@ -32,9 +31,13 @@ const checkUserId = (ctx, next) => {
 
   // You can only get our own data unless you're an admin
   if (id !== userId && !roles.includes(Role.ADMIN)) {
-    return ctx.throw(403, 'You are not allowed to view this user\'s information', {
-      code: 'FORBIDDEN',
-    });
+    return ctx.throw(
+      403,
+      "You are not allowed to view this user's information",
+      {
+        code: "FORBIDDEN",
+      }
+    );
   }
   return next();
 };
@@ -124,7 +127,7 @@ getAllUsers.validationScheme = {
   query: Joi.object({
     limit: Joi.number().positive().max(1000).optional(),
     offset: Joi.number().min(0).optional(),
-  }).and('limit', 'offset'),
+  }).and("limit", "offset"),
 };
 
 /**
@@ -370,26 +373,53 @@ deleteUserById.validationScheme = {
  */
 module.exports = function installUsersRoutes(app) {
   const router = new Router({
-    prefix: '/users',
+    prefix: "/users",
   });
 
   // Allow any user if authentication/authorization is disabled
   // DO NOT use this config parameter in any production worthy application!
   if (!AUTH_DISABLED) {
     // Public routes
-    router.post('/login', authDelay, validate(login.validationScheme), login);
-    router.post('/register', authDelay, validate(register.validationScheme), register);
+    router.post("/login", authDelay, validate(login.validationScheme), login);
+    router.post(
+      "/register",
+      authDelay,
+      validate(register.validationScheme),
+      register
+    );
   }
 
   const requireAdmin = makeRequireRole(Role.ADMIN);
 
   // Routes with authentication
-  router.get('/', requireAuthentication, requireAdmin, validate(getAllUsers.validationScheme), getAllUsers);
-  router.get('/:id', requireAuthentication, validate(getUserById.validationScheme), checkUserId, getUserById);
-  router.put('/:id', requireAuthentication, validate(updateUserById.validationScheme), checkUserId, updateUserById);
-  router.delete('/:id', requireAuthentication, validate(deleteUserById.validationScheme), checkUserId, deleteUserById);
+  router.get(
+    "/",
+    requireAuthentication,
+    requireAdmin,
+    validate(getAllUsers.validationScheme),
+    getAllUsers
+  );
+  router.get(
+    "/:id",
+    requireAuthentication,
+    validate(getUserById.validationScheme),
+    checkUserId,
+    getUserById
+  );
+  router.put(
+    "/:id",
+    requireAuthentication,
+    validate(updateUserById.validationScheme),
+    checkUserId,
+    updateUserById
+  );
+  router.delete(
+    "/:id",
+    requireAuthentication,
+    validate(deleteUserById.validationScheme),
+    checkUserId,
+    deleteUserById
+  );
 
-  app
-    .use(router.routes())
-    .use(router.allowedMethods());
+  app.use(router.routes()).use(router.allowedMethods());
 };

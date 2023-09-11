@@ -29,9 +29,11 @@ empty variable (e.g. `LOG_DISABLED`).
 NODE_ENV=development
 HOST=localhost
 PORT=9000
+PROTOCOL=http
 
 # Logging configuration
 LOG_DISABLED=
+LOG_LEVEL=
 
 # Database configuration
 DATABASE_HOST="localhost"
@@ -49,22 +51,22 @@ AUTH_JWT_SECRET="eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegeha
 
 This server will create the given database when the server is started.
 
-* Install all dependencies: `yarn`
-* Make sure `.env` (production) or `.env.dev` (development) exists
-* One the following commands, depending on your needs:
-    * Start the development server: `yarn start:dev`
-    * Start the production server: `yarn start`
+- Install all dependencies: `yarn`
+- Make sure `.env` (production) or `.env.dev` (development) exists
+- One the following commands, depending on your needs:
+  - Start the development server: `yarn start:dev`
+  - Start the production server: `yarn start`
 
 ## Test this project
 
 This server will create the given database when the server is started.
 
-* Install all dependencies: `yarn`
-* Make sure `.env.test` exists (it's recommended to disabled logging in the testing environment)
-* Run the tests: `yarn test`
-    * This will start a new server for each test suite that runs, you won't see any output as logging is disabled to make output more clean.
-    * To enable logging change the config parameter `log.disabled` to `true`.
-    * The user suite will take 'long' (around 6s) to complete, this is normal as many cryptographic operations are being performed.
+- Install all dependencies: `yarn`
+- Make sure `.env.test` exists (it's recommended to disabled logging in the testing environment)
+- Run the tests: `yarn test`
+  - This will start a new server for each test suite that runs, you won't see any output as logging is disabled to make output more clean.
+  - To enable logging change the config parameter `log.disabled` to `true`.
+  - The user suite will take 'long' (around 6s) to complete, this is normal as many cryptographic operations are being performed.
 
 ## Disable authentication
 

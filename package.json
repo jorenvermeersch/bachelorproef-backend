@@ -6,10 +6,10 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "npx env-cmd node src/index.js",
-    "start:dev": "npx env-cmd -f .env.dev nodemon",
+    "start": "node  --env-file=.env src/index.js",
+    "start:dev": "npx nodemon --env-file=.env src/index.js",
     "lint": "npx eslint . --fix",
-    "test": "npx env-cmd -f .env.test jest",
+    "test": "npx jest --env-file=.env.test",
     "test:coverage": "yarn test --coverage"
   },
   "dependencies": {

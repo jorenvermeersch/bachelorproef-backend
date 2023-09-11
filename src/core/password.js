@@ -1,10 +1,9 @@
-const argon2 = require('argon2');
-const config = require('config');
+const argon2 = require("argon2");
 
-const ARGON_SALT_LENGTH = config.get('auth.argon.saltLength');
-const ARGON_HASH_LENGTH = config.get('auth.argon.hashLength');
-const ARGON_TIME_COST = config.get('auth.argon.timeCost');
-const ARGON_MEMORY_COST = config.get('auth.argon.memoryCost');
+const ARGON_SALT_LENGTH = process.env.AUTH_ARGON_SALTLENGTH;
+const ARGON_HASH_LENGTH = process.env.AUTH_ARGON_HASLENGTH;
+const ARGON_TIME_COST = process.env.AUTH_ARGON_TIMECOST;
+const ARGON_MEMORY_COST = process.env.AUTH_ARGON_MEMORYCOST;
 
 /**
  * Hash the given password.
@@ -32,15 +31,13 @@ const hashPassword = async (password) => {
  * @returns {Promise<boolean>} Whether the password is valid.
  */
 const verifyPassword = async (password, passwordHash) => {
-  const valid = await argon2.verify(
-    passwordHash, password, {
-      type: argon2.argon2id,
-      saltLength: ARGON_SALT_LENGTH,
-      hashLength: ARGON_HASH_LENGTH,
-      timeCost: ARGON_TIME_COST,
-      memoryCost: ARGON_MEMORY_COST,
-    },
-  );
+  const valid = await argon2.verify(passwordHash, password, {
+    type: argon2.argon2id,
+    saltLength: ARGON_SALT_LENGTH,
+    hashLength: ARGON_HASH_LENGTH,
+    timeCost: ARGON_TIME_COST,
+    memoryCost: ARGON_MEMORY_COST,
+  });
 
   return valid;
 };

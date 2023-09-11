@@ -1,14 +1,12 @@
-const config = require('config');
+const { generateJWT, verifyJWT } = require("../core/jwt");
+const { getLogger } = require("../core/logging");
+const { verifyPassword, hashPassword } = require("../core/password");
+const Role = require("../core/roles");
+const ServiceError = require("../core/serviceError");
+const { userRepository } = require("../repository");
+const handleDBError = require("./_handleDBError");
 
-const { generateJWT, verifyJWT } = require('../core/jwt');
-const { getLogger } = require('../core/logging');
-const { verifyPassword, hashPassword } = require('../core/password');
-const Role = require('../core/roles');
-const ServiceError = require('../core/serviceError');
-const { userRepository } = require('../repository');
-const handleDBError = require('./_handleDBError');
-
-const AUTH_DISABLED = config.get('auth.disabled');
+const AUTH_DISABLED = process.env.AUTH_DISABLED;
 
 /**
  * Only return the public information about the given user.
@@ -44,14 +42,18 @@ const login = async (email, password) => {
 
   if (!user) {
     // DO NOT expose we don't know the user
-    throw ServiceError.unauthorized('The given email and password do not match');
+    throw ServiceError.unauthorized(
+      "The given email and password do not match"
+    );
   }
 
   const passwordValid = await verifyPassword(password, user.password_hash);
 
   if (!passwordValid) {
     // DO NOT expose we know the user but an invalid password was given
-    throw ServiceError.unauthorized('The given email and password do not match');
+    throw ServiceError.unauthorized(
+      "The given email and password do not match"
+    );
   }
 
   return await makeLoginData(user);
@@ -67,19 +69,17 @@ const login = async (email, password) => {
  *
  * @returns {Promise<object>} - Promise whichs resolves in an object containing the token and signed in user.
  */
-const register = async ({
-  name,
-  email,
-  password,
-}) => {
+const register = async ({ name, email, password }) => {
   const passwordHash = await hashPassword(password);
 
-  const userId = await userRepository.create({
-    name,
-    email,
-    passwordHash,
-    roles: [Role.USER],
-  }).catch(handleDBError);
+  const userId = await userRepository
+    .create({
+      name,
+      email,
+      passwordHash,
+      roles: [Role.USER],
+    })
+    .catch(handleDBError);
 
   const user = await userRepository.findById(userId);
 
@@ -111,18 +111,16 @@ const checkAndParseSession = async (authHeader) => {
   }
 
   if (!authHeader) {
-    throw ServiceError.unauthorized('You need to be signed in');
+    throw ServiceError.unauthorized("You need to be signed in");
   }
 
-  if (!authHeader.startsWith('Bearer ')) {
-    throw ServiceError.unauthorized('Invalid authentication token');
+  if (!authHeader.startsWith("Bearer ")) {
+    throw ServiceError.unauthorized("Invalid authentication token");
   }
 
   const authToken = authHeader.substr(7);
   try {
-    const {
-      roles, userId,
-    } = await verifyJWT(authToken);
+    const { roles, userId } = await verifyJWT(authToken);
 
     // Save the decoded session data in the current context's state
     return {
@@ -157,7 +155,9 @@ const checkRole = (role, roles) => {
   const hasPermission = roles.includes(role);
 
   if (!hasPermission) {
-    throw ServiceError.forbidden('You are not allowed to view this part of the application');
+    throw ServiceError.forbidden(
+      "You are not allowed to view this part of the application"
+    );
   }
 };
 
@@ -190,7 +190,6 @@ const getById = async (id) => {
   return makeExposedUser(user);
 };
 
-
 /**
  * Update an existing user.
  *
@@ -207,7 +206,6 @@ const updateById = async (id, { name, email }) => {
   await userRepository.updateById(id, { name, email }).catch(handleDBError);
   return getById(id);
 };
-
 
 /**
  * Delete an existing user.
