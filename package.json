@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "node --env-file=.env src/index.js",
+    "start": "node src/index.js",
     "start:dev": "nodemon",
     "lint": "npx eslint . --fix",
     "test": "node --env-file=.env.test ./node_modules/.bin/jest",
