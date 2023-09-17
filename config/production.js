@@ -8,7 +8,7 @@ module.exports = {
     disabled: false,
   },
   cors: {
-    origins: ['http://localhost:3000'],
+    origins: ['https://frontendweb-budget-gked.onrender.com'],
     maxAge: 3 * 60 * 60, // 3h in seconds
   },
   database: {
