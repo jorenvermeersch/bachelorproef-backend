@@ -7,8 +7,8 @@ const installRouter = require("./rest");
 
 const NODE_ENV = process.env.NODE_ENV;
 const PROTOCOL = process.env.PROTOCOL;
-const HOST = process.env.DATABASE_HOST;
-const PORT = process.env.DATABASE_PORT;
+const HOST = process.env.HOST;
+const PORT = process.env.PORT;
 const LOG_LEVEL = process.env.LOG_LEVEL;
 const LOG_DISABLED = process.env.LOG_DISABLED;
 
@@ -17,14 +17,14 @@ const LOG_DISABLED = process.env.LOG_DISABLED;
  */
 module.exports = async function createServer() {
   const app = new Koa();
-  console.log(`${LOG_LEVEL} ${LOG_DISABLED} `);
+  console.log(`${LOG_LEVEL} ${LOG_DISABLED}`);
 
   const logger = initializeLogging(LOG_LEVEL, LOG_DISABLED, { NODE_ENV });
 
   installMiddlewares(app);
+
   await initializeData();
   installRouter(app);
-
   return {
     getApp() {
       return app;
