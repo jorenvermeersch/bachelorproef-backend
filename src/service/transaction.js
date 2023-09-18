@@ -1,7 +1,7 @@
-const ServiceError = require('../core/serviceError');
-const transactionRepository = require('../repository/transaction');
 const handleDBError = require('./_handleDBError');
 const placeService = require('./place');
+const ServiceError = require('../core/serviceError');
+const transactionRepository = require('../repository/transaction');
 
 /**
  * Get all transactions for the given user.

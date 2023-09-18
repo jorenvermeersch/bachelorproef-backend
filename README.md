@@ -50,15 +50,15 @@ AUTH_JWT_SECRET="eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegeha
 ### Development
 
 - Install all dependencies: `yarn`
-- Make sure a `.env.dev` exists (see above)
-- Create a database with the name given in the `.env.dev` file
+- Make sure a `.env` exists (see above)
+- Create a database with the name given in the `.env` file
 - Start the development server: `yarn start:dev`
 
 ### Production
 
+- Make sure all environment variables are available in the environment
+- Create a database with the name given in the environment variable
 - Install all dependencies: `yarn`
-- Make sure a `.env` exists (see above)
-- Create a database with the name given in the `.env` file
 - Start the production server: `yarn start`
 
 ## Test this project
@@ -69,10 +69,9 @@ This server will create the given database when the server is started.
 - Make sure `.env.test` exists (it's recommended to disabled logging in the testing environment)
 - Run the tests: `yarn test`
   - This will start a new server for each test suite that runs, you won't see any output as logging is disabled to make output more clean.
-  - To enable logging change the config parameter `log.disabled` to `true`.
+  - To enable logging change the config parameter `log.disabled` to `false`.
   - The user suite will take 'long' (around 6s) to complete, this is normal as many cryptographic operations are being performed.
 
 ## Disable authentication
 
-If you want to disable authentication and authorization, set the config parameter `auth.disabled` to `true`. **This is not intended
-for use in any production worthy application!**
+If you want to disable authentication and authorization, set the config parameter `auth.disabled` to `true`. **This is not intended for use in any production worthy application!**

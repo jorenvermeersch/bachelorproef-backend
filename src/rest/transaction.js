@@ -1,9 +1,9 @@
 const Router = require('@koa/router');
 const Joi = require('joi');
 
+const validate = require('./_validation');
 const { requireAuthentication } = require('../core/auth');
 const transactionService = require('../service/transaction');
-const validate = require('./_validation');
 
 /**
  * @swagger

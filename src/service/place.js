@@ -1,6 +1,6 @@
+const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const placeRepository = require('../repository/place');
-const handleDBError = require('./_handleDBError');
 
 /**
  * Get all places.

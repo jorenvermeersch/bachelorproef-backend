@@ -1,12 +1,12 @@
 const config = require('config');
 
+const handleDBError = require('./_handleDBError');
 const { generateJWT, verifyJWT } = require('../core/jwt');
 const { getLogger } = require('../core/logging');
 const { verifyPassword, hashPassword } = require('../core/password');
 const Role = require('../core/roles');
 const ServiceError = require('../core/serviceError');
 const userRepository = require('../repository/user');
-const handleDBError = require('./_handleDBError');
 
 const AUTH_DISABLED = config.get('auth.disabled');
 

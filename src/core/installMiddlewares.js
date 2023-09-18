@@ -7,9 +7,9 @@ const { koaSwagger } = require('koa2-swagger-ui');
 const emoji = require('node-emoji');
 const swaggerJsdoc = require('swagger-jsdoc');
 
-const swaggerOptions = require('../swagger.config');
 const { getLogger } = require('./logging');
 const ServiceError = require('./serviceError');
+const swaggerOptions = require('../swagger.config');
 
 const NODE_ENV = config.get('env');
 const EXPOSE_STACK = config.get('exposeStack');
