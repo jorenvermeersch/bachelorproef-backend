@@ -28,8 +28,6 @@ module.exports = function installMiddleware(app) {
 
   // Log when requests come in and go out
   app.use(async (ctx, next) => {
-    if (ctx.url === '/api/health/ping') return next();
-
     getLogger().info(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
 
     const getStatusEmoji = () => {
