@@ -73,7 +73,7 @@ describe('Transactions', () => {
         .delete();
     });
 
-    test('it should 200 and return all transactions', async () => {
+    it('should 200 and return all transactions', async () => {
       const response = await supertest.get(url)
         .set('Authorization', authHeader);
 
@@ -108,7 +108,7 @@ describe('Transactions', () => {
       }]));
     });
 
-    test('it should 400 when given an argument', async () => {
+    it('should 400 when given an argument', async () => {
       const response = await supertest.get(`${url}?invalid=true`)
         .set('Authorization', authHeader);
 
@@ -150,7 +150,7 @@ describe('Transactions', () => {
         .delete();
     });
 
-    test('it should 200 and return the requested transaction', async () => {
+    it('should 200 and return the requested transaction', async () => {
       const response = await supertest.get(`${url}/1`)
         .set('Authorization', authHeader);
 
@@ -170,7 +170,7 @@ describe('Transactions', () => {
       });
     });
 
-    test('it should 404 when requesting not existing transaction', async () => {
+    it('should 404 when requesting not existing transaction', async () => {
       const response = await supertest.get(`${url}/2`)
         .set('Authorization', authHeader);
 
@@ -184,7 +184,7 @@ describe('Transactions', () => {
       });
     });
 
-    test('it should 400 with invalid transaction id', async () => {
+    it('should 400 with invalid transaction id', async () => {
       const response = await supertest.get(`${url}/invalid`)
         .set('Authorization', authHeader);
 
@@ -219,7 +219,7 @@ describe('Transactions', () => {
         .delete();
     });
 
-    test('it should 201 and return the created transaction', async () => {
+    it('should 201 and return the created transaction', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -244,7 +244,7 @@ describe('Transactions', () => {
       transactionsToDelete.push(response.body.id);
     });
 
-    test('it should 404 when place does not exist', async () => {
+    it('should 404 when place does not exist', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader).send({
           amount: -125,
@@ -262,7 +262,7 @@ describe('Transactions', () => {
       });
     });
 
-    test('it should 400 when missing amount', async () => {
+    it('should 400 when missing amount', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -275,7 +275,7 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('amount');
     });
 
-    test('it should 400 when missing date', async () => {
+    it('should 400 when missing date', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -288,7 +288,7 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('date');
     });
 
-    test('it should 400 when missing placeId', async () => {
+    it('should 400 when missing placeId', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -340,7 +340,7 @@ describe('Transactions', () => {
         .delete();
     });
 
-    test('it should 200 and return the updated transaction', async () => {
+    it('should 200 and return the updated transaction', async () => {
       const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
@@ -363,7 +363,7 @@ describe('Transactions', () => {
       });
     });
 
-    test('it should 404 when updating not existing transaction', async () => {
+    it('should 404 when updating not existing transaction', async () => {
       const response = await supertest.put(`${url}/2`)
         .set('Authorization', authHeader).send({
           amount: -125,
@@ -381,7 +381,7 @@ describe('Transactions', () => {
       });
     });
 
-    test('it should 404 when place does not exist', async () => {
+    it('should 404 when place does not exist', async () => {
       const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader).send({
           amount: -125,
@@ -399,7 +399,7 @@ describe('Transactions', () => {
       });
     });
 
-    test('it should 400 when missing amount', async () => {
+    it('should 400 when missing amount', async () => {
       const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
@@ -412,7 +412,7 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('amount');
     });
 
-    test('it should 400 when missing date', async () => {
+    it('should 400 when missing date', async () => {
       const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
@@ -425,7 +425,7 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('date');
     });
 
-    test('it should 400 when missing placeId', async () => {
+    it('should 400 when missing placeId', async () => {
       const response = await supertest.put(`${url}/4`)
         .set('Authorization', authHeader)
         .send({
@@ -471,7 +471,7 @@ describe('Transactions', () => {
         .delete();
     });
 
-    test('it should 204 and return nothing', async () => {
+    it('should 204 and return nothing', async () => {
       const response = await supertest.delete(`${url}/4`)
         .set('Authorization', authHeader);
 
@@ -479,7 +479,7 @@ describe('Transactions', () => {
       expect(response.body).toEqual({});
     });
 
-    test('it should 404 with not existing place', async () => {
+    it('should 404 with not existing place', async () => {
       const response = await supertest.delete(`${url}/4`)
         .set('Authorization', authHeader);
 

@@ -36,7 +36,7 @@ describe('Places', () => {
         .delete();
     });
 
-    test('it should 200 and return all places', async () => {
+    it('should 200 and return all places', async () => {
       const response = await supertest.get(url)
         .set('Authorization', authHeader);
 
@@ -54,7 +54,7 @@ describe('Places', () => {
       }]));
     });
 
-    test('it should 400 when given an argument', async () => {
+    it('should 400 when given an argument', async () => {
       const response = await supertest.get(`${url}?invalid=true`)
         .set('Authorization', authHeader);
 
@@ -82,7 +82,7 @@ describe('Places', () => {
         .delete();
     });
 
-    test('it should 200 and return the requested place', async () => {
+    it('should 200 and return the requested place', async () => {
       const response = await supertest.get(`${url}/1`)
         .set('Authorization', authHeader);
 
@@ -94,7 +94,7 @@ describe('Places', () => {
       });
     });
 
-    test('it should 404 when requesting not existing place', async () => {
+    it('should 404 when requesting not existing place', async () => {
       const response = await supertest.get(`${url}/2`)
         .set('Authorization', authHeader);
 
@@ -108,7 +108,7 @@ describe('Places', () => {
       });
     });
 
-    test('it should 400 with invalid place id', async () => {
+    it('should 400 with invalid place id', async () => {
       const response = await supertest.get(`${url}/invalid`)
         .set('Authorization', authHeader);
 
@@ -131,7 +131,7 @@ describe('Places', () => {
         .delete();
     });
 
-    test('it should 201 and return the created place', async () => {
+    it('should 201 and return the created place', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -146,7 +146,7 @@ describe('Places', () => {
       placesToDelete.push(response.body.id);
     });
 
-    test('it should 200 and return the created place with it\'s rating', async () => {
+    it('should 200 and return the created place with it\'s rating', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -162,7 +162,7 @@ describe('Places', () => {
       placesToDelete.push(response.body.id);
     });
 
-    test('it should 400 for duplicate place name', async () => {
+    it('should 400 for duplicate place name', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -177,7 +177,7 @@ describe('Places', () => {
       });
     });
 
-    test('it should 400 when missing name', async () => {
+    it('should 400 when missing name', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -189,7 +189,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('name');
     });
 
-    test('it should 400 when rating lower than one', async () => {
+    it('should 400 when rating lower than one', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -202,7 +202,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    test('it should 400 when rating higher than five', async () => {
+    it('should 400 when rating higher than five', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -215,7 +215,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    test('it should 400 when rating is a decimal', async () => {
+    it('should 400 when rating is a decimal', async () => {
       const response = await supertest.post(url)
         .set('Authorization', authHeader)
         .send({
@@ -255,7 +255,7 @@ describe('Places', () => {
         .delete();
     });
 
-    test('it should 200 and return the updated place', async () => {
+    it('should 200 and return the updated place', async () => {
       const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
@@ -271,7 +271,7 @@ describe('Places', () => {
       });
     });
 
-    test('it should 400 for duplicate place name', async () => {
+    it('should 400 for duplicate place name', async () => {
       const response = await supertest.put(`${url}/2`)
         .set('Authorization', authHeader)
         .send({
@@ -287,7 +287,7 @@ describe('Places', () => {
       });
     });
 
-    test('it should 400 when missing name', async () => {
+    it('should 400 when missing name', async () => {
       const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
@@ -299,7 +299,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('name');
     });
 
-    test('it should 400 when missing rating', async () => {
+    it('should 400 when missing rating', async () => {
       const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
@@ -311,7 +311,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    test('it should 400 when rating lower than one', async () => {
+    it('should 400 when rating lower than one', async () => {
       const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
@@ -324,7 +324,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    test('it should 400 when rating higher than five', async () => {
+    it('should 400 when rating higher than five', async () => {
       const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
@@ -337,7 +337,7 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    test('it should 400 when rating is a decimal', async () => {
+    it('should 400 when rating is a decimal', async () => {
       const response = await supertest.put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
@@ -366,7 +366,7 @@ describe('Places', () => {
       ]);
     });
 
-    test('it should 204 and return nothing', async () => {
+    it('should 204 and return nothing', async () => {
       const response = await supertest.delete(`${url}/1`)
         .set('Authorization', authHeader);
 
@@ -374,7 +374,7 @@ describe('Places', () => {
       expect(response.body).toEqual({});
     });
 
-    test('it should 404 with not existing place', async () => {
+    it('should 404 with not existing place', async () => {
       const response = await supertest.delete(`${url}/1`)
         .set('Authorization', authHeader);
 

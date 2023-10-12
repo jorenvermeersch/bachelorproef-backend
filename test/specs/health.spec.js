@@ -9,7 +9,7 @@ describe('Health', () => {
   describe('GET /api/health/ping', () => {
     const url = '/api/health/ping';
 
-    test('it should return pong', async () => {
+    it('should return pong', async () => {
       const response = await supertest.get(url);
 
       expect(response.statusCode).toBe(200);
@@ -18,7 +18,7 @@ describe('Health', () => {
       });
     });
 
-    test('it should 400 with unknown query parameters', async () => {
+    it('should 400 with unknown query parameters', async () => {
       const response = await supertest.get(`${url}?invalid=true`);
 
       expect(response.statusCode).toBe(400);
@@ -30,7 +30,7 @@ describe('Health', () => {
   describe('GET /api/health/version', () => {
     const url = '/api/health/version';
 
-    test('it should return version from package.json', async () => {
+    it('should return version from package.json', async () => {
       const response = await supertest.get(url);
 
       expect(response.statusCode).toBe(200);
@@ -48,7 +48,7 @@ describe('General', () => {
   let supertest;
   withServer(({ supertest: s }) => supertest = s);
 
-  test('it should return 404 when accessing invalid url', async () => {
+  it('should return 404 when accessing invalid url', async () => {
     const response = await supertest.get(url);
 
     expect(response.statusCode).toBe(404);
