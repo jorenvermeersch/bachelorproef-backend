@@ -99,13 +99,14 @@ describe('Places', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No place with id 2 exists',
         details: {
           id: 2,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 with invalid place id', async () => {
@@ -170,11 +171,12 @@ describe('Places', () => {
         });
 
       expect(response.statusCode).toBe(400);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'VALIDATION_FAILED',
         message: 'A place with this name already exists',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 when missing name', async () => {
@@ -280,11 +282,12 @@ describe('Places', () => {
         });
 
       expect(response.statusCode).toBe(400);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'VALIDATION_FAILED',
         message: 'A place with this name already exists',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 when missing name', async () => {
@@ -379,13 +382,14 @@ describe('Places', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No place with id 1 exists',
         details: {
           id: 1,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     testAuthHeader(() => supertest.delete(`${url}/1`));

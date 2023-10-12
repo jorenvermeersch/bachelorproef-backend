@@ -2,7 +2,6 @@ module.exports = {
   protocol: 'http',
   host: 'localhost',
   port: 9000,
-  exposeStack: false,
   log: {
     level: 'info',
     disabled: false,

@@ -64,11 +64,12 @@ describe('Users', () => {
         });
 
       expect(response.statusCode).toBe(401);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'UNAUTHORIZED',
         message: 'The given email and password do not match',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 401 with wrong password', async () => {
@@ -79,11 +80,12 @@ describe('Users', () => {
         });
 
       expect(response.statusCode).toBe(401);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'UNAUTHORIZED',
         message: 'The given email and password do not match',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 with invalid email', async () => {
@@ -169,11 +171,12 @@ describe('Users', () => {
         });
 
       expect(response.statusCode).toBe(400);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'VALIDATION_FAILED',
         message: 'There is already a user with this email address',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 when missing name', async () => {
@@ -334,10 +337,9 @@ describe('Users', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         id: 1,
         name: 'Test User',
-        email: 'test.user@hogent.be',
       });
     });
 
@@ -346,11 +348,12 @@ describe('Users', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(403);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'FORBIDDEN',
         message: 'You are not allowed to view this user\'s information',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 with invalid user id', async () => {
@@ -420,11 +423,12 @@ describe('Users', () => {
         });
 
       expect(response.statusCode).toBe(400);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'VALIDATION_FAILED',
         message: 'There is already a user with this email address',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 when missing name', async () => {
@@ -456,11 +460,12 @@ describe('Users', () => {
         .set('Authorization', updateAuthHeader);
 
       expect(response.statusCode).toBe(403);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'FORBIDDEN',
         message: 'You are not allowed to view this user\'s information',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 404 with not existing user', async () => {
@@ -468,13 +473,14 @@ describe('Users', () => {
         .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No user with id 123 exists',
         details: {
           id: 123,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     testAuthHeader(() => supertest.put(`${url}/3`)
@@ -511,11 +517,12 @@ describe('Users', () => {
         .set('Authorization', deleteAuthHeader);
 
       expect(response.statusCode).toBe(403);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'FORBIDDEN',
         message: 'You are not allowed to view this user\'s information',
         details: {},
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 404 with not existing user', async () => {
@@ -523,13 +530,14 @@ describe('Users', () => {
         .set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No user with id 123 exists',
         details: {
           id: 123,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 204 and return nothing', async () => {

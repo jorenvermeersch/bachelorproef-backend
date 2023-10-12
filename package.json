@@ -9,8 +9,8 @@
     "start": "node src/index.js",
     "start:dev": "env-cmd nodemon",
     "lint": "npx eslint . --fix",
-    "test": "env-cmd -f .env.test jest",
-    "test:coverage": "yarn test --coverage"
+    "test": "env-cmd -f .env.test jest --runInBand",
+    "test:coverage": "yarn test --runInBand --coverage"
   },
   "dependencies": {
     "@koa/cors": "^4.0.0",

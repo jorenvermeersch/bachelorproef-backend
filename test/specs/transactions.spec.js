@@ -175,13 +175,14 @@ describe('Transactions', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No transaction with id 2 exists',
         details: {
           id: 2,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 with invalid transaction id', async () => {
@@ -253,13 +254,14 @@ describe('Transactions', () => {
         });
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No place with id 123 exists',
         details: {
           id: 123,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 when missing amount', async () => {
@@ -372,13 +374,14 @@ describe('Transactions', () => {
         });
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No transaction with id 2 exists',
         details: {
           id: 2,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 404 when place does not exist', async () => {
@@ -390,13 +393,14 @@ describe('Transactions', () => {
         });
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No place with id 123 exists',
         details: {
           id: 123,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 when missing amount', async () => {
@@ -484,13 +488,14 @@ describe('Transactions', () => {
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
         message: 'No transaction with id 4 exists',
         details: {
           id: 4,
         },
       });
+      expect(response.body.stack).toBeTruthy();
     });
 
     testAuthHeader(() => supertest.delete(`${url}/4`));

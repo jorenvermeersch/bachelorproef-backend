@@ -12,7 +12,6 @@ const ServiceError = require('./serviceError');
 const swaggerOptions = require('../swagger.config');
 
 const NODE_ENV = config.get('env');
-const EXPOSE_STACK = config.get('exposeStack');
 const CORS_ORIGINS = config.get('cors.origins');
 const CORS_MAX_AGE = config.get('cors.maxAge');
 const isDevelopment = NODE_ENV === 'development';
@@ -94,7 +93,7 @@ module.exports = function installMiddleware(app) {
         code: error.code || 'INTERNAL_SERVER_ERROR',
         message: error.message,
         details: error.details || {},
-        stack: EXPOSE_STACK ? error.stack : undefined,
+        stack: NODE_ENV !== 'production' ? error.stack : undefined,
       };
 
       if (error instanceof ServiceError) {
