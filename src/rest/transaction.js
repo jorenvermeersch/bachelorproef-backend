@@ -97,12 +97,7 @@ const getAllTransactions = async (ctx) => {
   const transactions = await transactionService.getAll(userId);
   ctx.body = transactions;
 };
-getAllTransactions.validationScheme = {
-  query: Joi.object({
-    limit: Joi.number().positive().max(1000).optional(),
-    offset: Joi.number().min(0).optional(),
-  }).and('limit', 'offset'),
-};
+getAllTransactions.validationScheme = null;
 
 /**
  * @swagger

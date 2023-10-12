@@ -120,12 +120,7 @@ const getAllUsers = async (ctx) => {
   const users = await userService.getAll();
   ctx.body = users;
 };
-getAllUsers.validationScheme = {
-  query: Joi.object({
-    limit: Joi.number().positive().max(1000).optional(),
-    offset: Joi.number().min(0).optional(),
-  }).and('limit', 'offset'),
-};
+getAllUsers.validationScheme = null;
 
 /**
  * @swagger
