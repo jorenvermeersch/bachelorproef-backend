@@ -64,7 +64,7 @@ async function initializeData() {
   // Check the connection, create the database and then reconnect
   try {
     await knexInstance.raw('SELECT 1+1 AS result');
-    await knexInstance.raw(`CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}`);
+    await knexInstance.raw('CREATE DATABASE IF NOT EXISTS ??', DATABASE_NAME);
 
     // We need to update the Knex configuration and reconnect to use the created database by default
     // USE ... would not work because a pool of connections is used
