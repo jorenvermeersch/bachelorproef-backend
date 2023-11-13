@@ -2,10 +2,6 @@ const { tables } = require('..');
 
 module.exports = {
   seed: async (knex) => {
-    // first delete all entries
-    await knex(tables.transaction).delete();
-
-    // then add the fresh users
     await knex(tables.transaction).insert([
       { // User Thomas
         id: 1,

@@ -90,19 +90,15 @@ async function initializeData() {
     throw new Error('Migrations failed, check the logs');
   }
 
-  // Run seeds in development
-  if (isDevelopment) {
-    // if no users exist, run the seed
-    const [nrOfUsers] = await getKnex()(tables.user).count();
-
-    if (nrOfUsers['count(*)'] === 0) {
-      try {
-        await knexInstance.seed.run();
-      } catch (error) {
-        logger.error('Error while seeding database', {
-          error,
-        });
-      }
+  // Run seeds in development and if no users exist
+  const [nrOfUsers] = await getKnex()(tables.user).count();
+  if (isDevelopment && nrOfUsers['count(*)'] === 0) {
+    try {
+      await knexInstance.seed.run();
+    } catch (error) {
+      logger.error('Error while seeding database', {
+        error,
+      });
     }
   }
 
