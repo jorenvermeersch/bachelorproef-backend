@@ -17,7 +17,8 @@ module.exports = {
 
       // Give this foreign key a name for better error handling in service layer
       table.foreign('user_id', 'fk_transaction_user')
-        .references(`${tables.user}.id`)
+        .references('id')
+        .inTable(tables.user)
         .onDelete('CASCADE');
 
       table.integer('place_id')
@@ -26,7 +27,8 @@ module.exports = {
 
       // Give this foreign key a name for better error handling in service layer
       table.foreign('place_id', 'fk_transaction_place')
-        .references(`${tables.place}.id`)
+        .references('id')
+        .inTable(tables.place)
         .onDelete('CASCADE');
     });
   },
