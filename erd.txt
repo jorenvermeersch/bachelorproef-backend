@@ -1,0 +1,21 @@
+[User]
+*id
+name
+email
+password_hash
+roles
+
+[Place]
+*id
+name
+rating
+
+[Transaction]
+*id
+amount
+date
+user_id
+place_id
+
+Transaction *--1 Place
+Transaction *--1 User
