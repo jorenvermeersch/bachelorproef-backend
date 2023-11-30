@@ -121,12 +121,12 @@ const checkAndParseSession = async (authHeader) => {
   const authToken = authHeader.substring(7);
   try {
     const {
-      roles, userId,
+      roles, sub,
     } = await verifyJWT(authToken);
 
     // Save the decoded session data in the current context's state
     return {
-      userId,
+      userId: Number(sub),
       roles,
       authToken,
     };
