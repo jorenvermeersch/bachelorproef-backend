@@ -7,7 +7,7 @@ module.exports = {
     disabled: false,
   },
   cors: {
-    origins: ['https://frontendweb-budget-gked.onrender.com'],
+    origins: ['https://bachelorproef-frontend.onrender.com'],
     maxAge: 3 * 60 * 60, // 3h in seconds
   },
   database: {
