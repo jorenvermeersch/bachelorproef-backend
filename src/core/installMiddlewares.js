@@ -37,6 +37,7 @@ module.exports = function installMiddleware(app) {
       return emoji.get('rewind');
     };
 
+    // TODO: Onnodige try-catch block (incl. throw en tweede logger). Error wordt al eerder opgevangen in globale error handler.
     try {
       await next();
 
