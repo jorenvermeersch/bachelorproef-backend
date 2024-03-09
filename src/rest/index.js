@@ -4,6 +4,7 @@ const installHealthRoutes = require('./health');
 const installPlacesRoutes = require('./place');
 const installTransactionRoutes = require('./transaction');
 const installUsersRoutes = require('./user');
+const installPasswordRoutes = require('./password');
 
 /**
  * @swagger
@@ -137,8 +138,7 @@ module.exports = function installRoutes(app) {
   installTransactionRoutes(router);
   installUsersRoutes(router);
   installHealthRoutes(router);
+  installPasswordRoutes(router);
 
-  app
-    .use(router.routes())
-    .use(router.allowedMethods());
+  app.use(router.routes()).use(router.allowedMethods());
 };
