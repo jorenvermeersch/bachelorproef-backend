@@ -21,7 +21,11 @@ const getKnexLogger = (logger, level) => (message) => {
     logger.log(level, message.sql);
   } else if (message.length && message.forEach) {
     message.forEach((innerMessage) =>
-      logger.log(level, innerMessage.sql ? innerMessage.sql : JSON.stringify(innerMessage)));
+      logger.log(
+        level,
+        innerMessage.sql ? innerMessage.sql : JSON.stringify(innerMessage),
+      ),
+    );
   } else {
     logger.log(level, JSON.stringify(message));
   }
@@ -45,10 +49,11 @@ async function initializeData() {
       debug: getKnexLogger(logger, 'debug'),
       error: getKnexLogger(logger, 'error'),
       warn: getKnexLogger(logger, 'warn'),
-      deprecate: (method, alternative) => logger.warn('Knex reported something deprecated', {
-        method,
-        alternative,
-      }),
+      deprecate: (method, alternative) =>
+        logger.warn('Knex reported something deprecated', {
+          method,
+          alternative,
+        }),
     },
     migrations: {
       tableName: 'knex_meta',
@@ -119,7 +124,10 @@ async function shutdownData() {
 }
 
 function getKnex() {
-  if (!knexInstance) throw new Error('Please initialize the data layer before getting the Knex instance');
+  if (!knexInstance)
+    throw new Error(
+      'Please initialize the data layer before getting the Knex instance',
+    );
   return knexInstance;
 }
 
@@ -127,6 +135,7 @@ const tables = Object.freeze({
   transaction: 'transactions',
   user: 'users',
   place: 'places',
+  password_reset_token: 'password_reset_tokens',
 });
 
 module.exports = {
