@@ -20,8 +20,8 @@ requestReset.validationScheme = {
 
 // TODO: Add swagger documentation.
 const reset = async (ctx) => {
-  const { token, newPassword } = ctx.request.body;
-  await passwordService.reset({ token, newPassword });
+  await passwordService.reset(ctx.request.body);
+  ctx.status = 200;
 };
 reset.validationScheme = {
   body: {

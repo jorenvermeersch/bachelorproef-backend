@@ -3,16 +3,13 @@ const { tables, getKnex } = require('../data');
 /**
  * Get all users.
  */
-const findAll = () => getKnex()(tables.user)
-  .select()
-  .orderBy('name', 'ASC');
+const findAll = () => getKnex()(tables.user).select().orderBy('name', 'ASC');
 
 /**
  * Calculate the total number of user.
  */
 const findCount = async () => {
-  const [count] = await getKnex()(tables.user)
-    .count();
+  const [count] = await getKnex()(tables.user).count();
   return count['count(*)'];
 };
 
@@ -21,18 +18,15 @@ const findCount = async () => {
  *
  * @param {number} id - The id to search for.
  */
-const findById = (id) => getKnex()(tables.user)
-  .where('id', id)
-  .first();
+const findById = (id) => getKnex()(tables.user).where('id', id).first();
 
 /**
  * Find a user with the given email.
  *
  * @param {string} email - The email to search for.
  */
-const findByEmail = (email) => getKnex()(tables.user)
-  .where('email', email)
-  .first();
+const findByEmail = (email) =>
+  getKnex()(tables.user).where('email', email).first();
 
 /**
  * Create a new user with the given `name`.
@@ -43,19 +37,13 @@ const findByEmail = (email) => getKnex()(tables.user)
  * @param {string} user.passwordHash - Hashed password of the user.
  * @param {string[]} user.roles - Roles of the user.
  */
-const create = async ({
-  name,
-  email,
-  passwordHash,
-  roles,
-}) => {
-  const [id] = await getKnex()(tables.user)
-    .insert({
-      name,
-      email,
-      password_hash: passwordHash,
-      roles: JSON.stringify(roles),
-    });
+const create = async ({ name, email, passwordHash, roles }) => {
+  const [id] = await getKnex()(tables.user).insert({
+    name,
+    email,
+    password_hash: passwordHash,
+    roles: JSON.stringify(roles),
+  });
   return id;
 };
 
@@ -67,14 +55,12 @@ const create = async ({
  * @param {string} user.name - Name of the user.
  * @param {string} user.email - Email of the user.
  */
-const updateById = async (id, {
-  name,
-  email,
-}) => {
+const updateById = async (id, { name, email, passwordHash }) => {
   await getKnex()(tables.user)
     .update({
       name,
       email,
+      password_hash: passwordHash,
     })
     .where('id', id);
   return id;
@@ -86,9 +72,7 @@ const updateById = async (id, {
  * @param {number} id - Id of the user to delete.
  */
 const deleteById = async (id) => {
-  const rowsAffected = await getKnex()(tables.user)
-    .delete()
-    .where('id', id);
+  const rowsAffected = await getKnex()(tables.user).delete().where('id', id);
   return rowsAffected > 0;
 };
 

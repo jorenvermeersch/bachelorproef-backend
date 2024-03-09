@@ -216,8 +216,10 @@ const getByEmail = async (email) => {
  * - NOT_FOUND: No user with the given id could be found.
  * - VALIDATION_FAILED: A user with the same email exists.
  */
-const updateById = async (id, { name, email }) => {
-  await userRepository.updateById(id, { name, email }).catch(handleDBError);
+const updateById = async (id, { name, email, passwordHash }) => {
+  await userRepository
+    .updateById(id, { name, email, passwordHash })
+    .catch(handleDBError);
   return getById(id);
 };
 
