@@ -1,0 +1,10 @@
+# Environment files. 
+.env
+.env.test
+
+# Node.js.
+.vscode-test/
+out/
+dist/
+test-fixtures/
+node_modules/
