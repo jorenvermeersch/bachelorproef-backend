@@ -135,7 +135,7 @@ const tables = Object.freeze({
   transaction: 'transactions',
   user: 'users',
   place: 'places',
-  passwordResetToken: 'password_reset_tokens',
+  passwordResetRequest: 'password_reset_requests',
 });
 
 module.exports = {

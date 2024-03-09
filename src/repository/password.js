@@ -1,7 +1,7 @@
 const { tables, getKnex } = require('../data');
 
 const createResetRequest = async ({ userId, token, tokenExpiry }) => {
-  await getKnex()(tables.passwordResetToken).insert({
+  await getKnex()(tables.passwordResetRequest).insert({
     user_id: userId,
     token,
     token_expiry: tokenExpiry,
@@ -9,7 +9,7 @@ const createResetRequest = async ({ userId, token, tokenExpiry }) => {
 };
 
 const findResetRequestByUserId = async (userId) => {
-  const resetRequest = await getKnex()(tables.passwordResetToken)
+  const resetRequest = await getKnex()(tables.passwordResetRequest)
     .where('user_id', userId)
     .first();
 
@@ -26,7 +26,7 @@ const findResetRequestByUserId = async (userId) => {
 };
 
 const deleteResetRequestsByUserId = async (userId) => {
-  const rowsAffected = await getKnex()(tables.passwordResetToken)
+  const rowsAffected = await getKnex()(tables.passwordResetRequest)
     .delete()
     .where('user_id', userId);
   return rowsAffected > 0;
