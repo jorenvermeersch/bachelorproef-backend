@@ -1,6 +1,6 @@
 const config = require('config');
 
-const { passwords, users } = require('./config');
+const { passwords, users } = require('./constants');
 const { initializeLogging } = require('../src/core/logging');
 const { hashPassword } = require('../src/core/password');
 const Role = require('../src/core/roles');

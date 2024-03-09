@@ -1,6 +1,6 @@
 const supertest = require('supertest');
 
-const { users } = require('./config');
+const { users } = require('./constants');
 const createServer = require('../src/createServer');
 const { getKnex } = require('../src/data');
 const { admin: adminUser, test: testUser } = users;
