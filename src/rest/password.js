@@ -10,6 +10,7 @@ const passwordService = require('../service/password');
 // TODO: Add swagger documentation.
 const requestReset = async (ctx) => {
   await passwordService.requestReset(ctx.request.body.email);
+  ctx.status = 202; // Accepted.
 };
 requestReset.validationScheme = {
   body: {
@@ -23,12 +24,10 @@ const reset = async (ctx) => {
   await passwordService.reset({ token, newPassword });
 };
 reset.validationScheme = {
-  query: {
-    token: Joi.string().uuid({ version: 'uuidv4' }),
-  },
   body: {
     email: Joi.string().email(),
     newPassword: passwordSchema,
+    token: Joi.string().uuid({ version: 'uuidv4' }),
   },
 };
 
