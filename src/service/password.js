@@ -53,7 +53,7 @@ const reset = async ({ email, newPassword, token }) => {
   const { token: resetToken, tokenExpiry } = resetRequest;
 
   // Provided token is not valid or has epired.
-  if (resetToken !== token || tokenExpiry < new Date()) {
+  if (token !== resetToken || tokenExpiry < new Date()) {
     throw tokenOrEmailError;
   }
 
