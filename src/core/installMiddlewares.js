@@ -37,7 +37,8 @@ module.exports = function installMiddleware(app) {
       return emoji.get('rewind');
     };
 
-    // TODO: Onnodige try-catch block (incl. throw en tweede logger). Error wordt al eerder opgevangen in globale error handler.
+    // TODO: Onnodige try-catch block (incl. throw en tweede logger).
+    // Error wordt al eerder opgevangen in globale error handler.
     try {
       await next();
 
@@ -45,9 +46,12 @@ module.exports = function installMiddleware(app) {
         `${getStatusEmoji()} ${ctx.method} ${ctx.status} (${ctx.response.get('X-Response-Time')}) ${ctx.url}`,
       );
     } catch (error) {
-      getLogger().error(`${emoji.get('x')} ${ctx.method} ${ctx.status} ${ctx.url}`, {
-        error,
-      });
+      getLogger().error(
+        `${emoji.get('x')} ${ctx.method} ${ctx.status} ${ctx.url}`,
+        {
+          error,
+        },
+      );
 
       // Rethrow the error for further handling by Koa
       throw error;
@@ -58,27 +62,27 @@ module.exports = function installMiddleware(app) {
   app.use(bodyParser());
 
   // Add some security headers
-  app.use(koaHelmet({
-    // Not needed in development (destroys Swagger UI)
-    contentSecurityPolicy: isDevelopment ? false : undefined,
-  }));
+  app.use(
+    koaHelmet({
+      // Not needed in development (destroys Swagger UI)
+      contentSecurityPolicy: isDevelopment ? false : undefined,
+    }),
+  );
 
   // Add CORS
-  app.use(koaCors({
-    origin: (ctx) => {
-      if (CORS_ORIGINS.indexOf(ctx.request.header.origin) !== -1) {
-        return ctx.request.header.origin;
-      }
-      // Not a valid domain at this point, let's return the first valid as we should return a string
-      return CORS_ORIGINS[0];
-    },
-    allowHeaders: [
-      'Accept',
-      'Content-Type',
-      'Authorization',
-    ],
-    maxAge: CORS_MAX_AGE,
-  }));
+  app.use(
+    koaCors({
+      origin: (ctx) => {
+        if (CORS_ORIGINS.indexOf(ctx.request.header.origin) !== -1) {
+          return ctx.request.header.origin;
+        }
+        // Not a valid domain at this point, let's return the first valid as we should return a string
+        return CORS_ORIGINS[0];
+      },
+      allowHeaders: ['Accept', 'Content-Type', 'Authorization'],
+      maxAge: CORS_MAX_AGE,
+    }),
+  );
 
   // Add a handler for known errors
   app.use(async (ctx, next) => {
