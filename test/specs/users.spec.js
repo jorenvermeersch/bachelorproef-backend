@@ -333,7 +333,7 @@ describe('Users', () => {
       });
     });
 
-    it("should 403 when requesting other user's info", async () => {
+    it('should 403 when requesting other user\'s info', async () => {
       const response = await supertest
         .get(`${url}/2`)
         .set('Authorization', authHeader);
@@ -341,7 +341,7 @@ describe('Users', () => {
       expect(response.statusCode).toBe(403);
       expect(response.body).toMatchObject({
         code: 'FORBIDDEN',
-        message: "You are not allowed to view this user's information",
+        message: 'You are not allowed to view this user\'s information',
         details: {},
       });
       expect(response.body.stack).toBeTruthy();
@@ -456,7 +456,7 @@ describe('Users', () => {
       expect(response.statusCode).toBe(403);
       expect(response.body).toMatchObject({
         code: 'FORBIDDEN',
-        message: "You are not allowed to view this user's information",
+        message: 'You are not allowed to view this user\'s information',
         details: {},
       });
       expect(response.body.stack).toBeTruthy();
@@ -516,7 +516,7 @@ describe('Users', () => {
       expect(response.statusCode).toBe(403);
       expect(response.body).toMatchObject({
         code: 'FORBIDDEN',
-        message: "You are not allowed to view this user's information",
+        message: 'You are not allowed to view this user\'s information',
         details: {},
       });
       expect(response.body.stack).toBeTruthy();

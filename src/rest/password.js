@@ -1,7 +1,10 @@
 const Router = require('@koa/router');
 const Joi = require('joi');
 
-const validate = require('../core/validation');
+const {
+  validate,
+  schemas: { passwordSchema },
+} = require('../core/validation');
 const passwordService = require('../service/password');
 
 // TODO: Add swagger documentation.
@@ -25,7 +28,7 @@ reset.validationScheme = {
   },
   body: {
     email: Joi.string().email(),
-    newPassword: Joi.string().min(12).max(128),
+    newPassword: passwordSchema,
   },
 };
 

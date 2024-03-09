@@ -8,23 +8,20 @@ const JOI_OPTIONS = {
   presence: 'required', // default require all fields
 };
 
-const cleanupJoiError = (error) => error.details.reduce((resultObj, {
-  message,
-  path,
-  type,
-}) => {
-  const joinedPath = path.join('.') || 'value';
-  if (!resultObj[joinedPath]) {
-    resultObj[joinedPath] = [];
-  }
+const cleanupJoiError = (error) =>
+  error.details.reduce((resultObj, { message, path, type }) => {
+    const joinedPath = path.join('.') || 'value';
+    if (!resultObj[joinedPath]) {
+      resultObj[joinedPath] = [];
+    }
 
-  resultObj[joinedPath].push({
-    type,
-    message,
-  });
+    resultObj[joinedPath].push({
+      type,
+      message,
+    });
 
-  return resultObj;
-}, {});
+    return resultObj;
+  }, {});
 
 // Create our own validator function which only takes the schema as an argument
 const validate = (schema) => {
@@ -45,10 +42,7 @@ const validate = (schema) => {
         schema.body = Joi.object(schema.body);
       }
 
-      const {
-        error: bodyErrors,
-        value: bodyValue,
-      } = schema.body.validate(
+      const { error: bodyErrors, value: bodyValue } = schema.body.validate(
         ctx.request.body,
         JOI_OPTIONS,
       );
@@ -66,13 +60,8 @@ const validate = (schema) => {
         schema.params = Joi.object(schema.params);
       }
 
-      const {
-        error: paramsErrors,
-        value: paramsValue,
-      } = schema.params.validate(
-        ctx.params,
-        JOI_OPTIONS,
-      );
+      const { error: paramsErrors, value: paramsValue } =
+        schema.params.validate(ctx.params, JOI_OPTIONS);
 
       if (paramsErrors) {
         errors.params = cleanupJoiError(paramsErrors);
@@ -87,10 +76,7 @@ const validate = (schema) => {
         schema.query = Joi.object(schema.query);
       }
 
-      const {
-        error: queryErrors,
-        value: queryValue,
-      } = schema.query.validate(
+      const { error: queryErrors, value: queryValue } = schema.query.validate(
         ctx.query,
         JOI_OPTIONS,
       );

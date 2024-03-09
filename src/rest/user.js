@@ -4,7 +4,10 @@ const Joi = require('joi');
 
 const { requireAuthentication, makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
-const validate = require('../core/validation');
+const {
+  validate,
+  schemas: { passwordSchema },
+} = require('../core/validation');
 const userService = require('../service/user');
 
 const AUTH_DISABLED = config.get('auth.disabled');
@@ -32,9 +35,13 @@ const checkUserId = (ctx, next) => {
 
   // You can only get our own data unless you're an admin
   if (id !== userId && !roles.includes(Role.ADMIN)) {
-    return ctx.throw(403, 'You are not allowed to view this user\'s information', {
-      code: 'FORBIDDEN',
-    });
+    return ctx.throw(
+      403,
+      'You are not allowed to view this user\'s information',
+      {
+        code: 'FORBIDDEN',
+      },
+    );
   }
   return next();
 };
@@ -235,7 +242,7 @@ register.validationScheme = {
   body: {
     name: Joi.string().max(255),
     email: Joi.string().email(),
-    password: Joi.string().min(12).max(128),
+    password: passwordSchema,
   },
 };
 
@@ -373,18 +380,45 @@ module.exports = function installUsersRoutes(app) {
   if (!AUTH_DISABLED) {
     // Public routes
     router.post('/login', authDelay, validate(login.validationScheme), login);
-    router.post('/register', authDelay, validate(register.validationScheme), register);
+    router.post(
+      '/register',
+      authDelay,
+      validate(register.validationScheme),
+      register,
+    );
   }
 
   const requireAdmin = makeRequireRole(Role.ADMIN);
 
   // Routes with authentication
-  router.get('/', requireAuthentication, requireAdmin, validate(getAllUsers.validationScheme), getAllUsers);
-  router.get('/:id', requireAuthentication, validate(getUserById.validationScheme), checkUserId, getUserById);
-  router.put('/:id', requireAuthentication, validate(updateUserById.validationScheme), checkUserId, updateUserById);
-  router.delete('/:id', requireAuthentication, validate(deleteUserById.validationScheme), checkUserId, deleteUserById);
+  router.get(
+    '/',
+    requireAuthentication,
+    requireAdmin,
+    validate(getAllUsers.validationScheme),
+    getAllUsers,
+  );
+  router.get(
+    '/:id',
+    requireAuthentication,
+    validate(getUserById.validationScheme),
+    checkUserId,
+    getUserById,
+  );
+  router.put(
+    '/:id',
+    requireAuthentication,
+    validate(updateUserById.validationScheme),
+    checkUserId,
+    updateUserById,
+  );
+  router.delete(
+    '/:id',
+    requireAuthentication,
+    validate(deleteUserById.validationScheme),
+    checkUserId,
+    deleteUserById,
+  );
 
-  app
-    .use(router.routes())
-    .use(router.allowedMethods());
+  app.use(router.routes()).use(router.allowedMethods());
 };

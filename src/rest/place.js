@@ -2,7 +2,7 @@ const Router = require('@koa/router');
 const Joi = require('joi');
 
 const { requireAuthentication } = require('../core/auth');
-const validate = require('../core/validation');
+const { validate } = require('../core/validation');
 const placeService = require('../service/place');
 
 /**
@@ -249,7 +249,5 @@ module.exports = function installPlacesRoutes(app) {
   router.put('/:id', validate(updatePlace.validationScheme), updatePlace);
   router.delete('/:id', validate(deletePlace.validationScheme), deletePlace);
 
-  app
-    .use(router.routes())
-    .use(router.allowedMethods());
+  app.use(router.routes()).use(router.allowedMethods());
 };

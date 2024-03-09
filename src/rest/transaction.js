@@ -2,7 +2,7 @@ const Router = require('@koa/router');
 const Joi = require('joi');
 
 const { requireAuthentication } = require('../core/auth');
-const validate = require('../core/validation');
+const { validate } = require('../core/validation');
 const transactionService = require('../service/transaction');
 
 /**
@@ -275,13 +275,31 @@ module.exports = function installTransactionRoutes(app) {
 
   router.use(requireAuthentication);
 
-  router.get('/', validate(getAllTransactions.validationScheme), getAllTransactions);
-  router.get('/:id', validate(getTransactionById.validationScheme), getTransactionById);
-  router.post('/', validate(createTransaction.validationScheme), createTransaction);
-  router.put('/:id', validate(updateTransaction.validationScheme), updateTransaction);
-  router.delete('/:id', validate(deleteTransaction.validationScheme), deleteTransaction);
+  router.get(
+    '/',
+    validate(getAllTransactions.validationScheme),
+    getAllTransactions,
+  );
+  router.get(
+    '/:id',
+    validate(getTransactionById.validationScheme),
+    getTransactionById,
+  );
+  router.post(
+    '/',
+    validate(createTransaction.validationScheme),
+    createTransaction,
+  );
+  router.put(
+    '/:id',
+    validate(updateTransaction.validationScheme),
+    updateTransaction,
+  );
+  router.delete(
+    '/:id',
+    validate(deleteTransaction.validationScheme),
+    deleteTransaction,
+  );
 
-  app
-    .use(router.routes())
-    .use(router.allowedMethods());
+  app.use(router.routes()).use(router.allowedMethods());
 };
