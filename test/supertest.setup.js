@@ -1,7 +1,9 @@
 const supertest = require('supertest');
 
+const { users } = require('./config');
 const createServer = require('../src/createServer');
 const { getKnex } = require('../src/data');
+const { admin: adminUser, test: testUser } = users;
 
 /**
  * Sign in using the test user.
@@ -11,11 +13,10 @@ const { getKnex } = require('../src/data');
  * @returns {Promise<string>} The Authorization header to use.
  */
 const login = async (supertest) => {
-  const response = await supertest.post('/api/users/login')
-    .send({
-      email: 'test.user@hogent.be',
-      password: '12345678',
-    });
+  const response = await supertest.post('/api/users/login').send({
+    email: testUser.email,
+    password: testUser.password,
+  });
 
   if (response.statusCode !== 200) {
     throw new Error(response.body.message || 'Unknown error occured');
@@ -32,11 +33,10 @@ const login = async (supertest) => {
  * @returns {Promise<string>} The Authorization header to use.
  */
 const loginAdmin = async (supertest) => {
-  const response = await supertest.post('/api/users/login')
-    .send({
-      email: 'admin.user@hogent.be',
-      password: '12345678',
-    });
+  const response = await supertest.post('/api/users/login').send({
+    email: adminUser.email,
+    password: adminUser.password,
+  });
 
   if (response.statusCode !== 200) {
     throw new Error(response.body.message || 'Unknown error occured');
