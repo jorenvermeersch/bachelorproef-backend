@@ -5,6 +5,7 @@ const userService = require('./user');
 const { hashPassword } = require('../core/password');
 const ServiceError = require('../core/serviceError');
 const passwordRepository = require('../repository/password');
+const { sendMail } = require('../core/mail');
 
 // TODO: Add JSDoc.
 const requestReset = async (email) => {
@@ -25,7 +26,11 @@ const requestReset = async (email) => {
     tokenExpiry: addMinutes(new Date(), 10),
   });
 
-  // TODO: Send e-mail with token.
+  await sendMail({
+    to: email,
+    subject: 'Request for password reset',
+    text: `Your password reset token is: ${token}`,
+  });
 };
 
 // TODO: Add JSDoc.

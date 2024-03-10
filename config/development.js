@@ -30,8 +30,15 @@ module.exports = {
     jwt: {
       audience: 'budget.hogent.be',
       issuer: 'budget.hogent.be',
-      secret: 'eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked',
+      secret:
+        'eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked',
       expirationInterval: 60 * 60 * 1000, // ms (1 hour)
     },
+  },
+  mail: {
+    host: 'sandbox.smtp.mailtrap.io',
+    port: 2525,
+    username: '19d5f75ed87023',
+    password: '90f2cc9da4214c',
   },
 };
