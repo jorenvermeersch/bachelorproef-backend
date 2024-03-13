@@ -8,3 +8,6 @@ out/
 dist/
 test-fixtures/
 node_modules/
+
+# Testing.
+test.log
