@@ -13,7 +13,7 @@ const requestReset = async (ctx) => {
     ctx.request.body.email,
     ctx.request.headers.origin,
   );
-  ctx.status = 202; // Accepted.
+  ctx.status = 202; 
 };
 requestReset.validationScheme = {
   body: {

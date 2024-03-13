@@ -33,15 +33,15 @@ const requestReset = async (email, origin) => {
   await sendMail({
     to: email,
     subject: 'Request for password reset',
-    text: `You can reset your password with the following link: ${url}`,
-    html: `<p>Click <a href="${url}">here</a> to reset your password.</p>`,
+    text: `Click the following link to reset your password: ${url}`,
+    html: `<p>Click <a href="${url}" target="_blank">here</a> to reset your password.</p>`,
   });
 };
 
 // TODO: Add JSDoc.
 const reset = async ({ email, newPassword, token }) => {
   const tokenOrEmailError = ServiceError.validationFailed(
-    'The given email is invalid or the reset token has expired.',
+    'The given email is invalid or the reset request has expired.',
   );
 
   let user;
@@ -69,6 +69,7 @@ const reset = async ({ email, newPassword, token }) => {
 
   const passwordHash = await hashPassword(newPassword);
   await userService.updateById(id, { passwordHash });
+  await passwordRepository.deleteResetRequestsByUserId(id);
 };
 
 module.exports = {
