@@ -1,14 +1,15 @@
 const crypto = require('crypto');
 const { addMinutes } = require('date-fns');
+const { URLSearchParams } = require('url');
 
 const userService = require('./user');
+const { sendMail } = require('../core/mail');
 const { hashPassword } = require('../core/password');
 const ServiceError = require('../core/serviceError');
 const passwordRepository = require('../repository/password');
-const { sendMail } = require('../core/mail');
 
 // TODO: Add JSDoc.
-const requestReset = async (email) => {
+const requestReset = async (email, origin) => {
   let user;
   try {
     user = await userService.getByEmail(email);
@@ -26,10 +27,14 @@ const requestReset = async (email) => {
     tokenExpiry: addMinutes(new Date(), 10),
   });
 
+  const queryParameters = new URLSearchParams({ email, token });
+  const url = `${origin}/password-reset?${queryParameters}`; // Origin already checked with CORS.
+
   await sendMail({
     to: email,
     subject: 'Request for password reset',
-    text: `Your password reset token is: ${token}`,
+    text: `You can reset your password with the following link: ${url}`,
+    html: `<p>Click <a href="${url}">here</a> to reset your password.</p>`,
   });
 };
 

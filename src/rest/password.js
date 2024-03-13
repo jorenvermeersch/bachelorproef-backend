@@ -9,7 +9,10 @@ const passwordService = require('../service/password');
 
 // TODO: Add swagger documentation.
 const requestReset = async (ctx) => {
-  await passwordService.requestReset(ctx.request.body.email);
+  await passwordService.requestReset(
+    ctx.request.body.email,
+    ctx.request.headers.origin,
+  );
   ctx.status = 202; // Accepted.
 };
 requestReset.validationScheme = {

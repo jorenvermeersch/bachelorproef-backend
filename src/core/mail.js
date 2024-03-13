@@ -1,5 +1,5 @@
-const nodemailer = require('nodemailer');
 const config = require('config');
+const nodemailer = require('nodemailer');
 
 const MAIL_HOST = config.get('mail.host');
 const MAIL_PORT = config.get('mail.port');
@@ -22,8 +22,8 @@ const from = {
   },
 };
 
-const sendMail = async ({ to, subject, text }, callback = () => {}) => {
-  const mailOptions = { ...from, to, subject, text };
+const sendMail = async ({ to, subject, text, html }, callback = () => {}) => {
+  const mailOptions = { ...from, to, subject, text, html };
   await transporter.sendMail(mailOptions, callback);
 };
 
