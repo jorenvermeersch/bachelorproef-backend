@@ -3,7 +3,8 @@ const Joi = require('joi');
 
 const {
   validate,
-  schemas: { passwordSchema },
+  validateAsync,
+  schemas: { passwordSchemaAsync },
 } = require('../core/validation');
 const passwordService = require('../service/password');
 
@@ -13,7 +14,7 @@ const requestReset = async (ctx) => {
     ctx.request.body.email,
     ctx.request.headers.origin,
   );
-  ctx.status = 202; 
+  ctx.status = 202;
 };
 requestReset.validationScheme = {
   body: {
@@ -29,7 +30,7 @@ const reset = async (ctx) => {
 reset.validationScheme = {
   body: {
     email: Joi.string().email(),
-    newPassword: passwordSchema,
+    newPassword: passwordSchemaAsync,
     token: Joi.string().uuid({ version: 'uuidv4' }),
   },
 };
@@ -49,7 +50,7 @@ module.exports = function installPasswordRoutes(app) {
     validate(requestReset.validationScheme),
     requestReset,
   );
-  router.post('/reset', validate(reset.validationScheme), reset);
+  router.post('/reset', validateAsync(reset.validationScheme), reset);
 
   app.use(router.routes()).use(router.allowedMethods());
 };

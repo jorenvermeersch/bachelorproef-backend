@@ -99,4 +99,78 @@ const validate = (schema) => {
   };
 };
 
-module.exports = validate;
+const validateAsync = (schema) => {
+  if (!schema) {
+    schema = {
+      body: {},
+      params: {},
+      query: {},
+    };
+  }
+
+  return async (ctx, next) => {
+    const errors = {};
+
+    if (schema.body) {
+      // Be sure the schema is a Joi instance.
+      if (!Joi.isSchema(schema.body)) {
+        schema.body = Joi.object(schema.body);
+      }
+
+      try {
+        const bodyValue = await schema.body.validateAsync(
+          ctx.request.body,
+          JOI_OPTIONS,
+        );
+        ctx.request.body = bodyValue;
+      } catch (bodyErrors) {
+        errors.body = cleanupJoiError(bodyErrors);
+      }
+    }
+
+    if (schema.params) {
+      // Be sure the schema is a Joi instance.
+      if (!Joi.isSchema(schema.params)) {
+        schema.params = Joi.object(schema.params);
+      }
+
+      try {
+        const paramsValue = await schema.params.validateAsync(
+          ctx.params,
+          JOI_OPTIONS,
+        );
+        ctx.params = paramsValue;
+      } catch (paramsErrors) {
+        errors.params = cleanupJoiError(paramsErrors);
+      }
+    }
+
+    if (schema.query) {
+      // Be sure the schema is a Joi instance.
+      if (!Joi.isSchema(schema.query)) {
+        schema.query = Joi.object(schema.query);
+      }
+
+      try {
+        const queryValue = await schema.query.validateAsync(
+          ctx.query,
+          JOI_OPTIONS,
+        );
+        ctx.query = queryValue;
+      } catch (queryErrors) {
+        errors.query = cleanupJoiError(queryErrors);
+      }
+    }
+
+    if (Object.keys(errors).length) {
+      ctx.throw(400, 'Validation failed, check details for more information', {
+        code: 'VALIDATION_FAILED',
+        details: errors,
+      });
+    }
+
+    return next();
+  };
+};
+
+module.exports = { validate, validateAsync };

@@ -1,4 +1,4 @@
 const schemas = require('./schemas');
-const validate = require('./validate');
+const { validate, validateAsync } = require('./validate');
 
-module.exports = { validate, schemas };
+module.exports = { validate, validateAsync, schemas };

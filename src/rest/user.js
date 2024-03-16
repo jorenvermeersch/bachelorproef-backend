@@ -6,7 +6,8 @@ const { requireAuthentication, makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
 const {
   validate,
-  schemas: { passwordSchema },
+  validateAsync,
+  schemas: { passwordSchemaAsync, verifyPasswordSafety },
 } = require('../core/validation');
 const userService = require('../service/user');
 
@@ -37,7 +38,7 @@ const checkUserId = (ctx, next) => {
   if (id !== userId && !roles.includes(Role.ADMIN)) {
     return ctx.throw(
       403,
-      'You are not allowed to view this user\'s information',
+      "You are not allowed to view this user's information",
       {
         code: 'FORBIDDEN',
       },
@@ -193,7 +194,11 @@ const login = async (ctx) => {
 login.validationScheme = {
   body: {
     email: Joi.string().email(),
-    password: Joi.string(),
+    password: Joi.string().external(
+      verifyPasswordSafety(
+        'Please reset your password to regain access to your account.',
+      ),
+    ),
   },
 };
 
@@ -242,7 +247,7 @@ register.validationScheme = {
   body: {
     name: Joi.string().max(255),
     email: Joi.string().email(),
-    password: passwordSchema,
+    password: passwordSchemaAsync,
   },
 };
 
@@ -379,11 +384,16 @@ module.exports = function installUsersRoutes(app) {
   // DO NOT use this config parameter in any production worthy application!
   if (!AUTH_DISABLED) {
     // Public routes
-    router.post('/login', authDelay, validate(login.validationScheme), login);
+    router.post(
+      '/login',
+      authDelay,
+      validateAsync(login.validationScheme),
+      login,
+    );
     router.post(
       '/register',
       authDelay,
-      validate(register.validationScheme),
+      validateAsync(register.validationScheme),
       register,
     );
   }
