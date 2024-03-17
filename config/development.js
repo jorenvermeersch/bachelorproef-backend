@@ -36,9 +36,9 @@ module.exports = {
     },
   },
   mail: {
-    host: 'sandbox.smtp.mailtrap.io',
-    port: 2525,
-    username: '19d5f75ed87023',
-    password: '90f2cc9da4214c',
+    host: null,
+    port: null,
+    username: null,
+    password: null,
   },
 };
