@@ -2,6 +2,7 @@ const passwords = {
   tooLong: 'a'.repeat(256),
   tooShort: 'a',
   valid: 'hogent_toegepaste_informatica',
+  breached: 'password1234',
 };
 
 const users = {
