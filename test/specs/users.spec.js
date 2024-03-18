@@ -229,6 +229,18 @@ describe('Users', () => {
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('password');
     });
+
+    it('should 400 when password has been breached', async () => {
+      const response = await supertest.post(url).send({
+        name: 'Register User',
+        email: 'register@hogent.be',
+        password: passwords.breached,
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.code).toBe('VALIDATION_FAILED');
+      expect(response.body.details.body).toHaveProperty('password');
+    });
   });
 
   describe('GET /api/users', () => {
