@@ -2,7 +2,11 @@ const Router = require('@koa/router');
 const config = require('config');
 const Joi = require('joi');
 
-const { requireAuthentication, makeRequireRole } = require('../core/auth');
+const {
+  requireAuthentication,
+  makeRequireRole,
+  authDelay,
+} = require('../core/auth');
 const Role = require('../core/roles');
 const {
   validate,
@@ -12,20 +16,6 @@ const {
 const userService = require('../service/user');
 
 const AUTH_DISABLED = config.get('auth.disabled');
-const AUTH_MAX_DELAY = config.get('auth.maxDelay');
-
-/**
- * Middleware which waites for a certain amount of time
- * before calling the `next` function in order to make
- * time attacks very hard.
- */
-const authDelay = async (_, next) => {
-  await new Promise((resolve) => {
-    const delay = Math.round(Math.random() * AUTH_MAX_DELAY);
-    setTimeout(resolve, delay);
-  });
-  return next();
-};
 
 /**
  * Check if the signed in user can access the given user's information.
