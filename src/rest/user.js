@@ -11,7 +11,7 @@ const Role = require('../core/roles');
 const {
   validate,
   validateAsync,
-  schemas: { passwordSchemaAsync, verifyPasswordSafety },
+  schemas: { passwordSchemaAsync, verifySecretSafety },
 } = require('../core/validation');
 const userService = require('../service/user');
 
@@ -185,7 +185,7 @@ login.validationScheme = {
   body: {
     email: Joi.string().email(),
     password: Joi.string().external(
-      verifyPasswordSafety(
+      verifySecretSafety(
         'Please reset your password to regain access to your account.',
       ),
     ),

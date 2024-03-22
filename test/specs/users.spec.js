@@ -1,4 +1,4 @@
-const { hashPassword } = require('../../src/core/password');
+const { hashSecret } = require('../../src/core/hashing');
 const Role = require('../../src/core/roles');
 const { tables } = require('../../src/data');
 const { testAuthHeader } = require('../common/auth');
@@ -19,7 +19,7 @@ describe('Users', () => {
   beforeAll(async () => {
     authHeader = await login(supertest);
     adminAuthHeader = await loginAdmin(supertest);
-    validPasswordHash = await hashPassword(passwords.valid);
+    validPasswordHash = await hashSecret(passwords.valid);
   });
 
   describe('POST /api/users/login', () => {
@@ -27,7 +27,7 @@ describe('Users', () => {
 
     beforeAll(async () => {
       // Insert a test user with a valid password.
-      const passwordHash = await hashPassword(loginUser.password);
+      const passwordHash = await hashSecret(loginUser.password);
 
       await knex(tables.user).insert([
         {

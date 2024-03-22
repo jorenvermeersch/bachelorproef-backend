@@ -1,11 +1,11 @@
 const Joi = require('joi');
 
-const { isPasswordBreached } = require('../password');
+const { isPasswordBreached } = require('../dataBreach');
 
 const baseMessage =
   'The given password was exposed by a data breach on the Internet';
 
-const verifyPasswordSafety =
+const verifySecretSafety =
   (extendedMessage = '') =>
   async (value, helpers) => {
     const isBreached = await isPasswordBreached(value);
@@ -23,6 +23,6 @@ const verifyPasswordSafety =
 const passwordSchemaAsync = Joi.string()
   .min(12)
   .max(128)
-  .external(verifyPasswordSafety());
+  .external(verifySecretSafety());
 
-module.exports = { passwordSchemaAsync, verifyPasswordSafety };
+module.exports = { passwordSchemaAsync, verifySecretSafety };

@@ -1,9 +1,9 @@
 const config = require('config');
 
 const handleDBError = require('./_handleDBError');
+const { verifySecret, hashSecret } = require('../core/hashing');
 const { generateJWT, verifyJWT } = require('../core/jwt');
 const { getLogger } = require('../core/logging');
-const { verifyPassword, hashPassword } = require('../core/password');
 const Role = require('../core/roles');
 const ServiceError = require('../core/serviceError');
 const userRepository = require('../repository/user');
@@ -49,7 +49,7 @@ const login = async (email, password) => {
     );
   }
 
-  const passwordValid = await verifyPassword(password, user.password_hash);
+  const passwordValid = await verifySecret(password, user.password_hash);
 
   if (!passwordValid) {
     // DO NOT expose we know the user but an invalid password was given
@@ -72,7 +72,7 @@ const login = async (email, password) => {
  * @returns {Promise<object>} - Promise whichs resolves in an object containing the token and signed in user.
  */
 const register = async ({ name, email, password }) => {
-  const passwordHash = await hashPassword(password);
+  const passwordHash = await hashSecret(password);
 
   const userId = await userRepository
     .create({

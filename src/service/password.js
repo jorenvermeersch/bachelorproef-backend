@@ -3,8 +3,8 @@ const { addMinutes } = require('date-fns');
 const { URLSearchParams } = require('url');
 
 const userService = require('./user');
+const { hashSecret, verifySecret } = require('../core/hashing');
 const { sendMail } = require('../core/mail');
-const { hashPassword, verifyPassword } = require('../core/password');
 const ServiceError = require('../core/serviceError');
 const passwordRepository = require('../repository/password');
 
@@ -21,7 +21,7 @@ const requestReset = async (email, origin) => {
   const { id } = user;
   await passwordRepository.deleteResetRequestsByUserId(id);
   const token = crypto.randomUUID(); // Cryptographically secure.
-  const tokenHash = await hashPassword(token);
+  const tokenHash = await hashSecret(token);
 
   await passwordRepository.createResetRequest({
     userId: id,
@@ -63,14 +63,14 @@ const reset = async ({ email, newPassword, token }) => {
   }
 
   const { tokenHash: resetTokenHash, tokenExpiry } = resetRequest;
-  const isCorrectToken = await verifyPassword(token, resetTokenHash);
+  const isCorrectToken = await verifySecret(token, resetTokenHash);
 
   // Provided token is not valid or has epired.
   if (!isCorrectToken || tokenExpiry < new Date()) {
     throw tokenOrEmailError;
   }
 
-  const passwordHash = await hashPassword(newPassword);
+  const passwordHash = await hashSecret(newPassword);
   await userService.updateById(id, { passwordHash });
   await passwordRepository.deleteResetRequestsByUserId(id);
 };

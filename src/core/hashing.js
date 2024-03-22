@@ -7,12 +7,12 @@ const ARGON_TIME_COST = config.get('auth.argon.timeCost');
 const ARGON_MEMORY_COST = config.get('auth.argon.memoryCost');
 
 /**
- * Hash the given password.
+ * Hash the given secret.
  *
- * @param password - The password to hash.
+ * @param secret - The secret to hash.
  */
-const hashPassword = async (password) => {
-  const passwordHash = await argon2.hash(password, {
+const hashSecret = async (secret) => {
+  const secretHash = await argon2.hash(secret, {
     type: argon2.argon2id,
     saltLength: ARGON_SALT_LENGTH,
     hashLength: ARGON_HASH_LENGTH,
@@ -20,19 +20,19 @@ const hashPassword = async (password) => {
     memoryCost: ARGON_MEMORY_COST,
   });
 
-  return passwordHash;
+  return secretHash;
 };
 
 /**
- * Check if the given password equals the hashed password.
+ * Check if the given secret equals the hashed secret.
  *
- * @param password - The password to verify.
- * @param passwordHash - The hashed password.
+ * @param secret - The secret to verify.
+ * @param secretHash - The hashed secret.
  *
- * @returns {Promise<boolean>} Whether the password is valid.
+ * @returns {Promise<boolean>} Whether the secret is valid.
  */
-const verifyPassword = async (password, passwordHash) => {
-  const valid = await argon2.verify(passwordHash, password, {
+const verifySecret = async (secret, secretHash) => {
+  const valid = await argon2.verify(secretHash, secret, {
     type: argon2.argon2id,
     saltLength: ARGON_SALT_LENGTH,
     hashLength: ARGON_HASH_LENGTH,
@@ -44,6 +44,6 @@ const verifyPassword = async (password, passwordHash) => {
 };
 
 module.exports = {
-  hashPassword,
-  verifyPassword,
+  hashSecret,
+  verifySecret,
 };
