@@ -1,12 +1,14 @@
 const Router = require('@koa/router');
 const Joi = require('joi');
 
+const { authDelay } = require('../core/auth');
 const {
   validate,
   validateAsync,
   schemas: { passwordSchemaAsync },
 } = require('../core/validation');
 const passwordService = require('../service/password');
+
 
 // TODO: Add swagger documentation.
 const requestReset = async (ctx) => {
@@ -47,10 +49,16 @@ module.exports = function installPasswordRoutes(app) {
 
   router.post(
     '/request-reset',
+    authDelay,
     validate(requestReset.validationScheme),
     requestReset,
   );
-  router.post('/reset', validateAsync(reset.validationScheme), reset);
+  router.post(
+    '/reset',
+    authDelay,
+    validateAsync(reset.validationScheme),
+    reset,
+  );
 
   app.use(router.routes()).use(router.allowedMethods());
 };

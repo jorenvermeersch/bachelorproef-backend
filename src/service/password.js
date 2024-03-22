@@ -14,6 +14,7 @@ const requestReset = async (email, origin) => {
   try {
     user = await userService.getByEmail(email);
   } catch (error) {
+    // No error thrown to protect against user enumeration attacks.
     return;
   }
 
