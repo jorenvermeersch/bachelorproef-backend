@@ -37,25 +37,11 @@ module.exports = function installMiddleware(app) {
       return emoji.get('rewind');
     };
 
-    // TODO: Onnodige try-catch block (incl. throw en tweede logger).
-    // Error wordt al eerder opgevangen in globale error handler.
-    try {
-      await next();
+    await next();
 
-      getLogger().info(
-        `${getStatusEmoji()} ${ctx.method} ${ctx.status} (${ctx.response.get('X-Response-Time')}) ${ctx.url}`,
-      );
-    } catch (error) {
-      getLogger().error(
-        `${emoji.get('x')} ${ctx.method} ${ctx.status} ${ctx.url}`,
-        {
-          error,
-        },
-      );
-
-      // Rethrow the error for further handling by Koa
-      throw error;
-    }
+    getLogger().info(
+      `${getStatusEmoji()} ${ctx.method} ${ctx.status} (${ctx.response.get('X-Response-Time')}) ${ctx.url}`,
+    );
   });
 
   // Add the body parser
