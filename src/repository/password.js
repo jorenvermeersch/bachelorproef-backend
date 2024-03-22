@@ -1,9 +1,9 @@
 const { tables, getKnex } = require('../data');
 
-const createResetRequest = async ({ userId, token, tokenExpiry }) => {
+const createResetRequest = async ({ userId, tokenHash, tokenExpiry }) => {
   await getKnex()(tables.passwordResetRequest).insert({
     user_id: userId,
-    token,
+    token_hash: tokenHash,
     token_expiry: tokenExpiry,
   });
 };
@@ -17,10 +17,10 @@ const findResetRequestByUserId = async (userId) => {
     return;
   }
 
-  const { user_id, token, token_expiry } = resetRequest;
+  const { user_id, token_hash, token_expiry } = resetRequest;
   return {
     userId: user_id,
-    token,
+    tokenHash: token_hash,
     tokenExpiry: token_expiry,
   };
 };

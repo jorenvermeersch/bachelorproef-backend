@@ -4,7 +4,7 @@ const { URLSearchParams } = require('url');
 
 const userService = require('./user');
 const { sendMail } = require('../core/mail');
-const { hashPassword } = require('../core/password');
+const { hashPassword, verifyPassword } = require('../core/password');
 const ServiceError = require('../core/serviceError');
 const passwordRepository = require('../repository/password');
 
@@ -21,10 +21,11 @@ const requestReset = async (email, origin) => {
   const { id } = user;
   await passwordRepository.deleteResetRequestsByUserId(id);
   const token = crypto.randomUUID(); // Cryptographically secure.
+  const tokenHash = await hashPassword(token);
 
   await passwordRepository.createResetRequest({
     userId: id,
-    token,
+    tokenHash,
     tokenExpiry: addMinutes(new Date(), 10),
   });
 
@@ -42,7 +43,7 @@ const requestReset = async (email, origin) => {
 // TODO: Add JSDoc.
 const reset = async ({ email, newPassword, token }) => {
   const tokenOrEmailError = ServiceError.validationFailed(
-    'The given email is invalid or the reset request has expired.',
+    'The given email is invalid or the reset request has expired',
   );
 
   let user;
@@ -56,15 +57,16 @@ const reset = async ({ email, newPassword, token }) => {
   const { id } = user;
   const resetRequest = await passwordRepository.findResetRequestByUserId(id);
 
-  // User exists, but no password reset was requested.
+  // User exists, but no password reset was requested.resetTokenHash
   if (!resetRequest) {
     throw tokenOrEmailError;
   }
 
-  const { token: resetToken, tokenExpiry } = resetRequest;
+  const { tokenHash: resetTokenHash, tokenExpiry } = resetRequest;
+  const isCorrectToken = await verifyPassword(token, resetTokenHash);
 
   // Provided token is not valid or has epired.
-  if (token !== resetToken || tokenExpiry < new Date()) {
+  if (!isCorrectToken || tokenExpiry < new Date()) {
     throw tokenOrEmailError;
   }
 
