@@ -65,7 +65,7 @@ const reset = async ({ email, newPassword, token }) => {
   const { tokenHash: resetTokenHash, tokenExpiry } = resetRequest;
   const isCorrectToken = await verifySecret(token, resetTokenHash);
 
-  // Provided token is not valid or has epired.
+  // Provided token is not valid or has expired.
   if (!isCorrectToken || tokenExpiry < new Date()) {
     throw tokenOrEmailError;
   }
