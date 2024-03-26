@@ -57,7 +57,7 @@ const reset = async ({ email, newPassword, token }) => {
   const { id } = user;
   const resetRequest = await passwordRepository.findResetRequestByUserId(id);
 
-  // User exists, but no password reset was requested.resetTokenHash
+  // User exists, but no password reset was requested.
   if (!resetRequest) {
     throw tokenOrEmailError;
   }
