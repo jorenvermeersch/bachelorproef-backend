@@ -1,14 +1,14 @@
 const Router = require('@koa/router');
+const config = require('config');
 const Joi = require('joi');
 
-const { authDelay } = require('../core/auth');
+const { delay } = require('../core/delay');
 const {
   validate,
   validateAsync,
   schemas: { passwordSchemaAsync },
 } = require('../core/validation');
 const passwordService = require('../service/password');
-
 
 // TODO: Add swagger documentation.
 const requestReset = async (ctx) => {
@@ -37,6 +37,9 @@ reset.validationScheme = {
   },
 };
 
+const MAX_MAIL_DELAY = config.get('mail.maxDelay');
+const mailDelay = delay(0, MAX_MAIL_DELAY);
+
 /**
  * Install transaction routes in the given router.
  *
@@ -49,13 +52,13 @@ module.exports = function installPasswordRoutes(app) {
 
   router.post(
     '/request-reset',
-    authDelay,
+    mailDelay,
     validate(requestReset.validationScheme),
     requestReset,
   );
   router.post(
     '/reset',
-    authDelay,
+    mailDelay,
     validateAsync(reset.validationScheme),
     reset,
   );

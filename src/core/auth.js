@@ -1,5 +1,3 @@
-const config = require('config');
-
 const userService = require('../service/user');
 
 /**
@@ -35,23 +33,7 @@ const makeRequireRole = (role) => async (ctx, next) => {
   return next();
 };
 
-const AUTH_MAX_DELAY = config.get('auth.maxDelay');
-
-/**
- * Middleware which waites for a certain amount of time
- * before calling the `next` function in order to make
- * time attacks very hard.
- */
-const authDelay = async (_, next) => {
-  await new Promise((resolve) => {
-    const delay = Math.round(Math.random() * AUTH_MAX_DELAY);
-    setTimeout(resolve, delay);
-  });
-  return next();
-};
-
 module.exports = {
   requireAuthentication,
   makeRequireRole,
-  authDelay,
 };

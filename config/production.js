@@ -34,5 +34,6 @@ module.exports = {
     port: null,
     username: null,
     password: null,
+    maxDelay: 700,
   },
 };

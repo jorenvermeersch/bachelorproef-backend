@@ -2,11 +2,8 @@ const Router = require('@koa/router');
 const config = require('config');
 const Joi = require('joi');
 
-const {
-  requireAuthentication,
-  makeRequireRole,
-  authDelay,
-} = require('../core/auth');
+const { requireAuthentication, makeRequireRole } = require('../core/auth');
+const { authDelay } = require('../core/delay');
 const Role = require('../core/roles');
 const {
   validate,
