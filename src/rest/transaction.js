@@ -175,7 +175,7 @@ const createTransaction = async (ctx) => {
 };
 createTransaction.validationScheme = {
   body: {
-    amount: Joi.number().invalid(0),
+    amount: Joi.number().invalid(0).min(-1_000_000).max(1_000_000),
     date: Joi.date().iso().less('now'),
     placeId: Joi.number().integer().positive(),
   },

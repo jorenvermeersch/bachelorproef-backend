@@ -275,6 +275,36 @@ describe('Transactions', () => {
       expect(response.body.details.body).toHaveProperty('amount');
     });
 
+    it('should 400 when positive amount is to high', async () => {
+      const response = await supertest
+        .post(url)
+        .set('Authorization', authHeader)
+        .send({
+          amount: 1_000_001,
+          date: '2021-05-27T13:00:00.000Z',
+          placeId: 4,
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.code).toBe('VALIDATION_FAILED');
+      expect(response.body.details.body).toHaveProperty('amount');
+    });
+
+    it('should 400 when negative amount is to high', async () => {
+      const response = await supertest
+        .post(url)
+        .set('Authorization', authHeader)
+        .send({
+          amount: -1_000_001,
+          date: '2021-05-27T13:00:00.000Z',
+          placeId: 4,
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.code).toBe('VALIDATION_FAILED');
+      expect(response.body.details.body).toHaveProperty('amount');
+    });
+
     it('should 400 when missing date', async () => {
       const response = await supertest
         .post(url)
