@@ -22,6 +22,12 @@ const from = {
   },
 };
 
+/**
+ * Sends an email using `nodemailer`.
+ *
+ * @param {object} messageOptions - [The message options](https://nodemailer.com/message/) for the e-mail.
+ * @param {Function} callback The callback function.
+ */
 const sendMail = async ({ to, subject, text, html }, callback = () => {}) => {
   const mailOptions = { ...from, to, subject, text, html };
   await transporter.sendMail(mailOptions, callback);

@@ -1,5 +1,13 @@
 const { tables, getKnex } = require('../data');
 
+/**
+ * Create a new password reset request.
+ *
+ * @param {object} resetRequest - The reset request to create.
+ * @param {number} resetRequest.userId - Id of the user requesting the reset.
+ * @param {string} resetRequest.tokenHash - Hash of the reset token.
+ * @param {Date} resetRequest.tokenExpiry - Expiry date of the reset token.
+ */
 const createResetRequest = async ({ userId, tokenHash, tokenExpiry }) => {
   await getKnex()(tables.passwordResetRequest).insert({
     user_id: userId,
@@ -8,6 +16,13 @@ const createResetRequest = async ({ userId, tokenHash, tokenExpiry }) => {
   });
 };
 
+/**
+ * Find the password reset request for the given `userId`.
+ *
+ * @param {number} userId - Id of the user requesting the password reset.
+ *
+ * @returns {Promise<object>} The password reset request, or `undefined` if none was found.
+ */
 const findResetRequestByUserId = async (userId) => {
   const resetRequest = await getKnex()(tables.passwordResetRequest)
     .where('user_id', userId)
@@ -25,6 +40,12 @@ const findResetRequestByUserId = async (userId) => {
   };
 };
 
+/**
+ * Delete all password reset requests for the given `userId`.
+ *
+ * @param {number} userId - Id of the user.
+ * @returns {Promise<boolean>} `true` if any reset requests were deleted, `false` otherwise.
+ */
 const deleteResetRequestsByUserId = async (userId) => {
   const rowsAffected = await getKnex()(tables.passwordResetRequest)
     .delete()

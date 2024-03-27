@@ -8,7 +8,12 @@ const { sendMail } = require('../core/mail');
 const ServiceError = require('../core/serviceError');
 const passwordRepository = require('../repository/password');
 
-// TODO: Add JSDoc.
+/**
+ * Sends a password reset e-mail if a user with the given `email` exists.
+ *
+ * @param {string} email - The e-mail address of the user.
+ * @param {string} origin - The origin of the request.
+ */
 const requestReset = async (email, origin) => {
   let user;
   try {
@@ -40,7 +45,19 @@ const requestReset = async (email, origin) => {
   });
 };
 
-// TODO: Add JSDoc.
+/**
+ * Resets the password of a user with the given `email`.
+ *
+ * @param {object} data - The reset request data.
+ * @param {string} data.email - The e-mail address of the user.
+ * @param {string} data.newPassword - The new password.
+ * @param {string} data.token - The reset token (uuidv4).
+ *
+ * @throws {ServiceError} in the following cases:
+ * - User with the given e-mail address does not exist.
+ * - The user exists, but no password reset request exist in the database.
+ * - The provided token is invalid or has expired.
+ */
 const reset = async ({ email, newPassword, token }) => {
   const tokenOrEmailError = ServiceError.validationFailed(
     'The given email is invalid or the reset request has expired',

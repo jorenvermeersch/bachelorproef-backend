@@ -1,9 +1,14 @@
 const config = require('config');
 
 /**
- * Middleware which waites for a certain amount of time
+ * Returns a middleware which waites for a certain amount of time
  * before calling the `next` function in order to make
  * time attacks very hard.
+ *
+ * @param {number} minDelay - The minimum delay in milliseconds.
+ * @param {number} maxDelay - The maximum delay in milliseconds.
+ *
+ * @returns {Function} A Koa middleware.
  */
 const delay =
   (minDelay = 0, maxDelay) =>

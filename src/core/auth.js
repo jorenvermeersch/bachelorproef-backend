@@ -24,7 +24,7 @@ const requireAuthentication = async (ctx, next) => {
  *
  * @param {string} role - The role to have.
  *
- * @returns {Function} - A Koa middleware.
+ * @returns {Function} A Koa middleware.
  */
 const makeRequireRole = (role) => async (ctx, next) => {
   const { roles = [] } = ctx.state.session;
