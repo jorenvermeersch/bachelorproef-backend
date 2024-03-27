@@ -5,7 +5,7 @@ const Role = require('../../core/roles');
 module.exports = {
   seed: async (knex) => {
     const validPassword = await hashSecret('toegepaste_informatica');
-    const tooShort = await hashSecret('a');
+    const tooShort = await hashSecret('zwak');
 
     await knex(tables.user).insert([
       {
