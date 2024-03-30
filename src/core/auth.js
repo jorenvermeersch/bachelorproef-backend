@@ -4,14 +4,10 @@ const userService = require('../service/user');
  * Middleware to enforce a JWT in every request.
  */
 const requireAuthentication = async (ctx, next) => {
-  const {
-    authorization,
-  } = ctx.headers;
+  const { authorization } = ctx.headers;
 
-  const {
-    authToken,
-    ...session
-  } = await userService.checkAndParseSession(authorization);
+  const { authToken, ...session } =
+    await userService.checkAndParseSession(authorization);
 
   // Save the decoded session data in the current context's state
   ctx.state.session = session;
@@ -28,12 +24,10 @@ const requireAuthentication = async (ctx, next) => {
  *
  * @param {string} role - The role to have.
  *
- * @returns {Function} - A Koa middleware.
+ * @returns {Function} A Koa middleware.
  */
 const makeRequireRole = (role) => async (ctx, next) => {
-  const {
-    roles = [],
-  } = ctx.state.session;
+  const { roles = [] } = ctx.state.session;
 
   userService.checkRole(role, roles);
   return next();

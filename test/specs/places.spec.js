@@ -15,7 +15,6 @@ describe('Places', () => {
   });
 
   describe('GET /api/places', () => {
-
     const url = '/api/places';
 
     beforeAll(async () => {
@@ -27,35 +26,36 @@ describe('Places', () => {
     });
 
     afterAll(async () => {
-      await knex(tables.place)
-        .whereIn('id', [
-          1,
-          2,
-          3,
-        ])
-        .delete();
+      await knex(tables.place).whereIn('id', [1, 2, 3]).delete();
     });
 
     it('should 200 and return all places', async () => {
-      const response = await supertest.get(url)
+      const response = await supertest
+        .get(url)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
       expect(response.body.items.length).toBeGreaterThanOrEqual(3); // one place from transactions could be present
 
-      expect(response.body.items).toEqual(expect.arrayContaining([{
-        id: 2,
-        name: 'Benzine',
-        rating: 2,
-      }, {
-        id: 3,
-        name: 'Irish pub',
-        rating: 4,
-      }]));
+      expect(response.body.items).toEqual(
+        expect.arrayContaining([
+          {
+            id: 2,
+            name: 'Benzine',
+            rating: 2,
+          },
+          {
+            id: 3,
+            name: 'Irish pub',
+            rating: 4,
+          },
+        ]),
+      );
     });
 
     it('should 400 when given an argument', async () => {
-      const response = await supertest.get(`${url}?invalid=true`)
+      const response = await supertest
+        .get(`${url}?invalid=true`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(400);
@@ -67,23 +67,19 @@ describe('Places', () => {
   });
 
   describe('GET /api/places/:id', () => {
-
     const url = '/api/places';
 
     beforeAll(async () => {
-      await knex(tables.place).insert([
-        { id: 1, name: 'Loon', rating: 5 },
-      ]);
+      await knex(tables.place).insert([{ id: 1, name: 'Loon', rating: 5 }]);
     });
 
     afterAll(async () => {
-      await knex(tables.place)
-        .where('id', 1)
-        .delete();
+      await knex(tables.place).where('id', 1).delete();
     });
 
     it('should 200 and return the requested place', async () => {
-      const response = await supertest.get(`${url}/1`)
+      const response = await supertest
+        .get(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(200);
@@ -95,7 +91,8 @@ describe('Places', () => {
     });
 
     it('should 404 when requesting not existing place', async () => {
-      const response = await supertest.get(`${url}/2`)
+      const response = await supertest
+        .get(`${url}/2`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);
@@ -110,7 +107,8 @@ describe('Places', () => {
     });
 
     it('should 400 with invalid place id', async () => {
-      const response = await supertest.get(`${url}/invalid`)
+      const response = await supertest
+        .get(`${url}/invalid`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(400);
@@ -122,18 +120,16 @@ describe('Places', () => {
   });
 
   describe('POST /api/places', () => {
-
     const placesToDelete = [];
     const url = '/api/places';
 
     afterAll(async () => {
-      await knex(tables.place)
-        .whereIn('id', placesToDelete)
-        .delete();
+      await knex(tables.place).whereIn('id', placesToDelete).delete();
     });
 
     it('should 201 and return the created place', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest
+        .post(url)
         .set('Authorization', authHeader)
         .send({
           name: 'New place',
@@ -148,7 +144,8 @@ describe('Places', () => {
     });
 
     it('should 200 and return the created place with it\'s rating', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest
+        .post(url)
         .set('Authorization', authHeader)
         .send({
           name: 'Lovely place',
@@ -164,7 +161,8 @@ describe('Places', () => {
     });
 
     it('should 400 for duplicate place name', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest
+        .post(url)
         .set('Authorization', authHeader)
         .send({
           name: 'Lovely place',
@@ -180,7 +178,8 @@ describe('Places', () => {
     });
 
     it('should 400 when missing name', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest
+        .post(url)
         .set('Authorization', authHeader)
         .send({
           rating: 3,
@@ -192,7 +191,8 @@ describe('Places', () => {
     });
 
     it('should 400 when rating lower than one', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest
+        .post(url)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -205,7 +205,8 @@ describe('Places', () => {
     });
 
     it('should 400 when rating higher than five', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest
+        .post(url)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -218,7 +219,8 @@ describe('Places', () => {
     });
 
     it('should 400 when rating is a decimal', async () => {
-      const response = await supertest.post(url)
+      const response = await supertest
+        .post(url)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -230,15 +232,15 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    testAuthHeader(() => supertest.post(url)
-      .send({
+    testAuthHeader(() =>
+      supertest.post(url).send({
         name: 'The wrong place',
         rating: 3,
-      }));
+      }),
+    );
   });
 
   describe('PUT /api/places/:id', () => {
-
     const url = '/api/places';
 
     beforeAll(async () => {
@@ -249,16 +251,12 @@ describe('Places', () => {
     });
 
     afterAll(async () => {
-      await knex(tables.place)
-        .whereIn('id', [
-          1,
-          2,
-        ])
-        .delete();
+      await knex(tables.place).whereIn('id', [1, 2]).delete();
     });
 
     it('should 200 and return the updated place', async () => {
-      const response = await supertest.put(`${url}/1`)
+      const response = await supertest
+        .put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -274,7 +272,8 @@ describe('Places', () => {
     });
 
     it('should 400 for duplicate place name', async () => {
-      const response = await supertest.put(`${url}/2`)
+      const response = await supertest
+        .put(`${url}/2`)
         .set('Authorization', authHeader)
         .send({
           name: 'Changed name',
@@ -291,7 +290,8 @@ describe('Places', () => {
     });
 
     it('should 400 when missing name', async () => {
-      const response = await supertest.put(`${url}/1`)
+      const response = await supertest
+        .put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           rating: 3,
@@ -303,7 +303,8 @@ describe('Places', () => {
     });
 
     it('should 400 when missing rating', async () => {
-      const response = await supertest.put(`${url}/1`)
+      const response = await supertest
+        .put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The name',
@@ -315,7 +316,8 @@ describe('Places', () => {
     });
 
     it('should 400 when rating lower than one', async () => {
-      const response = await supertest.put(`${url}/1`)
+      const response = await supertest
+        .put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -328,7 +330,8 @@ describe('Places', () => {
     });
 
     it('should 400 when rating higher than five', async () => {
-      const response = await supertest.put(`${url}/1`)
+      const response = await supertest
+        .put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -341,7 +344,8 @@ describe('Places', () => {
     });
 
     it('should 400 when rating is a decimal', async () => {
-      const response = await supertest.put(`${url}/1`)
+      const response = await supertest
+        .put(`${url}/1`)
         .set('Authorization', authHeader)
         .send({
           name: 'The wrong place',
@@ -353,24 +357,24 @@ describe('Places', () => {
       expect(response.body.details.body).toHaveProperty('rating');
     });
 
-    testAuthHeader(() => supertest.put(`${url}/1`)
-      .send({
+    testAuthHeader(() =>
+      supertest.put(`${url}/1`).send({
         name: 'The wrong place',
         rating: 3,
-      }));
+      }),
+    );
   });
 
   describe('DELETE /api/places/:id', () => {
     const url = '/api/places';
 
     beforeAll(async () => {
-      await knex(tables.place).insert([
-        { id: 1, name: 'Loon', rating: 4 },
-      ]);
+      await knex(tables.place).insert([{ id: 1, name: 'Loon', rating: 4 }]);
     });
 
     it('should 204 and return nothing', async () => {
-      const response = await supertest.delete(`${url}/1`)
+      const response = await supertest
+        .delete(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(204);
@@ -378,7 +382,8 @@ describe('Places', () => {
     });
 
     it('should 404 with not existing place', async () => {
-      const response = await supertest.delete(`${url}/1`)
+      const response = await supertest
+        .delete(`${url}/1`)
         .set('Authorization', authHeader);
 
       expect(response.statusCode).toBe(404);

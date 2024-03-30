@@ -47,24 +47,23 @@ const getById = async (id, userId) => {
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No place with the given id could be found.
  */
-const create = async ({
-  amount,
-  date,
-  placeId,
-  userId,
-}) => {
+const create = async ({ amount, date, placeId, userId }) => {
   const existingPlace = await placeService.getById(placeId);
 
   if (!existingPlace) {
-    throw ServiceError.notFound(`There is no place with id ${id}.`, { id });
+    throw ServiceError.notFound(`There is no place with id ${placeId}.`, {
+      id: placeId,
+    });
   }
 
-  const id = await transactionRepository.create({
-    amount,
-    date,
-    userId,
-    placeId,
-  }).catch(handleDBError);
+  const id = await transactionRepository
+    .create({
+      amount,
+      date,
+      userId,
+      placeId,
+    })
+    .catch(handleDBError);
   return getById(id, userId);
 };
 
@@ -81,12 +80,7 @@ const create = async ({
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No transaction/place with the given id could be found.
  */
-const updateById = async (id, {
-  amount,
-  date,
-  placeId,
-  userId,
-}) => {
+const updateById = async (id, { amount, date, placeId, userId }) => {
   // Only perform the check if an id is given, will otherwise cause NOT FOUND if `undefined`
   if (placeId) {
     const existingPlace = await placeService.getById(placeId);
@@ -96,12 +90,14 @@ const updateById = async (id, {
     }
   }
 
-  await transactionRepository.updateById(id, {
-    amount,
-    date,
-    userId,
-    placeId,
-  }).catch(handleDBError);
+  await transactionRepository
+    .updateById(id, {
+      amount,
+      date,
+      userId,
+      placeId,
+    })
+    .catch(handleDBError);
   return getById(id, userId);
 };
 

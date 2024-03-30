@@ -2,9 +2,8 @@ const packageJson = require('../../package.json');
 const { withServer } = require('../supertest.setup');
 
 describe('Health', () => {
-
   let supertest;
-  withServer(({ supertest: s }) => supertest = s);
+  withServer(({ supertest: s }) => (supertest = s));
 
   describe('GET /api/health/ping', () => {
     const url = '/api/health/ping';
@@ -46,7 +45,7 @@ describe('Health', () => {
 describe('General', () => {
   const url = '/invalid';
   let supertest;
-  withServer(({ supertest: s }) => supertest = s);
+  withServer(({ supertest: s }) => (supertest = s));
 
   it('should return 404 when accessing invalid url', async () => {
     const response = await supertest.get(url);

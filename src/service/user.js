@@ -1,9 +1,9 @@
 const config = require('config');
 
 const handleDBError = require('./_handleDBError');
+const { verifySecret, hashSecret } = require('../core/hashing');
 const { generateJWT, verifyJWT } = require('../core/jwt');
 const { getLogger } = require('../core/logging');
-const { verifyPassword, hashPassword } = require('../core/password');
 const Role = require('../core/roles');
 const ServiceError = require('../core/serviceError');
 const userRepository = require('../repository/user');
@@ -44,14 +44,18 @@ const login = async (email, password) => {
 
   if (!user) {
     // DO NOT expose we don't know the user
-    throw ServiceError.unauthorized('The given email and password do not match');
+    throw ServiceError.unauthorized(
+      'The given email and password do not match',
+    );
   }
 
-  const passwordValid = await verifyPassword(password, user.password_hash);
+  const passwordValid = await verifySecret(password, user.password_hash);
 
   if (!passwordValid) {
     // DO NOT expose we know the user but an invalid password was given
-    throw ServiceError.unauthorized('The given email and password do not match');
+    throw ServiceError.unauthorized(
+      'The given email and password do not match',
+    );
   }
 
   return await makeLoginData(user);
@@ -67,19 +71,17 @@ const login = async (email, password) => {
  *
  * @returns {Promise<object>} - Promise whichs resolves in an object containing the token and signed in user.
  */
-const register = async ({
-  name,
-  email,
-  password,
-}) => {
-  const passwordHash = await hashPassword(password);
+const register = async ({ name, email, password }) => {
+  const passwordHash = await hashSecret(password);
 
-  const userId = await userRepository.create({
-    name,
-    email,
-    passwordHash,
-    roles: [Role.USER],
-  }).catch(handleDBError);
+  const userId = await userRepository
+    .create({
+      name,
+      email,
+      passwordHash,
+      roles: [Role.USER],
+    })
+    .catch(handleDBError);
 
   const user = await userRepository.findById(userId);
 
@@ -120,9 +122,7 @@ const checkAndParseSession = async (authHeader) => {
 
   const authToken = authHeader.substring(7);
   try {
-    const {
-      roles, sub,
-    } = await verifyJWT(authToken);
+    const { roles, sub } = await verifyJWT(authToken);
 
     // Save the decoded session data in the current context's state
     return {
@@ -157,7 +157,9 @@ const checkRole = (role, roles) => {
   const hasPermission = roles.includes(role);
 
   if (!hasPermission) {
-    throw ServiceError.forbidden('You are not allowed to view this part of the application');
+    throw ServiceError.forbidden(
+      'You are not allowed to view this part of the application',
+    );
   }
 };
 
@@ -190,6 +192,17 @@ const getById = async (id) => {
   return makeExposedUser(user);
 };
 
+const getByEmail = async (email) => {
+  const user = await userRepository.findByEmail(email);
+
+  if (!user) {
+    throw ServiceError.notFound(`No user with email ${email} exists`, {
+      email,
+    });
+  }
+
+  return makeExposedUser(user);
+};
 
 /**
  * Update an existing user.
@@ -203,11 +216,12 @@ const getById = async (id) => {
  * - NOT_FOUND: No user with the given id could be found.
  * - VALIDATION_FAILED: A user with the same email exists.
  */
-const updateById = async (id, { name, email }) => {
-  await userRepository.updateById(id, { name, email }).catch(handleDBError);
+const updateById = async (id, { name, email, passwordHash }) => {
+  await userRepository
+    .updateById(id, { name, email, passwordHash })
+    .catch(handleDBError);
   return getById(id);
 };
-
 
 /**
  * Delete an existing user.
@@ -232,6 +246,7 @@ module.exports = {
   checkRole,
   getAll,
   getById,
+  getByEmail,
   updateById,
   deleteById,
 };

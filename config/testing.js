@@ -30,8 +30,16 @@ module.exports = {
     jwt: {
       audience: 'budget.hogent.be',
       issuer: 'budget.hogent.be',
-      secret: 'eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked',
+      secret:
+        'eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked',
       expirationInterval: 60 * 60 * 1000, // ms (1 hour)
     },
+  },
+  mail: {
+    host: null,
+    port: null,
+    username: null,
+    password: null,
+    maxDelay: 0,
   },
 };

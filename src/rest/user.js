@@ -3,25 +3,16 @@ const config = require('config');
 const Joi = require('joi');
 
 const { requireAuthentication, makeRequireRole } = require('../core/auth');
+const { authDelay } = require('../core/delay');
 const Role = require('../core/roles');
-const validate = require('../core/validation');
+const {
+  validate,
+  validateAsync,
+  schemas: { passwordSchemaAsync, verifySecretSafety },
+} = require('../core/validation');
 const userService = require('../service/user');
 
 const AUTH_DISABLED = config.get('auth.disabled');
-const AUTH_MAX_DELAY = config.get('auth.maxDelay');
-
-/**
- * Middleware which waites for a certain amount of time
- * before calling the `next` function in order to make
- * time attacks very hard.
- */
-const authDelay = async (_, next) => {
-  await new Promise((resolve) => {
-    const delay = Math.round(Math.random() * AUTH_MAX_DELAY);
-    setTimeout(resolve, delay);
-  });
-  return next();
-};
 
 /**
  * Check if the signed in user can access the given user's information.
@@ -32,9 +23,13 @@ const checkUserId = (ctx, next) => {
 
   // You can only get our own data unless you're an admin
   if (id !== userId && !roles.includes(Role.ADMIN)) {
-    return ctx.throw(403, 'You are not allowed to view this user\'s information', {
-      code: 'FORBIDDEN',
-    });
+    return ctx.throw(
+      403,
+      "You are not allowed to view this user's information",
+      {
+        code: 'FORBIDDEN',
+      },
+    );
   }
   return next();
 };
@@ -186,7 +181,11 @@ const login = async (ctx) => {
 login.validationScheme = {
   body: {
     email: Joi.string().email(),
-    password: Joi.string(),
+    password: Joi.string().external(
+      verifySecretSafety(
+        'Please reset your password to regain access to your account.',
+      ),
+    ),
   },
 };
 
@@ -235,7 +234,7 @@ register.validationScheme = {
   body: {
     name: Joi.string().max(255),
     email: Joi.string().email(),
-    password: Joi.string().min(8).max(30),
+    password: passwordSchemaAsync,
   },
 };
 
@@ -372,19 +371,51 @@ module.exports = function installUsersRoutes(app) {
   // DO NOT use this config parameter in any production worthy application!
   if (!AUTH_DISABLED) {
     // Public routes
-    router.post('/login', authDelay, validate(login.validationScheme), login);
-    router.post('/register', authDelay, validate(register.validationScheme), register);
+    router.post(
+      '/login',
+      authDelay,
+      validateAsync(login.validationScheme),
+      login,
+    );
+    router.post(
+      '/register',
+      authDelay,
+      validateAsync(register.validationScheme),
+      register,
+    );
   }
 
   const requireAdmin = makeRequireRole(Role.ADMIN);
 
   // Routes with authentication
-  router.get('/', requireAuthentication, requireAdmin, validate(getAllUsers.validationScheme), getAllUsers);
-  router.get('/:id', requireAuthentication, validate(getUserById.validationScheme), checkUserId, getUserById);
-  router.put('/:id', requireAuthentication, validate(updateUserById.validationScheme), checkUserId, updateUserById);
-  router.delete('/:id', requireAuthentication, validate(deleteUserById.validationScheme), checkUserId, deleteUserById);
+  router.get(
+    '/',
+    requireAuthentication,
+    requireAdmin,
+    validate(getAllUsers.validationScheme),
+    getAllUsers,
+  );
+  router.get(
+    '/:id',
+    requireAuthentication,
+    validate(getUserById.validationScheme),
+    checkUserId,
+    getUserById,
+  );
+  router.put(
+    '/:id',
+    requireAuthentication,
+    validate(updateUserById.validationScheme),
+    checkUserId,
+    updateUserById,
+  );
+  router.delete(
+    '/:id',
+    requireAuthentication,
+    validate(deleteUserById.validationScheme),
+    checkUserId,
+    deleteUserById,
+  );
 
-  app
-    .use(router.routes())
-    .use(router.allowedMethods());
+  app.use(router.routes()).use(router.allowedMethods());
 };

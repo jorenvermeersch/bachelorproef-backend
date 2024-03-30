@@ -29,4 +29,11 @@ module.exports = {
       expirationInterval: 60 * 60 * 1000, // ms (1 hour)
     },
   },
+  mail: {
+    host: null,
+    port: null,
+    username: null,
+    password: null,
+    maxDelay: 700,
+  },
 };
