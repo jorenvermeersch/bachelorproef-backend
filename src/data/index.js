@@ -133,6 +133,7 @@ function getKnex() {
 
 const tables = Object.freeze({
   transaction: 'transactions',
+  userLockout: 'user_lockouts',
   user: 'users',
   place: 'places',
   passwordResetRequest: 'password_reset_requests',
