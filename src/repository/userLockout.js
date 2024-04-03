@@ -26,20 +26,23 @@ const findByUserId = async (userId) => {
   };
 };
 
-const updateById = async (id, { failedLoginAttempts, lockoutEndTime }) => {
+const updateByUserId = async (
+  userId,
+  { failedLoginAttempts, lockoutEndTime },
+) => {
   await getKnex()(tables.userLockout)
     .update({
       failed_login_attempts: failedLoginAttempts,
       lockout_end_time: lockoutEndTime,
     })
-    .where('id', id);
+    .where('user_id', userId);
 };
 
-const resetById = async (id) => {
-  await updateById(id, {
+const resetByUserId = async (userId) => {
+  await updateByUserId(userId, {
     failedLoginAttempts: 0,
     lockoutEndTime: null,
   });
 };
 
-module.exports = { create, findByUserId, updateById, resetById };
+module.exports = { create, findByUserId, updateByUserId, resetByUserId };
