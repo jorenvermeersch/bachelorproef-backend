@@ -192,7 +192,7 @@ describe('Users', () => {
         await deleteUsers([7, 8, 9, 10]);
       });
 
-      it('should reset after successful login', async () => {
+      it('should reset account lockout after successful login', async () => {
         await supertest.post(url).send({
           email: 'no.lockout@hogent.be',
           password: passwords.valid,
@@ -239,6 +239,8 @@ describe('Users', () => {
 
         expect(response.statusCode).toBe(200);
       });
+
+      // TODO: should reset account lockout after password reset.
     });
   });
 
