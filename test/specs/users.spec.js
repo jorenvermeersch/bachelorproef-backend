@@ -165,25 +165,25 @@ describe('Users', () => {
             id: 7,
             user_id: 7,
             failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS - 1,
-            lockout_end_time: null,
+            end_time: null,
           },
           {
             id: 8,
             user_id: 8,
             failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS - 1,
-            lockout_end_time: null,
+            end_time: null,
           },
           {
             id: 9,
             user_id: 9,
             failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
-            lockout_end_time: addDays(new Date(), 1),
+            end_time: addDays(new Date(), 1),
           },
           {
             id: 10,
             user_id: 10,
             failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
-            lockout_end_time: subMinutes(new Date(), 1),
+            end_time: subMinutes(new Date(), 1),
           },
         ]);
       });

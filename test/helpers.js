@@ -10,7 +10,7 @@ const insertUsers = async (users) => {
       id: id,
       user_id: id,
       failed_login_attempts: 0,
-      lockout_end_time: null,
+      end_time: null,
     })),
   );
 };

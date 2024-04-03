@@ -6,7 +6,7 @@ module.exports = {
       table.increments('id');
       table.integer('user_id').unsigned().notNullable();
       table.integer('failed_login_attempts').notNullable().defaultTo(0);
-      table.dateTime('lockout_end_time');
+      table.dateTime('end_time');
 
       // Foreign key.
       table

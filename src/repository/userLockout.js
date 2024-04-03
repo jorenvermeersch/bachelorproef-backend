@@ -17,23 +17,20 @@ const findByUserId = async (userId) => {
     return;
   }
 
-  const { id, user_id, failed_login_attempts, lockout_end_time } = userLockout;
+  const { id, user_id, failed_login_attempts, end_time } = userLockout;
   return {
     id,
     userId: user_id,
     failedLoginAttempts: failed_login_attempts,
-    lockoutEndTime: lockout_end_time,
+    endTime: end_time,
   };
 };
 
-const updateByUserId = async (
-  userId,
-  { failedLoginAttempts, lockoutEndTime },
-) => {
+const updateByUserId = async (userId, { failedLoginAttempts, endTime }) => {
   await getKnex()(tables.userLockout)
     .update({
       failed_login_attempts: failedLoginAttempts,
-      lockout_end_time: lockoutEndTime,
+      end_time: endTime,
     })
     .where('user_id', userId);
 };
@@ -41,7 +38,7 @@ const updateByUserId = async (
 const resetByUserId = async (userId) => {
   await updateByUserId(userId, {
     failedLoginAttempts: 0,
-    lockoutEndTime: null,
+    endTime: null,
   });
 };
 
