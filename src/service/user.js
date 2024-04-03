@@ -60,8 +60,15 @@ const login = async (email, password) => {
     );
   }
 
-  const { failedLoginAttempts, lockoutEndTime } =
-    await userLockoutRespository.findByUserId(user.id);
+  let accountLockout = await userLockoutRespository.findByUserId(user.id);
+
+  // Reset if the lockout has been lifted.
+  if (accountLockout.lockoutEndTime < new Date()) {
+    await userLockoutRespository.resetByUserId(user.id);
+    accountLockout = await userLockoutRespository.findByUserId(user.id);
+  }
+
+  const { failedLoginAttempts, lockoutEndTime } = accountLockout;
 
   if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
     throw makeLockoutError(lockoutEndTime);
