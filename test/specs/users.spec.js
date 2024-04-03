@@ -1,5 +1,9 @@
+const config = require('config');
+const { subMinutes, addDays } = require('date-fns');
+
 const { hashSecret } = require('../../src/core/hashing');
 const Role = require('../../src/core/roles');
+const { tables } = require('../../src/data');
 const { testAuthHeader } = require('../common/auth');
 const {
   users: { login: loginUser },
@@ -8,11 +12,14 @@ const {
 const { insertUsers, deleteUsers } = require('../helpers');
 const { withServer, login, loginAdmin } = require('../supertest.setup');
 
-describe('Users', () => {
-  let supertest, authHeader, adminAuthHeader, validPasswordHash;
+const MAX_FAILED_LOGIN_ATTEMPTS = config.get('auth.maxFailedAttempts');
 
-  withServer(({ supertest: s }) => {
+describe('Users', () => {
+  let supertest, knex, authHeader, adminAuthHeader, validPasswordHash;
+
+  withServer(({ supertest: s, knex: k }) => {
     supertest = s;
+    knex = k;
   });
 
   beforeAll(async () => {
@@ -77,7 +84,7 @@ describe('Users', () => {
     it('should 401 with wrong password', async () => {
       const response = await supertest.post(url).send({
         email: loginUser.email,
-        password: 'invalid-password-r"Q[`?jZxkG8s7A#9]M6tc',
+        password: passwords.invalid,
       });
 
       expect(response.statusCode).toBe(401);
@@ -118,6 +125,120 @@ describe('Users', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('email');
+    });
+
+    describe('account lockout', () => {
+      beforeAll(async () => {
+        await knex(tables.user).insert([
+          {
+            id: 7,
+            name: 'No Lockout User',
+            email: 'no.lockout@hogent.be',
+            password_hash: validPasswordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+          {
+            id: 8,
+            name: 'Almost Lockout User',
+            email: 'almost.lockout@hogent.be',
+            password_hash: validPasswordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+          {
+            id: 9,
+            name: 'Lockout User',
+            email: 'lockout@hogent.be',
+            password_hash: validPasswordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+          {
+            id: 10,
+            name: 'Lockout Passed User',
+            email: 'lockout.passed@hogent.be',
+            password_hash: validPasswordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+        ]);
+
+        await knex(tables.userLockout).insert([
+          {
+            id: 7,
+            user_id: 7,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS - 1,
+            lockout_end_time: null,
+          },
+          {
+            id: 8,
+            user_id: 8,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS - 1,
+            lockout_end_time: null,
+          },
+          {
+            id: 9,
+            user_id: 9,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
+            lockout_end_time: addDays(new Date(), 1),
+          },
+          {
+            id: 10,
+            user_id: 10,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
+            lockout_end_time: subMinutes(new Date(), 1),
+          },
+        ]);
+      });
+
+      afterAll(async () => {
+        await deleteUsers([7, 8, 9, 10]);
+      });
+
+      it('should reset after successful login', async () => {
+        await supertest.post(url).send({
+          email: 'no.lockout@hogent.be',
+          password: passwords.valid,
+        });
+
+        const response = await supertest.post(url).send({
+          email: 'no.lockout@hogent.be',
+          password: passwords.invalid,
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body).toMatchObject({
+          code: 'UNAUTHORIZED',
+          message: 'The given email and password do not match',
+          details: {},
+        });
+      });
+
+      it('should 401 and lock user account', async () => {
+        const response = await supertest.post(url).send({
+          email: 'almost.lockout@hogent.be',
+          password: passwords.invalid,
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toMatch(/^The account is locked/);
+      });
+
+      it('should 401 when user account is locked', async () => {
+        const response = await supertest.post(url).send({
+          email: 'lockout@hogent.be',
+          password: passwords.valid,
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toMatch(/^The account is locked/);
+      });
+
+      it('should reset after lockout endtime has passed', async () => {
+        const response = await supertest.post(url).send({
+          email: 'almost.lockout@hogent.be',
+          password: passwords.valid,
+        });
+
+        expect(response.statusCode).toBe(200);
+      });
     });
   });
 
