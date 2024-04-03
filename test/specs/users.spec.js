@@ -233,7 +233,7 @@ describe('Users', () => {
 
       it('should reset after lockout endtime has passed', async () => {
         const response = await supertest.post(url).send({
-          email: 'almost.lockout@hogent.be',
+          email: 'lockout.passed@hogent.be',
           password: passwords.valid,
         });
 

@@ -60,18 +60,18 @@ const login = async (email, password) => {
     );
   }
 
-  let accountLockout = await userLockoutRespository.findByUserId(user.id);
+  let lockout = await userLockoutRespository.findByUserId(user.id);
+  const lockoutEndTime = lockout.lockoutEndTime;
 
-  // Reset if the lockout has been lifted.
-  if (accountLockout.lockoutEndTime < new Date()) {
+  if (lockoutEndTime && lockoutEndTime < new Date()) {
     await userLockoutRespository.resetByUserId(user.id);
-    accountLockout = await userLockoutRespository.findByUserId(user.id);
+    lockout = await userLockoutRespository.findByUserId(user.id);
   }
 
-  const { failedLoginAttempts, lockoutEndTime } = accountLockout;
+  const { failedLoginAttempts } = lockout;
 
   if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-    throw makeLockoutError(lockoutEndTime);
+    throw makeLockoutError(lockout.lockoutEndTime);
   }
 
   const passwordValid = await verifySecret(password, user.password_hash);
@@ -81,18 +81,17 @@ const login = async (email, password) => {
     return await makeLoginData(user);
   }
 
-  const currentAttempts = failedLoginAttempts + 1;
+  const attempts = failedLoginAttempts + 1;
+  const newLockoutEndTime = addMinutes(new Date(), 30);
 
   await userLockoutRespository.updateByUserId(user.id, {
-    failedLoginAttempts: currentAttempts,
+    failedLoginAttempts: attempts,
     lockoutEndTime:
-      currentAttempts === MAX_FAILED_LOGIN_ATTEMPTS
-        ? addMinutes(new Date(), 30)
-        : undefined,
+      attempts === MAX_FAILED_LOGIN_ATTEMPTS ? newLockoutEndTime : undefined,
   });
 
-  if (currentAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-    throw makeLockoutError(lockoutEndTime);
+  if (attempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+    throw makeLockoutError(newLockoutEndTime);
   }
 
   // DO NOT expose we know the user but an invalid password was given
