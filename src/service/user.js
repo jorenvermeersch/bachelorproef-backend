@@ -34,6 +34,14 @@ const makeLoginData = async (user) => {
   };
 };
 
+const makeLockoutError = (lockoutEndTime) => {
+  const remainingMinutes = differenceInMinutes(lockoutEndTime, new Date());
+
+  return ServiceError.unauthorized(
+    `The account is locked. Please try again in ${remainingMinutes} minutes`,
+  );
+};
+
 /**
  * Try to login a user with the given username and password.
  *
@@ -52,42 +60,36 @@ const login = async (email, password) => {
     );
   }
 
-  const {
-    id: lockoutId,
-    failedLoginAttempts,
-    lockoutEndTime,
-  } = await userLockoutRespository.findByUserId(user.id);
+  const { failedLoginAttempts, lockoutEndTime } =
+    await userLockoutRespository.findByUserId(user.id);
 
   if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-    const remainingMinutes = differenceInMinutes(lockoutEndTime, new Date());
-
-    throw ServiceError.unauthorized(
-      `The account is locked. Please try again in ${remainingMinutes} minutes`,
-    );
+    throw makeLockoutError(lockoutEndTime);
   }
 
   const passwordValid = await verifySecret(password, user.password_hash);
 
-  if (!passwordValid) {
-    const currentAttempts = failedLoginAttempts + 1;
-
-    await userLockoutRespository.updateById(lockoutId, {
-      failedLoginAttempts: currentAttempts,
-      lockoutEndTime:
-        currentAttempts === MAX_FAILED_LOGIN_ATTEMPTS
-          ? addMinutes(new Date(), 30)
-          : undefined,
-    });
-
-    // DO NOT expose we know the user but an invalid password was given
-    throw ServiceError.unauthorized(
-      'The given email and password do not match',
-    );
+  if (passwordValid) {
+    await userLockoutRespository.resetByUserId(user.id);
+    return await makeLoginData(user);
   }
 
-  await userLockoutRespository.resetById(lockoutId);
+  const currentAttempts = failedLoginAttempts + 1;
 
-  return await makeLoginData(user);
+  await userLockoutRespository.updateByUserId(user.id, {
+    failedLoginAttempts: currentAttempts,
+    lockoutEndTime:
+      currentAttempts === MAX_FAILED_LOGIN_ATTEMPTS
+        ? addMinutes(new Date(), 30)
+        : undefined,
+  });
+
+  if (currentAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+    throw makeLockoutError(lockoutEndTime);
+  }
+
+  // DO NOT expose we know the user but an invalid password was given
+  throw ServiceError.unauthorized('The given email and password do not match');
 };
 
 /**
