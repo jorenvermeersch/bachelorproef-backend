@@ -1,10 +1,11 @@
 const config = require('config');
 
 const { passwords, users } = require('./constants');
+const { insertUsers } = require('./helpers');
 const { hashSecret } = require('../src/core/hashing');
 const { initializeLogging } = require('../src/core/logging');
 const Role = require('../src/core/roles');
-const { initializeData, getKnex, tables } = require('../src/data');
+const { initializeData } = require('../src/data');
 
 module.exports = async () => {
   // Create a database connection.
@@ -16,12 +17,11 @@ module.exports = async () => {
   await initializeData();
 
   // Insert an admin and regular test user.
-  const knex = getKnex();
 
   const passwordHash = await hashSecret(passwords.valid);
   const { admin: adminUser, test: testUser } = users;
 
-  await knex(tables.user).insert([
+  await insertUsers([
     {
       id: testUser.id,
       name: testUser.name,

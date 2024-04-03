@@ -45,4 +45,17 @@ const resetByUserId = async (userId) => {
   });
 };
 
-module.exports = { create, findByUserId, updateByUserId, resetByUserId };
+const deleteByUserId = async (userId) => {
+  const rowsAffected = await getKnex()(tables.userLockout)
+    .where('user_id', userId)
+    .delete();
+  return rowsAffected > 0;
+};
+
+module.exports = {
+  create,
+  findByUserId,
+  updateByUserId,
+  resetByUserId,
+  deleteByUserId,
+};

@@ -1,19 +1,18 @@
 const { hashSecret } = require('../../src/core/hashing');
 const Role = require('../../src/core/roles');
-const { tables } = require('../../src/data');
 const { testAuthHeader } = require('../common/auth');
 const {
   users: { login: loginUser },
   passwords,
 } = require('../constants');
+const { insertUsers, deleteUsers } = require('../helpers');
 const { withServer, login, loginAdmin } = require('../supertest.setup');
 
 describe('Users', () => {
-  let supertest, knex, authHeader, adminAuthHeader, validPasswordHash;
+  let supertest, authHeader, adminAuthHeader, validPasswordHash;
 
-  withServer(({ supertest: s, knex: k }) => {
+  withServer(({ supertest: s }) => {
     supertest = s;
-    knex = k;
   });
 
   beforeAll(async () => {
@@ -29,7 +28,7 @@ describe('Users', () => {
       // Insert a test user with a valid password.
       const passwordHash = await hashSecret(loginUser.password);
 
-      await knex(tables.user).insert([
+      await insertUsers([
         {
           id: loginUser.id,
           name: loginUser.name,
@@ -42,7 +41,7 @@ describe('Users', () => {
 
     afterAll(async () => {
       // Remove the created user.
-      await knex(tables.user).where('id', loginUser.id).delete();
+      await deleteUsers([loginUser.id]);
     });
 
     it('should 200 and return user and token when succesfully logged in', async () => {
@@ -124,9 +123,10 @@ describe('Users', () => {
 
   describe('POST /api/users/register', () => {
     const url = '/api/users/register';
+    const deleteIds = [4];
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
+      await insertUsers([
         {
           id: 4,
           name: 'Duplicate User',
@@ -138,9 +138,7 @@ describe('Users', () => {
     });
 
     afterAll(async () => {
-      await knex(tables.user)
-        .whereIn('email', ['register@hogent.be', 'duplicate@hogent.be'])
-        .delete();
+      await deleteUsers(deleteIds);
     });
 
     it('should 200 and return the registered user', async () => {
@@ -149,6 +147,8 @@ describe('Users', () => {
         email: 'register@hogent.be',
         password: passwords.valid,
       });
+
+      deleteIds.push(response.body.user.id);
 
       expect(response.statusCode).toBe(200);
       expect(response.body.token).toBeTruthy();
@@ -247,7 +247,7 @@ describe('Users', () => {
     const url = '/api/users';
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
+      await insertUsers([
         {
           id: 4,
           name: 'User One',
@@ -273,7 +273,7 @@ describe('Users', () => {
     });
 
     afterAll(async () => {
-      await knex(tables.user).whereIn('id', [4, 5, 6]).delete();
+      await deleteUsers([4, 5, 6]);
     });
 
     it('should 200 and return all users', async () => {
@@ -318,7 +318,7 @@ describe('Users', () => {
     const url = '/api/users';
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
+      await insertUsers([
         {
           id: 4,
           name: 'User One',
@@ -330,7 +330,7 @@ describe('Users', () => {
     });
 
     afterAll(async () => {
-      await knex(tables.user).where('id', 4).delete();
+      await deleteUsers([4]);
     });
 
     it('should 200 and return the requested user', async () => {
@@ -377,7 +377,7 @@ describe('Users', () => {
     let updateAuthHeader;
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
+      await insertUsers([
         {
           id: 5,
           name: 'Update User',
@@ -396,7 +396,7 @@ describe('Users', () => {
 
     afterAll(async () => {
       // Delete the update users
-      await knex(tables.user).delete().where('id', 5);
+      await deleteUsers([5]);
     });
 
     it('should 200 and return the updated user', async () => {
@@ -503,7 +503,7 @@ describe('Users', () => {
     let deleteAuthHeader;
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
+      await insertUsers([
         {
           id: 5,
           name: 'Delete User',

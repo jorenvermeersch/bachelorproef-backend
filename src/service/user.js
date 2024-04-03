@@ -272,6 +272,7 @@ const updateById = async (id, { name, email, passwordHash }) => {
  * - NOT_FOUND: No user with the given id could be found.
  */
 const deleteById = async (id) => {
+  await userLockoutRespository.deleteByUserId(id);
   const deleted = await userRepository.deleteById(id);
 
   if (!deleted) {
