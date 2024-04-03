@@ -1,4 +1,5 @@
 const config = require('config');
+const { addMinutes, differenceInMinutes } = require('date-fns');
 
 const handleDBError = require('./_handleDBError');
 const { verifySecret, hashSecret } = require('../core/hashing');
@@ -7,8 +8,10 @@ const { getLogger } = require('../core/logging');
 const Role = require('../core/roles');
 const ServiceError = require('../core/serviceError');
 const userRepository = require('../repository/user');
+const userLockoutRespository = require('../repository/userLockout');
 
 const AUTH_DISABLED = config.get('auth.disabled');
+const MAX_FAILED_LOGIN_ATTEMPTS = config.get('auth.maxFailedAttempts');
 
 /**
  * Only return the public information about the given user.
@@ -49,14 +52,40 @@ const login = async (email, password) => {
     );
   }
 
+  const {
+    id: lockoutId,
+    failedLoginAttempts,
+    lockoutEndTime,
+  } = await userLockoutRespository.findByUserId(user.id);
+
+  if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+    const remainingMinutes = differenceInMinutes(lockoutEndTime, new Date());
+
+    throw ServiceError.unauthorized(
+      `The account is locked. Please try again in ${remainingMinutes} minutes`,
+    );
+  }
+
   const passwordValid = await verifySecret(password, user.password_hash);
 
   if (!passwordValid) {
+    const currentAttempts = failedLoginAttempts + 1;
+
+    await userLockoutRespository.updateById(lockoutId, {
+      failedLoginAttempts: currentAttempts,
+      lockoutEndTime:
+        currentAttempts === MAX_FAILED_LOGIN_ATTEMPTS
+          ? addMinutes(new Date(), 30)
+          : undefined,
+    });
+
     // DO NOT expose we know the user but an invalid password was given
     throw ServiceError.unauthorized(
       'The given email and password do not match',
     );
   }
+
+  await userLockoutRespository.resetById(lockoutId);
 
   return await makeLoginData(user);
 };
@@ -82,6 +111,8 @@ const register = async ({ name, email, password }) => {
       roles: [Role.USER],
     })
     .catch(handleDBError);
+
+  await userLockoutRespository.create(userId);
 
   const user = await userRepository.findById(userId);
 
