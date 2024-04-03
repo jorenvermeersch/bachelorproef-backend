@@ -61,17 +61,16 @@ const login = async (email, password) => {
   }
 
   let lockout = await userLockoutRespository.findByUserId(user.id);
-  const endTime = lockout.endTime;
 
-  if (endTime && endTime < new Date()) {
+  if (lockout.endTime && lockout.endTime < new Date()) {
     await userLockoutRespository.resetByUserId(user.id);
     lockout = await userLockoutRespository.findByUserId(user.id);
   }
 
-  const { failedLoginAttempts } = lockout;
+  const { failedLoginAttempts, endTime } = lockout;
 
   if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-    throw makeLockoutError(lockout.endTime);
+    throw makeLockoutError(endTime);
   }
 
   const passwordValid = await verifySecret(password, user.password_hash);
