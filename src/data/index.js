@@ -2,6 +2,7 @@ const config = require('config');
 const knex = require('knex');
 const { join } = require('path');
 
+const { createRateLimiter } = require('./rateLimiter');
 const { getLogger } = require('../core/logging');
 
 const NODE_ENV = config.get('env');
@@ -107,7 +108,11 @@ async function initializeData() {
     }
   }
 
-  logger.info('Succesfully connected to the database');
+  logger.info('Successfully connected to the database');
+
+  createRateLimiter(knexInstance);
+
+  logger.info('Successfully initialized rate limiter');
 
   return knexInstance;
 }

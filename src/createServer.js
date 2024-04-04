@@ -21,8 +21,8 @@ module.exports = async function createServer() {
 
   const logger = initializeLogging(LOG_LEVEL, LOG_DISABLED, { NODE_ENV });
 
-  installMiddlewares(app);
   await initializeData();
+  installMiddlewares(app);
   installRouter(app);
 
   return {
@@ -46,4 +46,3 @@ module.exports = async function createServer() {
     },
   };
 };
-

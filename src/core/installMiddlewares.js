@@ -9,6 +9,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 const { getLogger } = require('./logging');
 const ServiceError = require('./serviceError');
+const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
 
 const NODE_ENV = config.get('env');
@@ -69,6 +70,9 @@ module.exports = function installMiddleware(app) {
       maxAge: CORS_MAX_AGE,
     }),
   );
+
+  // Add rate limiter.
+  app.use(rateLimiter());
 
   // Add a handler for known errors
   app.use(async (ctx, next) => {
