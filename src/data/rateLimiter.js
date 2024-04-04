@@ -7,6 +7,13 @@ const NODE_ENV = config.get('env');
 
 let rateLimiterInstance;
 
+/**
+ * Create the rate limiter instance for the application.
+ *
+ * @param {Object} knexInstance - Knex instance
+ * @returns {Object} Rate limiter instance
+ * @throws {Error} If error occurs while initializing rate limiter
+ */
 const createRateLimiter = (knexInstance) => {
   const options = {
     storeClient: knexInstance,
@@ -28,6 +35,12 @@ const createRateLimiter = (knexInstance) => {
   return rateLimiterInstance;
 };
 
+/**
+ * Middleware function for rate limiting.
+ *
+ * @returns {Function} Koa middleware function
+ * @throws {Error} If rate limiter is not initialized
+ */
 const rateLimiter = () => {
   // Disable rate limiter in testing environment.
   if (NODE_ENV === 'testing') {
