@@ -11,6 +11,8 @@ const createRateLimiter = (knexInstance) => {
   const options = {
     storeClient: knexInstance,
     storeType: 'knex',
+    points: 4,
+    duration: 1, // in seconds.
   };
 
   const ready = (error) => {
@@ -43,6 +45,7 @@ const rateLimiter = () => {
       await rateLimiterInstance.consume(ctx.ip);
       await next();
     } catch (error) {
+      // TODO: Warning log with user.
       ctx.throw(429, 'Too many requests');
     }
   };
