@@ -81,15 +81,16 @@ const login = async (email, password) => {
   }
 
   const attempts = failedLoginAttempts + 1;
-  const newEndTime = addMinutes(new Date(), 30);
+  const lockoutEndTime = addMinutes(new Date(), 30);
 
   await userLockoutRespository.updateByUserId(user.id, {
     failedLoginAttempts: attempts,
-    endTime: attempts === MAX_FAILED_LOGIN_ATTEMPTS ? newEndTime : undefined,
+    endTime:
+      attempts === MAX_FAILED_LOGIN_ATTEMPTS ? lockoutEndTime : undefined,
   });
 
   if (attempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-    throw makeLockoutError(newEndTime);
+    throw makeLockoutError(lockoutEndTime);
   }
 
   // DO NOT expose we know the user but an invalid password was given
