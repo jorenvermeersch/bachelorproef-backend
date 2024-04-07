@@ -36,7 +36,9 @@ const createRateLimiter = (knexInstance) => {
  * Middleware function for rate limiting.
  *
  * @returns {Function} Koa middleware function
- * @throws {Error} If rate limiter is not initialized
+ * @throws {Error} One of:
+ *  - 429: Too many requests
+ *  - Could not initialize the rate limiter
  */
 const rateLimiter = () => {
   // Disable rate limiter in testing environment.
