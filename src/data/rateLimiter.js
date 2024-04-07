@@ -49,7 +49,7 @@ const rateLimiter = () => {
   }
 
   const rateLimiterInstance = createRateLimiter(getKnex());
-  getLogger().info('Successfully initialized to the rate limiter');
+  getLogger().info('Successfully initialized the rate limiter');
 
   return async (ctx, next) => {
     try {
