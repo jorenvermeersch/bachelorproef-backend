@@ -1,11 +1,10 @@
 const config = require('config');
 const { RateLimiterMySQL } = require('rate-limiter-flexible');
 
+const { getKnex } = require('.');
 const { getLogger } = require('../core/logging');
 
 const NODE_ENV = config.get('env');
-
-let rateLimiterInstance;
 
 /**
  * Create the rate limiter instance for the application.
@@ -30,9 +29,7 @@ const createRateLimiter = (knexInstance) => {
     throw new Error('Could not initialize the rate limiter');
   };
 
-  rateLimiterInstance = new RateLimiterMySQL(options, ready);
-
-  return rateLimiterInstance;
+  return new RateLimiterMySQL(options, ready);
 };
 
 /**
@@ -49,16 +46,16 @@ const rateLimiter = () => {
     };
   }
 
-  if (!rateLimiterInstance) {
-    throw new Error('Rate limiter not initialized');
-  }
+  const logger = getLogger();
+
+  const rateLimiterInstance = createRateLimiter(getKnex());
+  logger.info('Successfully initialized to the rate limiter');
 
   return async (ctx, next) => {
     try {
       await rateLimiterInstance.consume(ctx.ip);
       await next();
     } catch (error) {
-      // TODO: Warning log with user.
       ctx.throw(429, 'Too many requests');
     }
   };
