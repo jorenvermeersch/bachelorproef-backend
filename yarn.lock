@@ -3387,6 +3387,11 @@ koa-bodyparser@^4.3.0:
     copy-to "^2.0.1"
     type-is "^1.6.18"
 
+koa-cache-control@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/koa-cache-control/-/koa-cache-control-2.0.0.tgz#33c938d80a4453431e1da5a93b7523a87f7dd3c8"
+  integrity sha512-vyhUsLYQTbNl3mLCjdF5sC7OdAmn1iyugXak85TCZ51z71Y6SdYkVomcv5rlXLRxFA17fmyq0uEGcblowHlQ5Q==
+
 koa-compose@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/koa-compose/-/koa-compose-4.1.0.tgz#507306b9371901db41121c812e923d0d67d3e877"

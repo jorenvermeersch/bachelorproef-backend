@@ -1,6 +1,7 @@
 const koaCors = require('@koa/cors');
 const config = require('config');
 const bodyParser = require('koa-bodyparser');
+const cacheControl = require('koa-cache-control');
 const koaHelmet = require('koa-helmet');
 const koaQs = require('koa-qs');
 const { koaSwagger } = require('koa2-swagger-ui');
@@ -73,6 +74,13 @@ module.exports = function installMiddleware(app) {
 
   // Add rate limiter.
   app.use(rateLimiter());
+
+  // Disable caching data with Cache-Control header.
+  app.use(
+    cacheControl({
+      noCache: true,
+    }),
+  );
 
   // Add a handler for known errors
   app.use(async (ctx, next) => {
