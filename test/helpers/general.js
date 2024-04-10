@@ -40,7 +40,7 @@ const withInvalidProperty = (requestBody, invalidValues) => {
     const values = invalidValues[key];
 
     const objects = values.map((value) => {
-      const obj = { ...requestBody }; // Copy of object with different reference.
+      const obj = { ...requestBody };
       obj[key] = value;
       return obj;
     });
