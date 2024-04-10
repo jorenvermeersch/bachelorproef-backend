@@ -19,12 +19,10 @@ const insertUsers = async (users) => {
   const passwordHash = await hashSecret(passwords.valid);
   const userRole = JSON.stringify([Role.USER]);
 
-  users = users.map(({ id, name, email, password_hash, roles }) => ({
-    id,
-    name,
-    email,
+  users = users.map(({ password_hash, roles, ...rest }) => ({
     password_hash: password_hash ?? passwordHash,
     roles: roles ?? userRole,
+    ...rest,
   }));
 
   const knex = getKnex();
