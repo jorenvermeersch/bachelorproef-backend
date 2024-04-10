@@ -92,7 +92,7 @@ const reset = async ({ email, newPassword, token }) => {
 
   if (isPasswordMatch) {
     throw ServiceError.validationFailed(
-      'The new password must be different from the current password',
+      'Your new password cannot be the same as your current password',
     );
   }
 
