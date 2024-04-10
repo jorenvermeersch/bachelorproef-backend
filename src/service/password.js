@@ -72,7 +72,7 @@ const reset = async ({ email, newPassword, token }) => {
     throw tokenOrEmailError;
   }
 
-  const { id } = user;
+  const { id, passwordHash: currentPassword } = user;
   const resetRequest = await passwordRepository.findResetRequestByUserId(id);
 
   // User exists, but no password reset was requested.
@@ -86,6 +86,14 @@ const reset = async ({ email, newPassword, token }) => {
   // Provided token is not valid or has expired.
   if (!isCorrectToken || tokenExpiry < new Date()) {
     throw tokenOrEmailError;
+  }
+
+  const isPasswordMatch = await verifySecret(newPassword, currentPassword);
+
+  if (isPasswordMatch) {
+    throw ServiceError.validationFailed(
+      'The new password must be different from the current password',
+    );
   }
 
   const passwordHash = await hashSecret(newPassword);
