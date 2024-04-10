@@ -1,7 +1,7 @@
 const config = require('config');
 
 const { passwords, users } = require('./constants');
-const { insertUsers } = require('./helpers');
+const { insertUsers } = require('./helpers/users');
 const { hashSecret } = require('../src/core/hashing');
 const { initializeLogging } = require('../src/core/logging');
 const Role = require('../src/core/roles');

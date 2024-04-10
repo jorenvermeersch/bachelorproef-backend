@@ -6,12 +6,8 @@ const {
   passwords,
   tokens,
 } = require('../constants');
-const {
-  requestReset,
-  parseResetEmail,
-  insertUsers,
-  deleteUsers,
-} = require('../helpers');
+const { requestReset, parseResetEmail } = require('../helpers/passwords');
+const { insertUsers, deleteUsers } = require('../helpers/users');
 const { withServer } = require('../supertest.setup');
 
 // Nodemailer is automatically mocked with nodemailer-mock in ./__mocks__/nodemailer.js

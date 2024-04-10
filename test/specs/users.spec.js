@@ -9,7 +9,7 @@ const {
   users: { login: loginUser },
   passwords,
 } = require('../constants');
-const { insertUsers, deleteUsers } = require('../helpers');
+const { insertUsers, deleteUsers } = require('../helpers/users');
 const { withServer, login, loginAdmin } = require('../supertest.setup');
 
 const MAX_FAILED_LOGIN_ATTEMPTS = config.get('auth.maxFailedAttempts');
