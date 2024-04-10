@@ -73,7 +73,7 @@ const login = async (email, password) => {
     throw makeLockoutError(endTime);
   }
 
-  const passwordValid = await verifySecret(password, user.password_hash);
+  const passwordValid = await verifySecret(password, user.passwordHash);
 
   if (passwordValid) {
     await userLockoutRespository.resetByUserId(user.id);
@@ -239,7 +239,7 @@ const getByEmail = async (email) => {
     });
   }
 
-  return makeExposedUser(user);
+  return user;
 };
 
 /**

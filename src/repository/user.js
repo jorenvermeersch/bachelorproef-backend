@@ -1,12 +1,24 @@
 const { tables, getKnex } = require('../data');
 
+const formatUser = ({ password_hash, ...rest }) => ({
+  ...rest,
+  passwordHash: password_hash,
+});
+
 /**
  * Get all users.
+ *
+ * @returns {Promise<object[]>} List of all users.
  */
-const findAll = () => getKnex()(tables.user).select().orderBy('name', 'ASC');
+const findAll = async () => {
+  const users = await getKnex()(tables.user).select().orderBy('name', 'ASC');
+  return users.map(formatUser);
+};
 
 /**
  * Calculate the total number of user.
+ *
+ * @returns {Promise<number>} The total number of users.
  */
 const findCount = async () => {
   const [count] = await getKnex()(tables.user).count();
@@ -18,15 +30,30 @@ const findCount = async () => {
  *
  * @param {number} id - The id to search for.
  */
-const findById = (id) => getKnex()(tables.user).where('id', id).first();
+const findById = async (id) => {
+  const user = await getKnex()(tables.user).where('id', id).first();
+
+  if (!user) {
+    return;
+  }
+
+  return formatUser(user);
+};
 
 /**
  * Find a user with the given email.
  *
  * @param {string} email - The email to search for.
  */
-const findByEmail = (email) =>
-  getKnex()(tables.user).where('email', email).first();
+const findByEmail = async (email) => {
+  const user = await getKnex()(tables.user).where('email', email).first();
+
+  if (!user) {
+    return;
+  }
+
+  return formatUser(user);
+};
 
 /**
  * Create a new user with the given `name`.
