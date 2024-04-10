@@ -4,13 +4,15 @@ const passwords = {
   tooLong: 'a'.repeat(256),
   tooShort: 'a',
   valid: 'hogent_toegepaste_informatica',
-  newValid: 'h0gent_toegep@ste_informat1ca_2',
-  breached: 'password1234',
   invalid: 'invalid-password-r"Q[`?jZxkG8s7A#9]M6tc',
+  new: 'h0gent_toegep@ste_informat1ca_2',
+  breached: 'password1234',
 };
 
 const tokens = {
-  validFormat: '51bc6ebc-6f85-4d33-8576-20c1fbb5d66b',
+  validFormatButIncorrect: '51bc6ebc-6f85-4d33-8576-20c1fbb5d66b',
+  tooLong: '51bc6ebc-6f85-4d33-8576-20c1fbb5d66ba',
+  tooShort: '51bc6ebc-6f85-4d33-8576-20c1fbb5d66',
 };
 
 const users = {

@@ -1,3 +1,4 @@
+const { subMinutes } = require('date-fns');
 const { mock } = require('nodemailer');
 
 const { tables } = require('../../src/data');
@@ -6,6 +7,10 @@ const {
   passwords,
   tokens,
 } = require('../constants');
+const {
+  withMissingProperty,
+  withInvalidProperty,
+} = require('../helpers/general');
 const { requestReset, parseResetEmail } = require('../helpers/passwords');
 const { insertUsers, deleteUsers } = require('../helpers/users');
 const { withServer } = require('../supertest.setup');
@@ -57,18 +62,16 @@ describe('Passwords', () => {
   describe('POST /api/password/reset', () => {
     const url = '/api/password/reset';
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       await insertUsers({
         ...resetUser,
       });
     });
 
-    afterAll(async () => {
-      await deleteUsers([resetUser.id]);
-    });
-
     afterEach(async () => {
       await knex(tables.passwordResetRequest).del();
+      await deleteUsers([resetUser.id]);
+      mock.reset();
     });
 
     it('should 204 and reset the password', async () => {
@@ -80,25 +83,55 @@ describe('Passwords', () => {
       const response = await supertest.post(url).send({
         email: resetUser.email,
         token,
-        newPassword: passwords.newValid,
+        newPassword: passwords.new,
       });
 
       expect(response.status).toBe(204);
     });
 
     it('should 400 for missing fields', async () => {
-      // TODO!
+      const requestBody = {
+        email: resetUser.email,
+        token: tokens.validFormat,
+        newPassword: passwords.new,
+      };
+
+      for (const body of withMissingProperty(requestBody)) {
+        const response = await supertest.post(url).send(body);
+        expect(response.status).toBe(400);
+        expect(response.body.details).toBeTruthy();
+      }
     });
 
     it('should 400 for invalid fields', async () => {
-      // TODO!
+      const requestBody = {
+        email: resetUser.email,
+        token: tokens.validFormat,
+        newPassword: passwords.new,
+      };
+
+      const invalidValues = {
+        email: ['user'],
+        token: [tokens.tooShort, tokens.tooLong],
+        newPassword: [
+          passwords.tooShort,
+          passwords.tooLong,
+          passwords.breached,
+        ],
+      };
+
+      for (const body of withInvalidProperty(requestBody, invalidValues)) {
+        const response = await supertest.post(url).send(body);
+        expect(response.status).toBe(400);
+        expect(response.body.details).toBeTruthy();
+      }
     });
 
     it('should 400 for unknown user', async () => {
       const response = await supertest.post(url).send({
         email: 'unknown.user@hogent.be',
-        token: tokens.validFormat,
-        newPassword: passwords.valid,
+        token: tokens.validFormatButIncorrect,
+        newPassword: passwords.new,
       });
 
       expect(response.status).toBe(400);
@@ -107,8 +140,8 @@ describe('Passwords', () => {
     it('should 400 for existing user without a reset request', async () => {
       const response = await supertest.post(url).send({
         email: resetUser.email,
-        token: tokens.validFormat,
-        newPassword: passwords.newValid,
+        token: tokens.validFormatButIncorrect,
+        newPassword: passwords.new,
       });
 
       expect(response.status).toBe(400);
@@ -119,15 +152,31 @@ describe('Passwords', () => {
 
       const response = await supertest.post(url).send({
         email: resetUser.email,
-        token: tokens.validFormat,
-        newPassword: passwords.newValid,
+        token: tokens.validFormatButIncorrect,
+        newPassword: passwords.new,
       });
 
       expect(response.status).toBe(400);
     });
 
     it('should 400 for expired reset token', async () => {
-      // TODO!
+      await requestReset(resetUser.email, supertest);
+
+      const resetMail = mock.getSentMail()[0];
+      const { token } = parseResetEmail(resetMail);
+
+      // Manually expire the reset token.
+      await knex(tables.passwordResetRequest)
+        .where({ user_id: resetUser.id })
+        .update({ token_expiry: subMinutes(new Date(), 1) });
+
+      const response = await supertest.post(url).send({
+        email: resetUser.email,
+        token,
+        newPassword: passwords.new,
+      });
+
+      expect(response.status).toBe(400);
     });
 
     it('should 400 when using a old reset token after requesting a new one', async () => {
@@ -141,14 +190,33 @@ describe('Passwords', () => {
       const response = await supertest.post(url).send({
         email: resetUser.email,
         token: oldToken,
-        newPassword: passwords.newValid,
+        newPassword: passwords.new,
       });
 
       expect(response.status).toBe(400);
     });
 
     it('should 400 when using the same reset token twice', async () => {
-      // TODO!
+      await requestReset(resetUser.email, supertest);
+
+      const resetMail = mock.getSentMail()[0];
+      const { token } = parseResetEmail(resetMail);
+
+      const firstReset = await supertest.post(url).send({
+        email: resetUser.email,
+        token,
+        newPassword: passwords.new,
+      });
+
+      expect(firstReset.status).toBe(204);
+
+      const secondReset = await supertest.post(url).send({
+        email: resetUser.email,
+        token,
+        newPassword: 'C4i3|h.8ofRc',
+      });
+
+      expect(secondReset.status).toBe(400);
     });
   });
 });
