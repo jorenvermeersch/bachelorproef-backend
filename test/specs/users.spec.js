@@ -1,11 +1,13 @@
 const config = require('config');
 const { subMinutes, addDays } = require('date-fns');
+const { mock } = require('nodemailer');
 
 const { hashSecret } = require('../../src/core/hashing');
 const Role = require('../../src/core/roles');
 const { tables } = require('../../src/data');
 const { testAuthHeader } = require('../common/auth');
 const { passwords } = require('../constants');
+const { requestReset, parseResetEmail } = require('../helpers/passwords');
 const { insertUsers, deleteUsers } = require('../helpers/users');
 const { withServer, login, loginAdmin } = require('../supertest.setup');
 
@@ -147,6 +149,13 @@ describe('Users', () => {
             password_hash: passwordHash,
             roles: JSON.stringify([Role.USER]),
           },
+          {
+            id: 11,
+            name: 'Password Reset User',
+            email: 'password.reset@hogent.be',
+            password_hash: passwordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
         ]);
 
         await knex(tables.userLockout).insert([
@@ -174,11 +183,17 @@ describe('Users', () => {
             failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
             end_time: subMinutes(new Date(), 1),
           },
+          {
+            id: 11,
+            user_id: 11,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
+            end_time: addDays(new Date(), 1),
+          },
         ]);
       });
 
       afterAll(async () => {
-        await deleteUsers([7, 8, 9, 10]);
+        await deleteUsers([7, 8, 9, 10, 11]);
       });
 
       it('should 401 and reset account lockout after successful login', async () => {
@@ -229,8 +244,24 @@ describe('Users', () => {
         expect(response.statusCode).toBe(200);
       });
 
-      it('should 401 and reset account lockout after successful password reset', async () => {
-        throw new Error('Not implemented');
+      it('should 200 and reset account lockout after successful password reset', async () => {
+        await requestReset('password.reset@hogent.be', supertest);
+
+        const resetMail = mock.getSentMail()[0];
+        const { token, email } = parseResetEmail(resetMail);
+
+        await supertest.post('/api/password/reset').send({
+          email,
+          token,
+          newPassword: passwords.new,
+        });
+
+        const response = await supertest.post(url).send({
+          email: 'password.reset@hogent.be',
+          password: passwords.new,
+        });
+
+        expect(response.statusCode).toBe(200);
       });
     });
   });
