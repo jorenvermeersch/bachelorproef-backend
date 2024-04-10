@@ -15,7 +15,7 @@ const { withServer, login, loginAdmin } = require('../supertest.setup');
 const MAX_FAILED_LOGIN_ATTEMPTS = config.get('auth.maxFailedAttempts');
 
 describe('Users', () => {
-  let supertest, knex, authHeader, adminAuthHeader, validPasswordHash;
+  let supertest, knex, authHeader, adminAuthHeader, passwordHash;
 
   withServer(({ supertest: s, knex: k }) => {
     supertest = s;
@@ -25,25 +25,18 @@ describe('Users', () => {
   beforeAll(async () => {
     authHeader = await login(supertest);
     adminAuthHeader = await loginAdmin(supertest);
-    validPasswordHash = await hashSecret(passwords.valid);
+    passwordHash = await hashSecret(passwords.valid);
   });
 
   describe('POST /api/users/login', () => {
     const url = '/api/users/login';
 
     beforeAll(async () => {
-      // Insert a test user with a valid password.
-      const passwordHash = await hashSecret(loginUser.password);
-
-      await insertUsers([
-        {
-          id: loginUser.id,
-          name: loginUser.name,
-          email: loginUser.email,
-          password_hash: passwordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: loginUser.id,
+        name: loginUser.name,
+        email: loginUser.email,
+      });
     });
 
     afterAll(async () => {
@@ -134,28 +127,28 @@ describe('Users', () => {
             id: 7,
             name: 'No Lockout User',
             email: 'no.lockout@hogent.be',
-            password_hash: validPasswordHash,
+            password_hash: passwordHash,
             roles: JSON.stringify([Role.USER]),
           },
           {
             id: 8,
             name: 'Almost Lockout User',
             email: 'almost.lockout@hogent.be',
-            password_hash: validPasswordHash,
+            password_hash: passwordHash,
             roles: JSON.stringify([Role.USER]),
           },
           {
             id: 9,
             name: 'Lockout User',
             email: 'lockout@hogent.be',
-            password_hash: validPasswordHash,
+            password_hash: passwordHash,
             roles: JSON.stringify([Role.USER]),
           },
           {
             id: 10,
             name: 'Lockout Passed User',
             email: 'lockout.passed@hogent.be',
-            password_hash: validPasswordHash,
+            password_hash: passwordHash,
             roles: JSON.stringify([Role.USER]),
           },
         ]);
@@ -251,15 +244,11 @@ describe('Users', () => {
     const deleteIds = [4];
 
     beforeAll(async () => {
-      await insertUsers([
-        {
-          id: 4,
-          name: 'Duplicate User',
-          email: 'duplicate@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 4,
+        name: 'Duplicate User',
+        email: 'duplicate@hogent.be',
+      });
     });
 
     afterAll(async () => {
@@ -377,22 +366,16 @@ describe('Users', () => {
           id: 4,
           name: 'User One',
           email: 'user1@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
         },
         {
           id: 5,
           name: 'User Two',
           email: 'user2@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
         },
         {
           id: 6,
           name: 'User Three',
           email: 'user3@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
         },
       ]);
     });
@@ -443,15 +426,11 @@ describe('Users', () => {
     const url = '/api/users';
 
     beforeAll(async () => {
-      await insertUsers([
-        {
-          id: 4,
-          name: 'User One',
-          email: 'user1@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 4,
+        name: 'User One',
+        email: 'user1@hogent.be',
+      });
     });
 
     afterAll(async () => {
@@ -502,15 +481,11 @@ describe('Users', () => {
     let updateAuthHeader;
 
     beforeAll(async () => {
-      await insertUsers([
-        {
-          id: 5,
-          name: 'Update User',
-          email: 'update.user@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 5,
+        name: 'Update User',
+        email: 'update.user@hogent.be',
+      });
 
       let response = await supertest.post(`${url}/login`).send({
         email: 'update.user@hogent.be',
@@ -628,15 +603,11 @@ describe('Users', () => {
     let deleteAuthHeader;
 
     beforeAll(async () => {
-      await insertUsers([
-        {
-          id: 5,
-          name: 'Delete User',
-          email: 'delete.user@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 5,
+        name: 'Delete User',
+        email: 'delete.user@hogent.be',
+      });
 
       let response = await supertest.post(`${url}/login`).send({
         email: 'delete.user@hogent.be',

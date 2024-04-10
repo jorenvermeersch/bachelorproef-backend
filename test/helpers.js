@@ -15,8 +15,8 @@ const insertUsers = async (users) => {
     id,
     name,
     email,
-    password_hash: password_hash || passwordHash,
-    roles: roles || userRole,
+    password_hash: password_hash ?? passwordHash,
+    roles: roles ?? userRole,
   }));
 
   const knex = getKnex();
@@ -33,6 +33,7 @@ const insertUsers = async (users) => {
   );
 };
 
+// TODO: Add documentation.
 const deleteUsers = async (userIds) => {
   const knex = getKnex();
 
