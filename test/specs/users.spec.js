@@ -192,7 +192,7 @@ describe('Users', () => {
         await deleteUsers([7, 8, 9, 10]);
       });
 
-      it('should reset account lockout after successful login', async () => {
+      it('should 401 and reset account lockout after successful login', async () => {
         await supertest.post(url).send({
           email: 'no.lockout@hogent.be',
           password: passwords.valid,
@@ -231,7 +231,7 @@ describe('Users', () => {
         expect(response.body.message).toMatch(/^The account is locked/);
       });
 
-      it('should reset after lockout endtime has passed', async () => {
+      it('should 200 and reset after lockout endtime has passed', async () => {
         const response = await supertest.post(url).send({
           email: 'lockout.passed@hogent.be',
           password: passwords.valid,
@@ -240,7 +240,9 @@ describe('Users', () => {
         expect(response.statusCode).toBe(200);
       });
 
-      // TODO: should reset account lockout after password reset.
+      it('should 401 and reset account lockout after successful password reset', async () => {
+        throw new Error('Not implemented');
+      });
     });
   });
 
