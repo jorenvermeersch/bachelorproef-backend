@@ -1,3 +1,5 @@
+const Role = require('../src/core/roles');
+
 const passwords = {
   tooLong: 'a'.repeat(256),
   tooShort: 'a',
@@ -16,19 +18,12 @@ const users = {
     id: 1,
     name: 'Test User',
     email: 'test.user@hogent.be',
-    password: passwords.valid,
   },
   admin: {
     id: 2,
     name: 'Admin User',
     email: 'admin.user@hogent.be',
-    password: passwords.valid,
-  },
-  login: {
-    id: 3,
-    name: 'Login User',
-    email: 'login@hogent.be',
-    password: passwords.valid,
+    roles: JSON.stringify([Role.ADMIN, Role.USER]),
   },
   passwordReset: {
     id: 4,

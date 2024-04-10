@@ -5,10 +5,7 @@ const { hashSecret } = require('../../src/core/hashing');
 const Role = require('../../src/core/roles');
 const { tables } = require('../../src/data');
 const { testAuthHeader } = require('../common/auth');
-const {
-  users: { login: loginUser },
-  passwords,
-} = require('../constants');
+const { passwords } = require('../constants');
 const { insertUsers, deleteUsers } = require('../helpers/users');
 const { withServer, login, loginAdmin } = require('../supertest.setup');
 
@@ -33,36 +30,35 @@ describe('Users', () => {
 
     beforeAll(async () => {
       await insertUsers({
-        id: loginUser.id,
-        name: loginUser.name,
-        email: loginUser.email,
+        id: 3,
+        name: 'Login User',
+        email: 'login@hogent.be',
       });
     });
 
     afterAll(async () => {
-      // Remove the created user.
-      await deleteUsers([loginUser.id]);
+      await deleteUsers([3]);
     });
 
     it('should 200 and return user and token when succesfully logged in', async () => {
       const response = await supertest.post(url).send({
-        email: loginUser.email,
-        password: loginUser.password,
+        email: 'login@hogent.be',
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(200);
       expect(response.body.token).toBeTruthy();
       expect(response.body.user).toEqual({
-        id: loginUser.id,
-        name: loginUser.name,
-        email: loginUser.email,
+        id: 3,
+        name: 'Login User',
+        email: 'login@hogent.be',
       });
     });
 
     it('should 401 with wrong email', async () => {
       const response = await supertest.post(url).send({
         email: 'invalid@hogent.be',
-        password: loginUser.password,
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(401);
@@ -76,7 +72,7 @@ describe('Users', () => {
 
     it('should 401 with wrong password', async () => {
       const response = await supertest.post(url).send({
-        email: loginUser.email,
+        email: 'login@hogent.be',
         password: passwords.invalid,
       });
 
@@ -92,7 +88,7 @@ describe('Users', () => {
     it('should 400 with invalid email', async () => {
       const response = await supertest.post(url).send({
         email: 'invalid',
-        password: loginUser.password,
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(400);
@@ -102,7 +98,7 @@ describe('Users', () => {
 
     it('should 400 when no password given', async () => {
       const response = await supertest.post(url).send({
-        email: loginUser.email,
+        email: 'login@hogent.be',
       });
 
       expect(response.statusCode).toBe(400);
@@ -112,7 +108,7 @@ describe('Users', () => {
 
     it('should 400 when no email given', async () => {
       const response = await supertest.post(url).send({
-        password: loginUser.password,
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(400);
