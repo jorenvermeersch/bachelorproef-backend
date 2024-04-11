@@ -2,7 +2,7 @@ const config = require('config');
 const { RateLimiterMySQL } = require('rate-limiter-flexible');
 
 const { getKnex } = require('.');
-const { getLogger } = require('../core/logging');
+const { getLogger } = require('../core/logging/logger');
 
 const NODE_ENV = config.get('env');
 

@@ -2,7 +2,7 @@ const config = require('config');
 
 const { users } = require('./constants');
 const { insertUsers } = require('./helpers/users');
-const { initializeLogging } = require('../src/core/logging');
+const { initializeLogging } = require('../src/core/logging/logger');
 const { initializeData } = require('../src/data');
 
 module.exports = async () => {
