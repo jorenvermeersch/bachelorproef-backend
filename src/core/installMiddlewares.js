@@ -8,6 +8,7 @@ const { koaSwagger } = require('koa2-swagger-ui');
 const emoji = require('node-emoji');
 const swaggerJsdoc = require('swagger-jsdoc');
 
+const { isDatabaseError } = require('./error/database');
 const { getLogger } = require('./logging');
 const ServiceError = require('./serviceError');
 const { rateLimiter } = require('../data/rateLimiter');
@@ -122,6 +123,31 @@ module.exports = function installMiddleware(app) {
       }
 
       ctx.status = statusCode;
+      ctx.body = errorBody;
+    }
+  });
+
+  // Handler for unexpected database errors.
+  app.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (error) {
+      if (!isDatabaseError(error)) {
+        throw error;
+      }
+      // Database error about connection, timeout, concurrency, resource limit, permissions, etc.
+      getLogger().error(
+        'Unexpected database error occurred while handling request',
+        { error },
+      );
+
+      const errorBody = {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Unexpected database error occurred. Please try again later.',
+        stack: NODE_ENV !== 'production' ? error.stack : undefined,
+      };
+
+      ctx.status = 500;
       ctx.body = errorBody;
     }
   });
