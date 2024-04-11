@@ -2,9 +2,9 @@ const NOT_FOUND = 'NOT_FOUND';
 const VALIDATION_FAILED = 'VALIDATION_FAILED';
 const UNAUTHORIZED = 'UNAUTHORIZED';
 const FORBIDDEN = 'FORBIDDEN';
+const CONFLICT = 'CONFLICT';
 
 class ServiceError extends Error {
-
   /**
    * Create a `ServiceError`.
    *
@@ -35,6 +35,10 @@ class ServiceError extends Error {
     return new ServiceError(FORBIDDEN, message, details);
   }
 
+  static conflict(message, details) {
+    return new ServiceError(CONFLICT, message, details);
+  }
+
   get isNotFound() {
     return this.code === NOT_FOUND;
   }
@@ -49,6 +53,10 @@ class ServiceError extends Error {
 
   get isForbidden() {
     return this.code === FORBIDDEN;
+  }
+
+  get isConflict() {
+    return this.code === CONFLICT;
   }
 }
 

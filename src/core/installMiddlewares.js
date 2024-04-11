@@ -115,6 +115,10 @@ module.exports = function installMiddleware(app) {
         if (error.isForbidden) {
           statusCode = 403;
         }
+
+        if (error.isConflict) {
+          statusCode = 409;
+        }
       }
 
       ctx.status = statusCode;
