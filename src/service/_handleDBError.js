@@ -6,9 +6,13 @@ const handleDBError = (error) => {
   if (code === 'ER_DUP_ENTRY') {
     switch (true) {
       case sqlMessage.includes('idx_place_name_unique'):
-        throw ServiceError.validationFailed('A place with this name already exists');
+        throw ServiceError.validationFailed(
+          'A place with this name already exists',
+        );
       case sqlMessage.includes('idx_user_email_unique'):
-        throw ServiceError.validationFailed('There is already a user with this email address');
+        throw ServiceError.validationFailed(
+          'There is already a user with this email address',
+        );
       default:
         throw ServiceError.validationFailed('This item already exists');
     }
@@ -20,6 +24,15 @@ const handleDBError = (error) => {
         throw ServiceError.notFound('This user does not exist');
       case sqlMessage.includes('fk_transaction_place'):
         throw ServiceError.notFound('This place does not exist');
+    }
+  }
+
+  if (code.startsWith('ER_ROW_IS_REFERENCED')) {
+    switch (true) {
+      case sqlMessage.includes('fk_transaction_place'):
+        throw ServiceError.conflict(
+          'This place is still linked to transactions',
+        );
     }
   }
 

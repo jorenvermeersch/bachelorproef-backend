@@ -143,7 +143,7 @@ describe('Places', () => {
       placesToDelete.push(response.body.id);
     });
 
-    it('should 200 and return the created place with it\'s rating', async () => {
+    it("should 200 and return the created place with it's rating", async () => {
       const response = await supertest
         .post(url)
         .set('Authorization', authHeader)
@@ -398,5 +398,33 @@ describe('Places', () => {
     });
 
     testAuthHeader(() => supertest.delete(`${url}/1`));
+
+    describe('Foreign key constraint conflict', () => {
+      beforeAll(async () => {
+        await knex(tables.place).insert([{ id: 1, name: 'Loon', rating: 4 }]);
+        await knex(tables.transaction).insert([
+          {
+            id: 1,
+            amount: 2000,
+            date: '2021-05-25 19:40:00',
+            user_id: 1,
+            place_id: 1,
+          },
+        ]);
+      });
+
+      afterAll(async () => {
+        await knex(tables.transaction).where('id', 1).delete();
+        await knex(tables.place).where('id', 1).delete();
+      });
+
+      it('should 409 when place is still associated with transactions', async () => {
+        const response = await supertest
+          .delete(`${url}/1`)
+          .set('Authorization', authHeader);
+
+        expect(response.statusCode).toBe(409);
+      });
+    });
   });
 });

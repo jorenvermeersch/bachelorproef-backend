@@ -22,7 +22,6 @@ const getByName = async (name) => {
   return await placeRepository.findByName(name);
 };
 
-
 /**
  * Get the place with the given `id`.
  *
@@ -52,7 +51,9 @@ const getById = async (id) => {
  * - VALIDATION_FAILED: A place with the same name exists.
  */
 const create = async ({ name, rating }) => {
-  const id = await placeRepository.create({ name, rating }).catch(handleDBError);
+  const id = await placeRepository
+    .create({ name, rating })
+    .catch(handleDBError);
   return getById(id);
 };
 
@@ -73,7 +74,6 @@ const updateById = async (id, { name, rating }) => {
   return getById(id);
 };
 
-
 /**
  * Delete an existing place.
  *
@@ -81,9 +81,10 @@ const updateById = async (id, { name, rating }) => {
  *
  * @throws {ServiceError} One of:
  * - NOT_FOUND: No place with the given id could be found.
+ * - CONFLICT: Place is linked to transactions.
  */
 const deleteById = async (id) => {
-  const deleted = await placeRepository.deleteById(id);
+  const deleted = await placeRepository.deleteById(id).catch(handleDBError);
 
   if (!deleted) {
     throw ServiceError.notFound(`No place with id ${id} exists`, { id });
