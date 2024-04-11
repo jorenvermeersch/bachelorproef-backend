@@ -9,8 +9,8 @@ const emoji = require('node-emoji');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const { isDatabaseError } = require('./error/database');
+const ServiceError = require('./error/serviceError');
 const { getLogger } = require('./logging/logger');
-const ServiceError = require('./serviceError');
 const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
 

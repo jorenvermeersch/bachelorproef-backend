@@ -3,9 +3,9 @@ const { addMinutes } = require('date-fns');
 const { URLSearchParams } = require('url');
 
 const userService = require('./user');
+const ServiceError = require('../core/error/serviceError');
 const { hashSecret, verifySecret } = require('../core/hashing');
 const { sendMail } = require('../core/mail');
-const ServiceError = require('../core/serviceError');
 const passwordRepository = require('../repository/password');
 const userLockoutRepository = require('../repository/userLockout');
 

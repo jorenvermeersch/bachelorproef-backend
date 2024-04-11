@@ -1,6 +1,6 @@
 const handleDBError = require('./_handleDBError');
 const placeService = require('./place');
-const ServiceError = require('../core/serviceError');
+const ServiceError = require('../core/error/serviceError');
 const transactionRepository = require('../repository/transaction');
 
 /**
