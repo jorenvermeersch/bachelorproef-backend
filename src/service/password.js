@@ -7,6 +7,7 @@ const { hashSecret, verifySecret } = require('../core/hashing');
 const { sendMail } = require('../core/mail');
 const ServiceError = require('../core/serviceError');
 const passwordRepository = require('../repository/password');
+const userLockoutRepository = require('../repository/userLockout');
 
 /**
  * Sends a password reset e-mail if a user with the given `email` exists.
@@ -71,7 +72,7 @@ const reset = async ({ email, newPassword, token }) => {
     throw tokenOrEmailError;
   }
 
-  const { id } = user;
+  const { id, passwordHash: currentPassword } = user;
   const resetRequest = await passwordRepository.findResetRequestByUserId(id);
 
   // User exists, but no password reset was requested.
@@ -87,9 +88,21 @@ const reset = async ({ email, newPassword, token }) => {
     throw tokenOrEmailError;
   }
 
+  const isPasswordMatch = await verifySecret(newPassword, currentPassword);
+
+  if (isPasswordMatch) {
+    throw ServiceError.validationFailed(
+      'Your new password cannot be the same as your current password',
+    );
+  }
+
   const passwordHash = await hashSecret(newPassword);
   await userService.updateById(id, { passwordHash });
   await passwordRepository.deleteResetRequestsByUserId(id);
+
+  // User should be able to log in again after successful password reset.
+  // Account lockout exists only to deter unauthorized access.
+  await userLockoutRepository.resetByUserId(id);
 };
 
 module.exports = {

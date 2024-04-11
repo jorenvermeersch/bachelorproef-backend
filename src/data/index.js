@@ -107,7 +107,7 @@ async function initializeData() {
     }
   }
 
-  logger.info('Succesfully connected to the database');
+  logger.info('Successfully connected to the database');
 
   return knexInstance;
 }
@@ -133,6 +133,7 @@ function getKnex() {
 
 const tables = Object.freeze({
   transaction: 'transactions',
+  userLockout: 'user_lockouts',
   user: 'users',
   place: 'places',
   passwordResetRequest: 'password_reset_requests',

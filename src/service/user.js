@@ -1,4 +1,5 @@
 const config = require('config');
+const { addMinutes, differenceInMinutes } = require('date-fns');
 
 const handleDBError = require('./_handleDBError');
 const { verifySecret, hashSecret } = require('../core/hashing');
@@ -7,8 +8,10 @@ const { getLogger } = require('../core/logging');
 const Role = require('../core/roles');
 const ServiceError = require('../core/serviceError');
 const userRepository = require('../repository/user');
+const userLockoutRespository = require('../repository/userLockout');
 
 const AUTH_DISABLED = config.get('auth.disabled');
+const MAX_FAILED_LOGIN_ATTEMPTS = config.get('auth.maxFailedAttempts');
 
 /**
  * Only return the public information about the given user.
@@ -31,6 +34,14 @@ const makeLoginData = async (user) => {
   };
 };
 
+const makeLockoutError = (endTime) => {
+  const remainingMinutes = differenceInMinutes(endTime, new Date());
+
+  return ServiceError.unauthorized(
+    `The account is locked. Please try again in ${remainingMinutes} minutes`,
+  );
+};
+
 /**
  * Try to login a user with the given username and password.
  *
@@ -49,16 +60,41 @@ const login = async (email, password) => {
     );
   }
 
-  const passwordValid = await verifySecret(password, user.password_hash);
+  let lockout = await userLockoutRespository.findByUserId(user.id);
 
-  if (!passwordValid) {
-    // DO NOT expose we know the user but an invalid password was given
-    throw ServiceError.unauthorized(
-      'The given email and password do not match',
-    );
+  if (lockout.endTime && lockout.endTime < new Date()) {
+    await userLockoutRespository.resetByUserId(user.id);
+    lockout = await userLockoutRespository.findByUserId(user.id);
   }
 
-  return await makeLoginData(user);
+  const { failedLoginAttempts, endTime } = lockout;
+
+  if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+    throw makeLockoutError(endTime);
+  }
+
+  const passwordValid = await verifySecret(password, user.passwordHash);
+
+  if (passwordValid) {
+    await userLockoutRespository.resetByUserId(user.id);
+    return await makeLoginData(user);
+  }
+
+  const attempts = failedLoginAttempts + 1;
+  const lockoutEndTime = addMinutes(new Date(), 30);
+
+  await userLockoutRespository.updateByUserId(user.id, {
+    failedLoginAttempts: attempts,
+    endTime:
+      attempts === MAX_FAILED_LOGIN_ATTEMPTS ? lockoutEndTime : undefined,
+  });
+
+  if (attempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+    throw makeLockoutError(lockoutEndTime);
+  }
+
+  // DO NOT expose we know the user but an invalid password was given
+  throw ServiceError.unauthorized('The given email and password do not match');
 };
 
 /**
@@ -82,6 +118,8 @@ const register = async ({ name, email, password }) => {
       roles: [Role.USER],
     })
     .catch(handleDBError);
+
+  await userLockoutRespository.create(userId);
 
   const user = await userRepository.findById(userId);
 
@@ -201,7 +239,7 @@ const getByEmail = async (email) => {
     });
   }
 
-  return makeExposedUser(user);
+  return user;
 };
 
 /**
@@ -232,6 +270,7 @@ const updateById = async (id, { name, email, passwordHash }) => {
  * - NOT_FOUND: No user with the given id could be found.
  */
 const deleteById = async (id) => {
+  await userLockoutRespository.deleteByUserId(id);
   const deleted = await userRepository.deleteById(id);
 
   if (!deleted) {

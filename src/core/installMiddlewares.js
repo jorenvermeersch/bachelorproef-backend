@@ -1,6 +1,7 @@
 const koaCors = require('@koa/cors');
 const config = require('config');
 const bodyParser = require('koa-bodyparser');
+const cacheControl = require('koa-cache-control');
 const koaHelmet = require('koa-helmet');
 const koaQs = require('koa-qs');
 const { koaSwagger } = require('koa2-swagger-ui');
@@ -9,6 +10,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 const { getLogger } = require('./logging');
 const ServiceError = require('./serviceError');
+const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
 
 const NODE_ENV = config.get('env');
@@ -67,6 +69,16 @@ module.exports = function installMiddleware(app) {
       },
       allowHeaders: ['Accept', 'Content-Type', 'Authorization'],
       maxAge: CORS_MAX_AGE,
+    }),
+  );
+
+  // Add rate limiter.
+  app.use(rateLimiter());
+
+  // Disable caching data with Cache-Control header.
+  app.use(
+    cacheControl({
+      noCache: true,
     }),
   );
 

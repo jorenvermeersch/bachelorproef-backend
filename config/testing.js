@@ -21,6 +21,7 @@ module.exports = {
   auth: {
     disabled: false,
     maxDelay: 300, // ms
+    maxFailedAttempts: 5,
     argon: {
       saltLength: 16,
       hashLength: 32,

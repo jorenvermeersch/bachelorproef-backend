@@ -1,6 +1,6 @@
 const supertest = require('supertest');
 
-const { users } = require('./constants');
+const { users, passwords } = require('./constants');
 const createServer = require('../src/createServer');
 const { getKnex } = require('../src/data');
 const { admin: adminUser, test: testUser } = users;
@@ -15,7 +15,7 @@ const { admin: adminUser, test: testUser } = users;
 const login = async (supertest) => {
   const response = await supertest.post('/api/users/login').send({
     email: testUser.email,
-    password: testUser.password,
+    password: passwords.valid,
   });
 
   if (response.statusCode !== 200) {
@@ -35,7 +35,7 @@ const login = async (supertest) => {
 const loginAdmin = async (supertest) => {
   const response = await supertest.post('/api/users/login').send({
     email: adminUser.email,
-    password: adminUser.password,
+    password: passwords.valid,
   });
 
   if (response.statusCode !== 200) {

@@ -1,15 +1,20 @@
+const config = require('config');
+const { subMinutes, addDays } = require('date-fns');
+const { mock } = require('nodemailer');
+
 const { hashSecret } = require('../../src/core/hashing');
 const Role = require('../../src/core/roles');
 const { tables } = require('../../src/data');
 const { testAuthHeader } = require('../common/auth');
-const {
-  users: { login: loginUser },
-  passwords,
-} = require('../constants');
+const { passwords } = require('../constants');
+const { requestReset, parseResetEmail } = require('../helpers/passwords');
+const { insertUsers, deleteUsers } = require('../helpers/users');
 const { withServer, login, loginAdmin } = require('../supertest.setup');
 
+const MAX_FAILED_LOGIN_ATTEMPTS = config.get('auth.maxFailedAttempts');
+
 describe('Users', () => {
-  let supertest, knex, authHeader, adminAuthHeader, validPasswordHash;
+  let supertest, knex, authHeader, adminAuthHeader, passwordHash;
 
   withServer(({ supertest: s, knex: k }) => {
     supertest = s;
@@ -19,51 +24,43 @@ describe('Users', () => {
   beforeAll(async () => {
     authHeader = await login(supertest);
     adminAuthHeader = await loginAdmin(supertest);
-    validPasswordHash = await hashSecret(passwords.valid);
+    passwordHash = await hashSecret(passwords.valid);
   });
 
   describe('POST /api/users/login', () => {
     const url = '/api/users/login';
 
     beforeAll(async () => {
-      // Insert a test user with a valid password.
-      const passwordHash = await hashSecret(loginUser.password);
-
-      await knex(tables.user).insert([
-        {
-          id: loginUser.id,
-          name: loginUser.name,
-          email: loginUser.email,
-          password_hash: passwordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 3,
+        name: 'Login User',
+        email: 'login@hogent.be',
+      });
     });
 
     afterAll(async () => {
-      // Remove the created user.
-      await knex(tables.user).where('id', loginUser.id).delete();
+      await deleteUsers([3]);
     });
 
     it('should 200 and return user and token when succesfully logged in', async () => {
       const response = await supertest.post(url).send({
-        email: loginUser.email,
-        password: loginUser.password,
+        email: 'login@hogent.be',
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(200);
       expect(response.body.token).toBeTruthy();
       expect(response.body.user).toEqual({
-        id: loginUser.id,
-        name: loginUser.name,
-        email: loginUser.email,
+        id: 3,
+        name: 'Login User',
+        email: 'login@hogent.be',
       });
     });
 
     it('should 401 with wrong email', async () => {
       const response = await supertest.post(url).send({
         email: 'invalid@hogent.be',
-        password: loginUser.password,
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(401);
@@ -77,8 +74,8 @@ describe('Users', () => {
 
     it('should 401 with wrong password', async () => {
       const response = await supertest.post(url).send({
-        email: loginUser.email,
-        password: 'invalid-password-r"Q[`?jZxkG8s7A#9]M6tc',
+        email: 'login@hogent.be',
+        password: passwords.invalid,
       });
 
       expect(response.statusCode).toBe(401);
@@ -93,7 +90,7 @@ describe('Users', () => {
     it('should 400 with invalid email', async () => {
       const response = await supertest.post(url).send({
         email: 'invalid',
-        password: loginUser.password,
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(400);
@@ -103,7 +100,7 @@ describe('Users', () => {
 
     it('should 400 when no password given', async () => {
       const response = await supertest.post(url).send({
-        email: loginUser.email,
+        email: 'login@hogent.be',
       });
 
       expect(response.statusCode).toBe(400);
@@ -113,34 +110,176 @@ describe('Users', () => {
 
     it('should 400 when no email given', async () => {
       const response = await supertest.post(url).send({
-        password: loginUser.password,
+        password: passwords.valid,
       });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('email');
     });
+
+    describe('account lockout', () => {
+      beforeAll(async () => {
+        await knex(tables.user).insert([
+          {
+            id: 7,
+            name: 'No Lockout User',
+            email: 'no.lockout@hogent.be',
+            password_hash: passwordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+          {
+            id: 8,
+            name: 'Almost Lockout User',
+            email: 'almost.lockout@hogent.be',
+            password_hash: passwordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+          {
+            id: 9,
+            name: 'Lockout User',
+            email: 'lockout@hogent.be',
+            password_hash: passwordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+          {
+            id: 10,
+            name: 'Lockout Passed User',
+            email: 'lockout.passed@hogent.be',
+            password_hash: passwordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+          {
+            id: 11,
+            name: 'Password Reset User',
+            email: 'password.reset@hogent.be',
+            password_hash: passwordHash,
+            roles: JSON.stringify([Role.USER]),
+          },
+        ]);
+
+        await knex(tables.userLockout).insert([
+          {
+            id: 7,
+            user_id: 7,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS - 1,
+            end_time: null,
+          },
+          {
+            id: 8,
+            user_id: 8,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS - 1,
+            end_time: null,
+          },
+          {
+            id: 9,
+            user_id: 9,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
+            end_time: addDays(new Date(), 1),
+          },
+          {
+            id: 10,
+            user_id: 10,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
+            end_time: subMinutes(new Date(), 1),
+          },
+          {
+            id: 11,
+            user_id: 11,
+            failed_login_attempts: MAX_FAILED_LOGIN_ATTEMPTS,
+            end_time: addDays(new Date(), 1),
+          },
+        ]);
+      });
+
+      afterAll(async () => {
+        await deleteUsers([7, 8, 9, 10, 11]);
+      });
+
+      it('should 401 and reset account lockout after successful login', async () => {
+        await supertest.post(url).send({
+          email: 'no.lockout@hogent.be',
+          password: passwords.valid,
+        });
+
+        const response = await supertest.post(url).send({
+          email: 'no.lockout@hogent.be',
+          password: passwords.invalid,
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body).toMatchObject({
+          code: 'UNAUTHORIZED',
+          message: 'The given email and password do not match',
+          details: {},
+        });
+      });
+
+      it('should 401 and lock user account', async () => {
+        const response = await supertest.post(url).send({
+          email: 'almost.lockout@hogent.be',
+          password: passwords.invalid,
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toMatch(/^The account is locked/);
+      });
+
+      it('should 401 when user account is locked', async () => {
+        const response = await supertest.post(url).send({
+          email: 'lockout@hogent.be',
+          password: passwords.valid,
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toMatch(/^The account is locked/);
+      });
+
+      it('should 200 and reset after lockout endtime has passed', async () => {
+        const response = await supertest.post(url).send({
+          email: 'lockout.passed@hogent.be',
+          password: passwords.valid,
+        });
+
+        expect(response.statusCode).toBe(200);
+      });
+
+      it('should 200 and reset account lockout after successful password reset', async () => {
+        await requestReset('password.reset@hogent.be', supertest);
+
+        const resetMail = mock.getSentMail()[0];
+        const { token, email } = parseResetEmail(resetMail);
+
+        await supertest.post('/api/password/reset').send({
+          email,
+          token,
+          newPassword: passwords.new,
+        });
+
+        const response = await supertest.post(url).send({
+          email: 'password.reset@hogent.be',
+          password: passwords.new,
+        });
+
+        expect(response.statusCode).toBe(200);
+      });
+    });
   });
 
   describe('POST /api/users/register', () => {
     const url = '/api/users/register';
+    const deleteIds = [4];
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
-        {
-          id: 4,
-          name: 'Duplicate User',
-          email: 'duplicate@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 4,
+        name: 'Duplicate User',
+        email: 'duplicate@hogent.be',
+      });
     });
 
     afterAll(async () => {
-      await knex(tables.user)
-        .whereIn('email', ['register@hogent.be', 'duplicate@hogent.be'])
-        .delete();
+      await deleteUsers(deleteIds);
     });
 
     it('should 200 and return the registered user', async () => {
@@ -149,6 +288,8 @@ describe('Users', () => {
         email: 'register@hogent.be',
         password: passwords.valid,
       });
+
+      deleteIds.push(response.body.user.id);
 
       expect(response.statusCode).toBe(200);
       expect(response.body.token).toBeTruthy();
@@ -247,33 +388,27 @@ describe('Users', () => {
     const url = '/api/users';
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
+      await insertUsers([
         {
           id: 4,
           name: 'User One',
           email: 'user1@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
         },
         {
           id: 5,
           name: 'User Two',
           email: 'user2@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
         },
         {
           id: 6,
           name: 'User Three',
           email: 'user3@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
         },
       ]);
     });
 
     afterAll(async () => {
-      await knex(tables.user).whereIn('id', [4, 5, 6]).delete();
+      await deleteUsers([4, 5, 6]);
     });
 
     it('should 200 and return all users', async () => {
@@ -318,19 +453,15 @@ describe('Users', () => {
     const url = '/api/users';
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
-        {
-          id: 4,
-          name: 'User One',
-          email: 'user1@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 4,
+        name: 'User One',
+        email: 'user1@hogent.be',
+      });
     });
 
     afterAll(async () => {
-      await knex(tables.user).where('id', 4).delete();
+      await deleteUsers([4]);
     });
 
     it('should 200 and return the requested user', async () => {
@@ -377,15 +508,11 @@ describe('Users', () => {
     let updateAuthHeader;
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
-        {
-          id: 5,
-          name: 'Update User',
-          email: 'update.user@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 5,
+        name: 'Update User',
+        email: 'update.user@hogent.be',
+      });
 
       let response = await supertest.post(`${url}/login`).send({
         email: 'update.user@hogent.be',
@@ -396,7 +523,7 @@ describe('Users', () => {
 
     afterAll(async () => {
       // Delete the update users
-      await knex(tables.user).delete().where('id', 5);
+      await deleteUsers([5]);
     });
 
     it('should 200 and return the updated user', async () => {
@@ -503,15 +630,11 @@ describe('Users', () => {
     let deleteAuthHeader;
 
     beforeAll(async () => {
-      await knex(tables.user).insert([
-        {
-          id: 5,
-          name: 'Delete User',
-          email: 'delete.user@hogent.be',
-          password_hash: validPasswordHash,
-          roles: JSON.stringify([Role.USER]),
-        },
-      ]);
+      await insertUsers({
+        id: 5,
+        name: 'Delete User',
+        email: 'delete.user@hogent.be',
+      });
 
       let response = await supertest.post(`${url}/login`).send({
         email: 'delete.user@hogent.be',
