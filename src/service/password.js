@@ -55,6 +55,7 @@ const requestReset = async (email, origin) => {
   getLogger().info(`user ${id} successfully requested a password reset`);
 };
 
+// TODO: Add JSDoc.
 const makeTokenOrEmailError = (logInfo) => {
   return ServiceError.validationFailed(
     'The given email is invalid or the reset request has expired',

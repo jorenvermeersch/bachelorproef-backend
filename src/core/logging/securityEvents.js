@@ -1,3 +1,5 @@
+// TODO: Add JSDoc.
+
 // Authentication.
 const loginSuccess = (userId) => {
   userId = userId ?? -1;
@@ -13,8 +15,8 @@ const loginFailed = (userId) => {
   return `authn_login_fail:${userId}`;
 };
 
-const loginFailedMax = (userId, maxLimit) => {
-  return `authn_login_fail_max:${userId},${maxLimit}`;
+const loginLock = (userId, maxRetries) => {
+  return `authn_login_lock:${userId},${maxRetries}`;
 };
 
 const passwordChange = (userId) => {
@@ -30,7 +32,7 @@ const authentication = {
   loginSuccess,
   loginSuccessAfterFail,
   loginFailed,
-  loginFailedMax,
+  loginLock,
   passwordChange,
   passwordChangeFailed,
 };
