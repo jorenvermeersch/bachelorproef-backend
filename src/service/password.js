@@ -5,6 +5,10 @@ const { URLSearchParams } = require('url');
 const userService = require('./user');
 const ServiceError = require('../core/error/serviceError');
 const { hashSecret, verifySecret } = require('../core/hashing');
+const { getLogger } = require('../core/logging/logger');
+const {
+  authentication: { passwordChangeFailed, passwordChange },
+} = require('../core/logging/securityEvents');
 const { sendMail } = require('../core/mail');
 const passwordRepository = require('../repository/password');
 const userLockoutRepository = require('../repository/userLockout');
@@ -21,6 +25,9 @@ const requestReset = async (email, origin) => {
     user = await userService.getByEmail(email);
   } catch (error) {
     // No error thrown to protect against user enumeration attacks.
+    getLogger().warn(
+      `user with unknown email ${email} requested a password reset`,
+    );
     return;
   }
 
@@ -44,6 +51,16 @@ const requestReset = async (email, origin) => {
     text: `Click the following link to reset your password: ${url}`,
     html: `<p>Click <a href="${url}" target="_blank">here</a> to reset your password.</p>`,
   });
+
+  getLogger().info(`user ${id} successfully requested a password reset`);
+};
+
+const makeTokenOrEmailError = (logInfo) => {
+  return ServiceError.validationFailed(
+    'The given email is invalid or the reset request has expired',
+    undefined,
+    logInfo,
+  );
 };
 
 /**
@@ -60,16 +77,15 @@ const requestReset = async (email, origin) => {
  * - The provided token is invalid or has expired.
  */
 const reset = async ({ email, newPassword, token }) => {
-  const tokenOrEmailError = ServiceError.validationFailed(
-    'The given email is invalid or the reset request has expired',
-  );
-
   let user;
   try {
     user = await userService.getByEmail(email);
   } catch (error) {
     // User with given e-mail does not exist.
-    throw tokenOrEmailError;
+    throw makeTokenOrEmailError({
+      event: passwordChangeFailed(),
+      description: `user with email ${email} not found`,
+    });
   }
 
   const { id, passwordHash: currentPassword } = user;
@@ -77,7 +93,11 @@ const reset = async ({ email, newPassword, token }) => {
 
   // User exists, but no password reset was requested.
   if (!resetRequest) {
-    throw tokenOrEmailError;
+    throw makeTokenOrEmailError({
+      event: passwordChangeFailed(id),
+      description: `user ${id} failed to change their password`,
+      cause: 'no reset request found',
+    });
   }
 
   const { tokenHash: resetTokenHash, tokenExpiry } = resetRequest;
@@ -85,7 +105,11 @@ const reset = async ({ email, newPassword, token }) => {
 
   // Provided token is not valid or has expired.
   if (!isCorrectToken || tokenExpiry < new Date()) {
-    throw tokenOrEmailError;
+    throw makeTokenOrEmailError({
+      event: passwordChangeFailed(id),
+      description: `iser ${id} failed to change their password`,
+      cause: 'invalid or expired token',
+    });
   }
 
   const isPasswordMatch = await verifySecret(newPassword, currentPassword);
@@ -93,12 +117,22 @@ const reset = async ({ email, newPassword, token }) => {
   if (isPasswordMatch) {
     throw ServiceError.validationFailed(
       'Your new password cannot be the same as your current password',
+      undefined,
+      {
+        event: passwordChangeFailed(id),
+        description: `User ${id} failed to change their password`,
+        cause: 'new password is the same as the current one',
+      },
     );
   }
 
   const passwordHash = await hashSecret(newPassword);
   await userService.updateById(id, { passwordHash });
   await passwordRepository.deleteResetRequestsByUserId(id);
+
+  getLogger().info(`user ${id} has successfully changed their password`, {
+    event: passwordChange(id),
+  });
 
   // User should be able to log in again after successful password reset.
   // Account lockout exists only to deter unauthorized access.
