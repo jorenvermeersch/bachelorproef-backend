@@ -1,8 +1,7 @@
 const Joi = require('joi');
 
-const {
-  inputValidation: { inputValidationFailed },
-} = require('../logging/securityEvents');
+const { getUserFromContext } = require('../logging/helpers');
+const { inputValidationFailed } = require('../logging/securityEvents');
 
 const JOI_OPTIONS = {
   abortEarly: true, // stop when first error occured
@@ -29,11 +28,10 @@ const cleanupJoiError = (error) =>
 
 const createLogInfo = (ctx, errors) => {
   const field = Object.keys(errors)[0];
-  const userId = ctx.state?.session?.userId;
-  const user = userId ? `User ${userId}` : 'unauthenticated user';
+  const { userId, userString } = getUserFromContext(ctx);
 
   return {
-    description: `${user} submitted data that failed validation`,
+    description: `${userString} submitted data that failed validation`,
     event: inputValidationFailed(field, userId),
     cause: errors[field][0].type ?? 'unknown',
   };
