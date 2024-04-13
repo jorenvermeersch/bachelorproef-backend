@@ -60,9 +60,14 @@ const maliciousDirectReference = (ipOrUserId, useragent) => {
   return `malicious_direct:${ipOrUserId},${useragent}`;
 };
 
+const malicious404 = (ipOrUserId, useragent) => {
+  return `malicious_404:${ipOrUserId},${useragent}`;
+};
+
 const malicious = {
   maliciousCors,
   maliciousDirectReference,
+  malicious404,
 };
 
 // Input validation.
@@ -73,6 +78,7 @@ const inputValidationFailed = (field, userId) => {
 
 // Rate limiting.
 const rateLimitExceeded = (userId, max) => {
+  userId = userId ?? -1;
   return `excess_rate_limit_exceeded:${userId},${max}`;
 };
 
