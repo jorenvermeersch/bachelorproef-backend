@@ -37,7 +37,7 @@ module.exports = function installMiddleware(app) {
 
   // Log when requests come in and go out.
   app.use(async (ctx, next) => {
-    getLogger().info(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
+    getLogger().http(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
 
     const getStatusEmoji = () => {
       if (ctx.status >= 500) return emoji.get('skull');
@@ -49,7 +49,7 @@ module.exports = function installMiddleware(app) {
 
     await next();
 
-    getLogger().info(
+    getLogger().http(
       `${getStatusEmoji()} ${ctx.method} ${ctx.status} (${ctx.response.get('X-Response-Time')}) ${ctx.url}`,
     );
   });
