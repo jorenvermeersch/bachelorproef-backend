@@ -1,10 +1,12 @@
+const LogError = require('./logError');
+
 const NOT_FOUND = 'NOT_FOUND';
 const VALIDATION_FAILED = 'VALIDATION_FAILED';
 const UNAUTHORIZED = 'UNAUTHORIZED';
 const FORBIDDEN = 'FORBIDDEN';
 const CONFLICT = 'CONFLICT';
 
-class ServiceError extends Error {
+class ServiceError extends LogError {
   /**
    * Create a `ServiceError`.
    *
@@ -14,10 +16,9 @@ class ServiceError extends Error {
    * @param {object} [logInfo] - Information for logging.
    */
   constructor(code, message, details = {}, logInfo = {}) {
-    super(message);
+    super(message, logInfo);
     this.code = code;
     this.details = details;
-    this.logInfo = logInfo;
     this.name = 'ServiceError';
   }
 
