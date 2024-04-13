@@ -11,32 +11,34 @@ class ServiceError extends Error {
    * @param {string} code - Unique code for this error.
    * @param {string} message - Explanatory message.
    * @param {object} [details] - Extra details.
+   * @param {object} [logInfo] - Information for logging.
    */
-  constructor(code, message, details = {}) {
+  constructor(code, message, details = {}, logInfo = {}) {
     super(message);
     this.code = code;
     this.details = details;
+    this.logInfo = logInfo;
     this.name = 'ServiceError';
   }
 
-  static notFound(message, details) {
-    return new ServiceError(NOT_FOUND, message, details);
+  static notFound(message, details, logInfo) {
+    return new ServiceError(NOT_FOUND, message, details, logInfo);
   }
 
-  static validationFailed(message, details) {
-    return new ServiceError(VALIDATION_FAILED, message, details);
+  static validationFailed(message, details, logInfo) {
+    return new ServiceError(VALIDATION_FAILED, message, details, logInfo);
   }
 
-  static unauthorized(message, details) {
-    return new ServiceError(UNAUTHORIZED, message, details);
+  static unauthorized(message, details, logInfo) {
+    return new ServiceError(UNAUTHORIZED, message, details, logInfo);
   }
 
-  static forbidden(message, details) {
-    return new ServiceError(FORBIDDEN, message, details);
+  static forbidden(message, details, logInfo) {
+    return new ServiceError(FORBIDDEN, message, details, logInfo);
   }
 
-  static conflict(message, details) {
-    return new ServiceError(CONFLICT, message, details);
+  static conflict(message, details, logInfo) {
+    return new ServiceError(CONFLICT, message, details, logInfo);
   }
 
   get isNotFound() {
