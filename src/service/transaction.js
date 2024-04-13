@@ -1,6 +1,8 @@
 const handleDBError = require('./_handleDBError');
 const placeService = require('./place');
 const ServiceError = require('../core/error/serviceError');
+const { getLogger } = require('../core/logging/logger');
+const { authorizationFailed } = require('../core/logging/securityEvents');
 const transactionRepository = require('../repository/transaction');
 
 /**
@@ -28,8 +30,23 @@ const getAll = async (userId) => {
 const getById = async (id, userId) => {
   const transaction = await transactionRepository.findById(id);
 
-  if (!transaction || transaction.user.id !== userId) {
-    throw ServiceError.notFound(`No transaction with id ${id} exists`, { id });
+  const notFoundError = ServiceError.notFound(
+    `No transaction with id ${id} exists`,
+    { id },
+  );
+
+  if (!transaction) {
+    throw notFoundError;
+  }
+
+  if (transaction.user.id !== userId) {
+    getLogger().warn(
+      `user ${userId} attempted to access transaction ${id} to which they are not authorized`,
+      {
+        event: authorizationFailed(userId, `api/transactions/${id}`),
+      },
+    );
+    throw notFoundError;
   }
 
   return transaction;

@@ -1,3 +1,4 @@
+const { authorizationFailed } = require('../core/logging/securityEvents');
 const userService = require('../service/user');
 
 /**
@@ -6,13 +7,22 @@ const userService = require('../service/user');
 const requireAuthentication = async (ctx, next) => {
   const { authorization } = ctx.headers;
 
-  const { authToken, ...session } =
-    await userService.checkAndParseSession(authorization);
+  try {
+    const { authToken, ...session } =
+      await userService.checkAndParseSession(authorization);
 
-  // Save the decoded session data in the current context's state
-  ctx.state.session = session;
-  // Also save the JWT in case we e.g. need to perform a request in the name of the current user
-  ctx.state.authToken = authToken;
+    // Save the decoded session data in the current context's state
+    ctx.state.session = session;
+    // Also save the JWT in case we e.g. need to perform a request in the name of the current user
+    ctx.state.authToken = authToken;
+  } catch (error) {
+    error.logInfo = {
+      event: authorizationFailed(-1, ctx.url),
+      description:
+        'unauthenticated user attempted access a resource without entitlement',
+    };
+    throw error;
+  }
 
   return next();
 };

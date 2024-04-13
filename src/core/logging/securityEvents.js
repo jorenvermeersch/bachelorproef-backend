@@ -42,22 +42,9 @@ const authorizationFailed = (userId, resource) => {
   return `authz_fail:${userId},${resource}`;
 };
 
-const authorizationAdmin = (userId, event) => {
-  return `authz_admin:${userId},${event}`;
-};
-
-const authorization = {
-  authorizationFailed,
-  authorizationAdmin,
-};
-
 // Malicious behavior.
 const maliciousCors = (ipOrUserId, useragent, referrer) => {
   return `malicious_cors:${ipOrUserId},${useragent},${referrer}`;
-};
-
-const maliciousDirectReference = (ipOrUserId, useragent) => {
-  return `malicious_direct:${ipOrUserId},${useragent}`;
 };
 
 const malicious404 = (ipOrUserId, useragent) => {
@@ -66,7 +53,6 @@ const malicious404 = (ipOrUserId, useragent) => {
 
 const malicious = {
   maliciousCors,
-  maliciousDirectReference,
   malicious404,
 };
 
@@ -84,20 +70,8 @@ const rateLimitExceeded = (userId, max) => {
 
 module.exports = {
   authentication,
-  authorization,
   malicious,
+  authorizationFailed,
   inputValidationFailed,
   rateLimitExceeded,
 };
-
-/**
-
- *
- * authz_fail[:userid,resource] crit
- * authz_change[:userid,from,to] warn
- * authz_admin[:userid,event] warn
- *
- *
- * excess_rate_limit_exceeded[userid,max] warn
- *
- */
