@@ -12,6 +12,9 @@ const { isDatabaseError } = require('./error/database');
 const ServiceError = require('./error/serviceError');
 const { setLoggingContext } = require('./logging/formats');
 const { getLogger } = require('./logging/logger');
+const {
+  malicious: { maliciousCors },
+} = require('./logging/securityEvents');
 const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
 
@@ -73,6 +76,16 @@ module.exports = function installMiddleware(app) {
           return ctx.request.header.origin;
         }
         // Not a valid domain at this point, let's return the first valid as we should return a string
+        const {
+          header: { referer, 'user-agent': userAgent },
+          ip,
+        } = ctx.request;
+        getLogger().warn(
+          `an illegal cross-origin request from ${ip} was referred from ${referer}`,
+          {
+            event: maliciousCors(ip, userAgent, referer),
+          },
+        );
         return CORS_ORIGINS[0];
       },
       allowHeaders: ['Accept', 'Content-Type', 'Authorization'],

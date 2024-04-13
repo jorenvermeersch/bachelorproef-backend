@@ -51,6 +51,20 @@ const authorization = {
   authorizationAdmin,
 };
 
+// Malicious behavior.
+const maliciousCors = (ipOrUserId, useragent, referrer) => {
+  return `malicious_cors:${ipOrUserId},${useragent},${referrer}`;
+};
+
+const maliciousDirectReference = (ipOrUserId, useragent) => {
+  return `malicious_direct:${ipOrUserId},${useragent}`;
+};
+
+const malicious = {
+  maliciousCors,
+  maliciousDirectReference,
+};
+
 // Input validation.
 const inputValidationFailed = (field, userId) => {
   userId = userId ?? -1;
@@ -65,6 +79,7 @@ const rateLimitExceeded = (userId, max) => {
 module.exports = {
   authentication,
   authorization,
+  malicious,
   inputValidationFailed,
   rateLimitExceeded,
 };
