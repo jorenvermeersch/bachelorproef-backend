@@ -6,6 +6,12 @@ const { combine, timestamp, colorize, printf, json } = winston.format;
 const HOST = config.get('host');
 const PORT = config.get('port');
 
+let context;
+
+const setLoggingContext = (ctx) => {
+  context = ctx;
+};
+
 /**
  * Winston format function that formats the timestamp in ISO 8601 format
  * with UTC offset to ensure maximum data portability.
@@ -25,11 +31,11 @@ const timestampWithUtcOffset = () => {
  * @returns {winston.Logform.Format} The format function
  */
 const koaContext = winston.format((info) => {
-  if (!info.ctx) {
+  if (!context) {
     return info;
   }
 
-  const { method, url, header, ip } = info.ctx.request;
+  const { method, url, header, ip } = context.request;
 
   // Event must be added manually.
   info.appid = 'hogent_budgetapp';
@@ -39,8 +45,6 @@ const koaContext = winston.format((info) => {
   info.port = PORT;
   info.requestUri = url;
   info.requestMethod = method;
-
-  delete info.ctx;
 
   return info;
 });
@@ -78,4 +82,8 @@ const fileFormat = () => {
   return combine(timestampWithUtcOffset(), koaContext(), json());
 };
 
-module.exports = { consoleFormat, fileFormat };
+module.exports = {
+  consoleFormat,
+  fileFormat,
+  setLoggingContext,
+};

@@ -10,6 +10,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 const { isDatabaseError } = require('./error/database');
 const ServiceError = require('./error/serviceError');
+const { setLoggingContext } = require('./logging/formats');
 const { getLogger } = require('./logging/logger');
 const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
@@ -28,7 +29,13 @@ module.exports = function installMiddleware(app) {
   // Add support for nested query parameters
   koaQs(app);
 
-  // Log when requests come in and go out
+  // Pass the Koa context to the logger.
+  app.use(async (ctx, next) => {
+    setLoggingContext(ctx);
+    await next();
+  });
+
+  // Log when requests come in and go out.
   app.use(async (ctx, next) => {
     getLogger().info(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
 
@@ -143,7 +150,7 @@ module.exports = function installMiddleware(app) {
 
       const errorBody = {
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Unexpected database error occurred. Please try again later.',
+        message: 'Unexpected database error occurred. Please try again later',
         stack: NODE_ENV !== 'production' ? error.stack : undefined,
       };
 
