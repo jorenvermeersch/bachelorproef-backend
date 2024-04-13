@@ -3,6 +3,9 @@ const { format: formatDate } = require('date-fns');
 const winston = require('winston');
 const { combine, timestamp, colorize, printf, json } = winston.format;
 
+const NODE_ENV = config.get('env');
+const isDevelopment = NODE_ENV === 'development';
+
 const HOST = config.get('host');
 const PORT = config.get('port');
 
@@ -76,8 +79,10 @@ const consoleFormat = () => {
     return `${timestamp} | ${name} | ${level} | ${message} | ${JSON.stringify(rest)}`;
   };
 
-  const formatError = ({ error: { stack }, ...rest }) => {
-    return `${formatMessage(rest)}\n\n${stack}\n`;
+  const formatError = ({ error: { stack, details }, ...rest }) => {
+    details = details ? `\n\n${JSON.stringify(details)}` : '';
+    const errorDetails = isDevelopment ? `${details}\n\n${stack}\n` : '';
+    return `${formatMessage(rest)}${errorDetails}`;
   };
 
   const format = (info) => {
@@ -86,12 +91,7 @@ const consoleFormat = () => {
       : formatMessage(info);
   };
 
-  return combine(
-    colorize(),
-    timestampWithUtcOffset(),
-    koaContext(),
-    printf(format),
-  );
+  return combine(colorize(), timestampWithUtcOffset(), printf(format));
 };
 
 const fileFormat = () => {
