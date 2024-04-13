@@ -2,9 +2,11 @@ const config = require('config');
 const { RateLimiterMySQL } = require('rate-limiter-flexible');
 
 const { getKnex } = require('.');
-const { getUserFromContext } = require('../core/logging/helpers');
-const { getLogger } = require('../core/logging/logger');
-const { rateLimitExceeded } = require('../core/logging/securityEvents');
+const {
+  getLogger,
+  getUserFromContext,
+  rateLimitExceeded,
+} = require('../core/logging');
 
 const NODE_ENV = config.get('env');
 

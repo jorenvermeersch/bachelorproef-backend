@@ -1,4 +1,4 @@
-const { authorizationFailed } = require('../core/logging/securityEvents');
+const { authorizationFailed } = require('../core/logging');
 const userService = require('../service/user');
 
 /**

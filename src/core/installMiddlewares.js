@@ -10,12 +10,12 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 const { isDatabaseError } = require('./error/database');
 const ServiceError = require('./error/serviceError');
+const {
+  getLogger,
+  malicious: { maliciousCors, malicious404 },
+} = require('./logging');
 const { setLoggingContext } = require('./logging/formats');
 const { getUserFromContext } = require('./logging/helpers');
-const { getLogger } = require('./logging/logger');
-const {
-  malicious: { maliciousCors, malicious404 },
-} = require('./logging/securityEvents');
 const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
 

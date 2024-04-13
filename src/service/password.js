@@ -5,10 +5,10 @@ const { URLSearchParams } = require('url');
 const userService = require('./user');
 const ServiceError = require('../core/error/serviceError');
 const { hashSecret, verifySecret } = require('../core/hashing');
-const { getLogger } = require('../core/logging/logger');
 const {
+  getLogger,
   authentication: { passwordChangeFailed, passwordChange },
-} = require('../core/logging/securityEvents');
+} = require('../core/logging');
 const { sendMail } = require('../core/mail');
 const passwordRepository = require('../repository/password');
 const userLockoutRepository = require('../repository/userLockout');

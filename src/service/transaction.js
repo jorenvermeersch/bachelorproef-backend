@@ -1,8 +1,7 @@
 const handleDBError = require('./_handleDBError');
 const placeService = require('./place');
 const ServiceError = require('../core/error/serviceError');
-const { getLogger } = require('../core/logging/logger');
-const { authorizationFailed } = require('../core/logging/securityEvents');
+const { getLogger, authorizationFailed } = require('../core/logging');
 const transactionRepository = require('../repository/transaction');
 
 /**

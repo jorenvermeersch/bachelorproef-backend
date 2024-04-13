@@ -2,7 +2,7 @@ const config = require('config');
 const Koa = require('koa');
 
 const installMiddlewares = require('./core/installMiddlewares');
-const { initializeLogging } = require('./core/logging/logger');
+const { initializeLogging } = require('./core/logging');
 const { initializeData, shutdownData } = require('./data');
 const installRouter = require('./rest');
 

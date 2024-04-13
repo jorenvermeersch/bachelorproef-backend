@@ -5,15 +5,15 @@ const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/error/serviceError');
 const { verifySecret, hashSecret } = require('../core/hashing');
 const { generateJWT, verifyJWT } = require('../core/jwt');
-const { getLogger } = require('../core/logging/logger');
 const {
+  getLogger,
   authentication: {
     loginSuccess,
     loginSuccessAfterFail,
     loginFailed,
     loginLock,
   },
-} = require('../core/logging/securityEvents');
+} = require('../core/logging');
 const Role = require('../core/roles');
 const userRepository = require('../repository/user');
 const userLockoutRespository = require('../repository/userLockout');

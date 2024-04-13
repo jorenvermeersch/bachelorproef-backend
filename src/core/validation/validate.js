@@ -1,7 +1,6 @@
 const Joi = require('joi');
 
-const { getUserFromContext } = require('../logging/helpers');
-const { inputValidationFailed } = require('../logging/securityEvents');
+const { getUserFromContext, inputValidationFailed } = require('../logging');
 
 const JOI_OPTIONS = {
   abortEarly: true, // stop when first error occured
