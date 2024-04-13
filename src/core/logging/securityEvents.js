@@ -1,26 +1,27 @@
 // Authentication.
 const loginSuccess = (userId) => {
-  return { event: `authn_login_success:${userId}` };
+  userId = userId ?? -1;
+  return `authn_login_success:${userId}`;
 };
 
 const loginSuccessAfterFail = (userId, retries) => {
-  return { event: `authn_login_successafterfail:${userId},${retries}` };
+  return `authn_login_successafterfail:${userId},${retries}`;
 };
 
 const loginFailed = (userId) => {
-  return { event: `authn_login_fail:${userId}` };
+  return `authn_login_fail:${userId}`;
 };
 
 const loginFailedMax = (userId, maxLimit) => {
-  return { event: `authn_login_fail_max:${userId},${maxLimit}` };
+  return `authn_login_fail_max:${userId},${maxLimit}`;
 };
 
 const passwordChange = (userId) => {
-  return { event: `authn_password_change:${userId}` };
+  return `authn_password_change:${userId}`;
 };
 
 const passwordChangeFailed = (userId) => {
-  return { event: `authn_password_change_fail:${userId}` };
+  return `authn_password_change_fail:${userId}`;
 };
 
 const authentication = {
@@ -34,11 +35,11 @@ const authentication = {
 
 // Authorization.
 const authorizationFailed = (userId, resource) => {
-  return { event: `authz_fail:${userId},${resource}` };
+  return `authz_fail:${userId},${resource}`;
 };
 
 const authorizationAdmin = (userId, event) => {
-  return { event: `authz_admin:${userId},${event}` };
+  return `authz_admin:${userId},${event}`;
 };
 
 const authorization = {
@@ -48,7 +49,8 @@ const authorization = {
 
 // Input validation.
 const inputValidationFailed = (field, userId) => {
-  return { event: `input_validation_fail:${field},${userId}` };
+  userId = userId ?? -1;
+  return `input_validation_fail:${field},${userId}`;
 };
 
 const inputValidation = {
