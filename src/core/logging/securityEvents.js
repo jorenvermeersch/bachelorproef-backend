@@ -1,3 +1,5 @@
+// Based on: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Vocabulary_Cheat_Sheet.html
+
 /**
  * Create a login success event.
  *
