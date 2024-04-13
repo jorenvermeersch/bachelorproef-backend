@@ -42,7 +42,14 @@ const makeLoginData = async (user) => {
   };
 };
 
-// TODO: Add JSDoc.
+/**
+ * Creates a service error for an account lockout. It calculates the
+ * remaining lockout time and adds the necessary security logging information to `logInfo`.
+ *
+ * @param {number} userId - Id of the user.
+ * @param {Date} endTime - Endtime of the user lockout.
+ * @returns {ServiceError.unauthorized} Unauthorized error.
+ */
 const makeLockoutError = (userId, endTime) => {
   const remainingMinutes = differenceInMinutes(endTime, new Date());
 

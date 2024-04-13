@@ -1,4 +1,9 @@
-// TODO: Add JSdoc.
+/**
+ * Retrieve
+ *
+ * @param {*} ctx
+ * @returns {object}
+ */
 const getUserFromContext = (ctx) => {
   const userId = ctx.state?.session?.userId;
   const userString = userId ? `User ${userId}` : 'unauthenticated user';

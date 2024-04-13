@@ -55,7 +55,12 @@ const requestReset = async (email, origin) => {
   getLogger().info(`user ${id} successfully requested a password reset`);
 };
 
-// TODO: Add JSDoc.
+/**
+ * Create a generic service error for failed password resets.
+ *
+ * @param {object} logInfo - Information for logging.
+ * @returns {ServiceError.validationFailed} Validation failed error.
+ */
 const makeTokenOrEmailError = (logInfo) => {
   return ServiceError.validationFailed(
     'The given email is invalid or the reset request has expired',
