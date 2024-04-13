@@ -2,7 +2,9 @@ const config = require('config');
 const { RateLimiterMySQL } = require('rate-limiter-flexible');
 
 const { getKnex } = require('.');
+const { getUserFromContext } = require('../core/logging/helpers');
 const { getLogger } = require('../core/logging/logger');
+const { rateLimitExceeded } = require('../core/logging/securityEvents');
 
 const NODE_ENV = config.get('env');
 
@@ -13,12 +15,11 @@ const NODE_ENV = config.get('env');
  * @returns {Object} Rate limiter instance
  * @throws {Error} If error occurs while initializing rate limiter
  */
-const createRateLimiter = (knexInstance) => {
-  const options = {
+const createRateLimiter = (knexInstance, options) => {
+  const config = {
     storeClient: knexInstance,
     storeType: 'knex',
-    points: 4,
-    duration: 1, // in seconds.
+    ...options,
   };
 
   const ready = (error) => {
@@ -29,7 +30,7 @@ const createRateLimiter = (knexInstance) => {
     throw new Error('Could not initialize the rate limiter');
   };
 
-  return new RateLimiterMySQL(options, ready);
+  return new RateLimiterMySQL(config, ready);
 };
 
 /**
@@ -40,7 +41,7 @@ const createRateLimiter = (knexInstance) => {
  *  - 429: Too many requests
  *  - Could not initialize the rate limiter
  */
-const rateLimiter = () => {
+const rateLimiter = (options) => {
   // Disable rate limiter in testing environment.
   if (NODE_ENV === 'testing') {
     return async (_, next) => {
@@ -48,7 +49,7 @@ const rateLimiter = () => {
     };
   }
 
-  const rateLimiterInstance = createRateLimiter(getKnex());
+  const rateLimiterInstance = createRateLimiter(getKnex(), options);
   getLogger().info('Successfully initialized the rate limiter');
 
   return async (ctx, next) => {
@@ -56,7 +57,14 @@ const rateLimiter = () => {
       await rateLimiterInstance.consume(ctx.ip);
       await next();
     } catch (error) {
-      ctx.throw(429, 'Too many requests');
+      const { userId, userString } = getUserFromContext(ctx);
+      const { points } = options;
+      ctx.throw(429, 'Too many requests', {
+        logInfo: {
+          event: rateLimitExceeded(userId, points),
+          description: `${userString} exceeded the max:${points} requests per second`,
+        },
+      });
     }
   };
 };

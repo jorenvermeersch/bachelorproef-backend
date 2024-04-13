@@ -57,29 +57,25 @@ const inputValidationFailed = (field, userId) => {
   return `input_validation_fail:${field},${userId}`;
 };
 
-const inputValidation = {
-  inputValidationFailed,
+// Rate limiting.
+const rateLimitExceeded = (userId, max) => {
+  return `excess_rate_limit_exceeded:${userId},${max}`;
 };
 
 module.exports = {
   authentication,
   authorization,
-  inputValidation,
+  inputValidationFailed,
+  rateLimitExceeded,
 };
 
 /**
- * authn_login_success[:userid] info
- * authn_login_successafterfail[:userid,retries] info
- * authn_login_fail[:userid] warn
- * authn_login_fail_max[:userid,maxlimit(int)] warn
- * authn_password_change[:userid] info
- * authn_password_change_fail[:userid] info
+
  *
  * authz_fail[:userid,resource] crit
  * authz_change[:userid,from,to] warn
  * authz_admin[:userid,event] warn
  *
- * input_validation_fail[:field,userid] warn
  *
  * excess_rate_limit_exceeded[userid,max] warn
  *

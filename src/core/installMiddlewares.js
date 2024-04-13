@@ -81,7 +81,12 @@ module.exports = function installMiddleware(app) {
   );
 
   // Add rate limiter.
-  app.use(rateLimiter());
+  app.use(
+    rateLimiter({
+      points: 4,
+      duration: 1, // in seconds.
+    }),
+  );
 
   // Disable caching data with Cache-Control header.
   app.use(
