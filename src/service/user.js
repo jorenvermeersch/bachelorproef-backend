@@ -6,6 +6,14 @@ const ServiceError = require('../core/error/serviceError');
 const { verifySecret, hashSecret } = require('../core/hashing');
 const { generateJWT, verifyJWT } = require('../core/jwt');
 const { getLogger } = require('../core/logging/logger');
+const {
+  authentication: {
+    loginSuccess,
+    loginSuccessAfterFail,
+    loginFailed,
+    loginLock,
+  },
+} = require('../core/logging/securityEvents');
 const Role = require('../core/roles');
 const userRepository = require('../repository/user');
 const userLockoutRespository = require('../repository/userLockout');
@@ -34,11 +42,17 @@ const makeLoginData = async (user) => {
   };
 };
 
-const makeLockoutError = (endTime) => {
+// TODO: Add JSDoc.
+const makeLockoutError = (userId, endTime) => {
   const remainingMinutes = differenceInMinutes(endTime, new Date());
 
   return ServiceError.unauthorized(
     `The account is locked. Please try again in ${remainingMinutes} minutes`,
+    undefined,
+    {
+      event: loginLock(userId, MAX_FAILED_LOGIN_ATTEMPTS),
+      description: `user ${userId} is account locked because maxretries exceeded`,
+    },
   );
 };
 
@@ -60,41 +74,56 @@ const login = async (email, password) => {
     );
   }
 
-  let lockout = await userLockoutRespository.findByUserId(user.id);
+  const { id: userId } = user;
+
+  let lockout = await userLockoutRespository.findByUserId(userId);
 
   if (lockout.endTime && lockout.endTime < new Date()) {
-    await userLockoutRespository.resetByUserId(user.id);
-    lockout = await userLockoutRespository.findByUserId(user.id);
+    await userLockoutRespository.resetByUserId(userId);
+    lockout = await userLockoutRespository.findByUserId(userId);
   }
 
   const { failedLoginAttempts, endTime } = lockout;
 
   if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-    throw makeLockoutError(endTime);
+    throw makeLockoutError(userId, endTime);
   }
 
   const passwordValid = await verifySecret(password, user.passwordHash);
 
   if (passwordValid) {
-    await userLockoutRespository.resetByUserId(user.id);
+    await userLockoutRespository.resetByUserId(userId);
+
+    getLogger().info(`user ${userId} successfully signed in`, {
+      event:
+        failedLoginAttempts > 0
+          ? loginSuccessAfterFail(userId, failedLoginAttempts)
+          : loginSuccess(userId),
+    });
     return await makeLoginData(user);
   }
 
   const attempts = failedLoginAttempts + 1;
   const lockoutEndTime = addMinutes(new Date(), 30);
 
-  await userLockoutRespository.updateByUserId(user.id, {
+  await userLockoutRespository.updateByUserId(userId, {
     failedLoginAttempts: attempts,
     endTime:
       attempts === MAX_FAILED_LOGIN_ATTEMPTS ? lockoutEndTime : undefined,
   });
 
   if (attempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-    throw makeLockoutError(lockoutEndTime);
+    throw makeLockoutError(userId, lockoutEndTime);
   }
 
   // DO NOT expose we know the user but an invalid password was given
-  throw ServiceError.unauthorized('The given email and password do not match');
+  throw ServiceError.unauthorized(
+    'The given email and password do not match',
+    undefined,
+    {
+      event: loginFailed(userId),
+    },
+  );
 };
 
 /**
