@@ -9,6 +9,7 @@ const loginSuccessAfterFail = (userId, retries) => {
 };
 
 const loginFailed = (userId) => {
+  userId = userId ?? -1;
   return `authn_login_fail:${userId}`;
 };
 
@@ -21,6 +22,7 @@ const passwordChange = (userId) => {
 };
 
 const passwordChangeFailed = (userId) => {
+  userId = userId ?? -1;
   return `authn_password_change_fail:${userId}`;
 };
 

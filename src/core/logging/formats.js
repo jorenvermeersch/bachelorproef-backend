@@ -49,6 +49,22 @@ const koaContext = winston.format((info) => {
   return info;
 });
 
+const securityInfo = winston.format((info) => {
+  const logInfo = info.error?.logInfo || undefined;
+
+  if (!logInfo) {
+    return info;
+  }
+
+  Object.entries(logInfo).forEach(([key, value]) => {
+    info[key] = value;
+  });
+
+  delete info.error;
+
+  return info;
+});
+
 const consoleFormat = () => {
   const formatMessage = ({
     level,
@@ -79,7 +95,12 @@ const consoleFormat = () => {
 };
 
 const fileFormat = () => {
-  return combine(timestampWithUtcOffset(), koaContext(), json());
+  return combine(
+    timestampWithUtcOffset(),
+    koaContext(),
+    securityInfo(),
+    json(),
+  );
 };
 
 module.exports = {

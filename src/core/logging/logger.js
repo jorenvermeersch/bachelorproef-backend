@@ -41,9 +41,10 @@ const initializeLogging = (level, disabled = false, defaultMeta = {}) => {
             silent: disabled,
           }),
           new winston.transports.File({
-            filename: 'activity.log',
+            filename: 'security.log',
             format: fileFormat(),
             silent: disabled,
+            level: 'info',
           }),
         ];
 
