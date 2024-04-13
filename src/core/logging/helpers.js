@@ -2,7 +2,7 @@
 const getUserFromContext = (ctx) => {
   const userId = ctx.state?.session?.userId;
   const userString = userId ? `User ${userId}` : 'unauthenticated user';
-  return { userId: userId ?? -1, userString };
+  return { userId, userString };
 };
 
 module.exports = { getUserFromContext };
