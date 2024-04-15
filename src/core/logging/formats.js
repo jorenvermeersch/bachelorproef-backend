@@ -9,12 +9,6 @@ const isDevelopment = NODE_ENV === 'development';
 const HOST = config.get('host');
 const PORT = config.get('port');
 
-let context;
-
-const setLoggingContext = (ctx) => {
-  context = ctx;
-};
-
 /**
  * Winston format function that formats the timestamp in ISO 8601 format
  * with UTC offset to ensure maximum data portability.
@@ -34,11 +28,11 @@ const timestampWithUtcOffset = () => {
  * @returns {winston.Logform.Format} The format function
  */
 const koaContext = winston.format((info) => {
-  if (!context) {
+  if (!info.context) {
     return info;
   }
 
-  const { method, url, header, ip } = context.request;
+  const { method, url, header, ip } = info.context.request;
 
   // Event must be added manually.
   info.appid = 'hogent_budgetapp';
@@ -48,6 +42,8 @@ const koaContext = winston.format((info) => {
   info.port = PORT;
   info.requestUri = url;
   info.requestMethod = method;
+
+  delete info.context;
 
   return info;
 });
@@ -106,5 +102,4 @@ const fileFormat = () => {
 module.exports = {
   consoleFormat,
   fileFormat,
-  setLoggingContext,
 };

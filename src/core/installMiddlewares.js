@@ -14,7 +14,6 @@ const {
   getLogger,
   malicious: { maliciousCors, malicious404 },
 } = require('./logging');
-const { setLoggingContext } = require('./logging/formats');
 const { getUserFromContext } = require('./logging/helpers');
 const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
@@ -33,15 +32,11 @@ module.exports = function installMiddleware(app) {
   // Add support for nested query parameters
   koaQs(app);
 
-  // Pass the Koa context to the logger.
-  app.use(async (ctx, next) => {
-    setLoggingContext(ctx);
-    await next();
-  });
-
   // Log when requests come in and go out.
   app.use(async (ctx, next) => {
-    getLogger().http(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
+    getLogger().http(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`, {
+      context: ctx,
+    });
 
     const getStatusEmoji = () => {
       if (ctx.status >= 500) return emoji.get('skull');
@@ -55,6 +50,7 @@ module.exports = function installMiddleware(app) {
 
     getLogger().http(
       `${getStatusEmoji()} ${ctx.method} ${ctx.status} (${ctx.response.get('X-Response-Time')}) ${ctx.url}`,
+      { context: ctx },
     );
   });
 
@@ -85,6 +81,7 @@ module.exports = function installMiddleware(app) {
           `an illegal cross-origin request from ${ip} was referred from ${referer}`,
           {
             event: maliciousCors(ip, userAgent, referer),
+            context: ctx,
           },
         );
         return CORS_ORIGINS[0];
@@ -116,6 +113,7 @@ module.exports = function installMiddleware(app) {
     } catch (error) {
       getLogger().error('Error occured while handling a request', {
         error,
+        context: ctx,
       });
 
       let statusCode = error.status || 500;
@@ -164,7 +162,7 @@ module.exports = function installMiddleware(app) {
       // Database error about connection, timeout, concurrency, resource limit, permissions, etc.
       getLogger().error(
         'Unexpected database error occurred while handling request',
-        { error },
+        { error, context: ctx },
       );
 
       const errorBody = {
@@ -211,7 +209,7 @@ module.exports = function installMiddleware(app) {
       } = ctx.request;
       getLogger().warn(
         `${userString} tried to access unknown resource ${ctx.url}`,
-        { event: malicious404(userId ?? ip, userAgent) },
+        { event: malicious404(userId ?? ip, userAgent), context: ctx },
       );
     }
   });
