@@ -19,7 +19,7 @@ const LOG_DISABLED = config.get('log.disabled');
 module.exports = async function createServer() {
   const app = new Koa();
 
-  const logger = initializeLogging(LOG_LEVEL, LOG_DISABLED, { NODE_ENV });
+  const logger = initializeLogging(LOG_LEVEL, LOG_DISABLED, { env: NODE_ENV });
 
   await initializeData();
   installMiddlewares(app);

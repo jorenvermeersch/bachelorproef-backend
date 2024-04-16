@@ -8,8 +8,13 @@ const { koaSwagger } = require('koa2-swagger-ui');
 const emoji = require('node-emoji');
 const swaggerJsdoc = require('swagger-jsdoc');
 
-const { getLogger } = require('./logging');
-const ServiceError = require('./serviceError');
+const { isDatabaseError } = require('./error/database');
+const ServiceError = require('./error/serviceError');
+const {
+  getLogger,
+  malicious: { maliciousCors, malicious404 },
+} = require('./logging');
+const { getUserFromContext } = require('./logging/helpers');
 const { rateLimiter } = require('../data/rateLimiter');
 const swaggerOptions = require('../swagger.config');
 
@@ -27,9 +32,11 @@ module.exports = function installMiddleware(app) {
   // Add support for nested query parameters
   koaQs(app);
 
-  // Log when requests come in and go out
+  // Log when requests come in and go out.
   app.use(async (ctx, next) => {
-    getLogger().info(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`);
+    getLogger().http(`${emoji.get('fast_forward')} ${ctx.method} ${ctx.url}`, {
+      context: ctx,
+    });
 
     const getStatusEmoji = () => {
       if (ctx.status >= 500) return emoji.get('skull');
@@ -41,8 +48,9 @@ module.exports = function installMiddleware(app) {
 
     await next();
 
-    getLogger().info(
+    getLogger().http(
       `${getStatusEmoji()} ${ctx.method} ${ctx.status} (${ctx.response.get('X-Response-Time')}) ${ctx.url}`,
+      { context: ctx },
     );
   });
 
@@ -65,6 +73,17 @@ module.exports = function installMiddleware(app) {
           return ctx.request.header.origin;
         }
         // Not a valid domain at this point, let's return the first valid as we should return a string
+        const {
+          header: { referer, 'user-agent': userAgent },
+          ip,
+        } = ctx.request;
+        getLogger().warn(
+          `an illegal cross-origin request from ${ip} was referred from ${referer}`,
+          {
+            event: maliciousCors(ip, userAgent, referer),
+            context: ctx,
+          },
+        );
         return CORS_ORIGINS[0];
       },
       allowHeaders: ['Accept', 'Content-Type', 'Authorization'],
@@ -73,7 +92,12 @@ module.exports = function installMiddleware(app) {
   );
 
   // Add rate limiter.
-  app.use(rateLimiter());
+  app.use(
+    rateLimiter({
+      points: 4,
+      duration: 1, // in seconds.
+    }),
+  );
 
   // Disable caching data with Cache-Control header.
   app.use(
@@ -89,6 +113,7 @@ module.exports = function installMiddleware(app) {
     } catch (error) {
       getLogger().error('Error occured while handling a request', {
         error,
+        context: ctx,
       });
 
       let statusCode = error.status || 500;
@@ -115,9 +140,38 @@ module.exports = function installMiddleware(app) {
         if (error.isForbidden) {
           statusCode = 403;
         }
+
+        if (error.isConflict) {
+          statusCode = 409;
+        }
       }
 
       ctx.status = statusCode;
+      ctx.body = errorBody;
+    }
+  });
+
+  // Handler for unexpected database errors.
+  app.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (error) {
+      if (!isDatabaseError(error)) {
+        throw error;
+      }
+      // Database error about connection, timeout, concurrency, resource limit, permissions, etc.
+      getLogger().error(
+        'Unexpected database error occurred while handling request',
+        { error, context: ctx },
+      );
+
+      const errorBody = {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Unexpected database error occurred. Please try again later',
+        stack: NODE_ENV !== 'production' ? error.stack : undefined,
+      };
+
+      ctx.status = 500;
       ctx.body = errorBody;
     }
   });
@@ -147,6 +201,16 @@ module.exports = function installMiddleware(app) {
         code: 'NOT_FOUND',
         message: `Unknown resource: ${ctx.url}`,
       };
+
+      const { userId, userString } = getUserFromContext(ctx);
+      const {
+        ip,
+        header: { 'user-agent': userAgent },
+      } = ctx.request;
+      getLogger().warn(
+        `${userString} tried to access unknown resource ${ctx.url}`,
+        { event: malicious404(userId ?? ip, userAgent), context: ctx },
+      );
     }
   });
 };

@@ -2,6 +2,13 @@
 
 This is the backend used in lessons Webservices.
 
+## Branches
+
+| Branch     | Description                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `main`     | New budget back-end API with cybersecurity improvements.                                   |
+| `original` | The original budget back-end API. Used as a base for cybersecurity improvements in `main`. |
+
 ## Requirements
 
 - [NodeJS v17 or higher](https://nodejs.org/)
@@ -24,6 +31,8 @@ Create a `.env` (production) `.env.dev` (development) or `.env.test` (testing) f
 Complete the environment variables with your secrets, credentials, etc. Note: `false` is defined as an
 empty variable (e.g. `LOG_DISABLED`).
 
+For development, you can get credentials for a fake SMTP service from [ethereal](https://ethereal.email/).
+
 ```bash
 # General configuration
 NODE_ENV=development
@@ -43,6 +52,12 @@ DATABASE_PASSWORD=
 # Auth configuration
 AUTH_DISABLED=
 AUTH_JWT_SECRET="eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked"
+
+# Mail configuration
+MAIL_HOST=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
 ```
 
 ## Start this project

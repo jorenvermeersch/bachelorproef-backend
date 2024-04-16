@@ -5,31 +5,27 @@ module.exports = {
     await knex.schema.createTable(tables.transaction, (table) => {
       table.increments('id');
 
-      table.integer('amount')
-        .notNullable();
+      table.integer('amount').notNullable();
 
-      table.dateTime('date')
-        .notNullable();
+      table.dateTime('date').notNullable();
 
-      table.integer('user_id')
-        .unsigned()
-        .notNullable();
+      table.integer('user_id').unsigned().notNullable();
 
       // Give this foreign key a name for better error handling in service layer
-      table.foreign('user_id', 'fk_transaction_user')
+      table
+        .foreign('user_id', 'fk_transaction_user')
         .references('id')
         .inTable(tables.user)
         .onDelete('CASCADE');
 
-      table.integer('place_id')
-        .unsigned()
-        .notNullable();
+      table.integer('place_id').unsigned().notNullable();
 
       // Give this foreign key a name for better error handling in service layer
-      table.foreign('place_id', 'fk_transaction_place')
+      table
+        .foreign('place_id', 'fk_transaction_place')
         .references('id')
         .inTable(tables.place)
-        .onDelete('CASCADE');
+        .onDelete('RESTRICT');
     });
   },
   down: (knex) => {
