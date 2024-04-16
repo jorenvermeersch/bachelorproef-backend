@@ -78,6 +78,10 @@ const login = async (email, password) => {
     // DO NOT expose we don't know the user
     throw ServiceError.unauthorized(
       'The given email and password do not match',
+      undefined,
+      {
+        event: loginFailed(),
+      },
     );
   }
 
