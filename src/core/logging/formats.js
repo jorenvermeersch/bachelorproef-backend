@@ -48,6 +48,11 @@ const koaContext = winston.format((info) => {
   return info;
 });
 
+/**
+ * Winston format function that adds the log information from a `ServiceError` to the log.
+ *
+ * @returns {winston.Logform.Format} The format function
+ */
 const securityInfo = winston.format((info) => {
   const logInfo = info.error?.logInfo || undefined;
 
