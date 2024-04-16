@@ -3,7 +3,7 @@
 /**
  * Create a login success event.
  *
- * @param {number} userId - Id of the user.
+ * @param {number} [userId] - Id of the user.
  * @returns {string} event identifier
  */
 const loginSuccess = (userId) => {
@@ -25,7 +25,7 @@ const loginSuccessAfterFail = (userId, retries) => {
 /**
  * Create a login failed event.
  *
- * @param {number} userId - Id of the user.
+ * @param {number} [userId] - Id of the user.
  * @returns {string} event identifier
  */
 const loginFailed = (userId) => {
@@ -57,7 +57,7 @@ const passwordChange = (userId) => {
 /**
  * Create a password change failed event.
  *
- * @param {number} userId - Id of the user.
+ * @param {number} [userId] - Id of the user.
  * @returns {string} event identifier
  */
 const passwordChangeFailed = (userId) => {
@@ -117,7 +117,7 @@ const malicious = {
  * Create an input validation failed event.
  *
  * @param {string} field - The field that failed validation.
- * @param {number} userId - Id of the user.
+ * @param {number} [userId] - Id of the user.
  * @returns {string} event identifier
  */
 const inputValidationFailed = (field, userId) => {
@@ -128,7 +128,7 @@ const inputValidationFailed = (field, userId) => {
 /**
  * Create a rate limit exceeded event.
  *
- * @param {number} userId - Id of the user.
+ * @param {number} [userId] - Id of the user.
  * @param {number} max - Maximum number of requests per second.
  * @returns
  */
