@@ -92,7 +92,13 @@ const consoleFormat = () => {
       : formatMessage(info);
   };
 
-  return combine(colorize(), timestampWithUtcOffset(), printf(format));
+  return combine(
+    colorize(),
+    timestampWithUtcOffset(),
+    koaContext(),
+    securityInfo(),
+    printf(format),
+  );
 };
 
 const fileFormat = () => {
