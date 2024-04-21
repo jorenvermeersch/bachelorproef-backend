@@ -143,6 +143,13 @@ const reset = async ({ email, newPassword, token }) => {
   // User should be able to log in again after successful password reset.
   // Account lockout exists only to deter unauthorized access.
   await userLockoutRepository.resetByUserId(id);
+
+  await sendMail({
+    to: email,
+    subject: 'Password successfully reset',
+    text: `Your password was successfully reset. You can now log in with your new password.`,
+    html: `<p>Your password was successfully reset. You can now log in with your new password.</p>`,
+  });
 };
 
 module.exports = {
