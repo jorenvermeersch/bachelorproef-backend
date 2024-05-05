@@ -94,7 +94,7 @@ module.exports = function installMiddleware(app) {
   // Add rate limiter.
   app.use(
     rateLimiter({
-      points: 4,
+      points: 512,
       duration: 1, // in seconds.
     }),
   );
