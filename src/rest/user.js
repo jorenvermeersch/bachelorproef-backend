@@ -8,20 +8,6 @@ const validate = require('../core/validation');
 const userService = require('../service/user');
 
 const AUTH_DISABLED = config.get('auth.disabled');
-const AUTH_MAX_DELAY = config.get('auth.maxDelay');
-
-/**
- * Middleware which waites for a certain amount of time
- * before calling the `next` function in order to make
- * time attacks very hard.
- */
-const authDelay = async (_, next) => {
-  await new Promise((resolve) => {
-    const delay = Math.round(Math.random() * AUTH_MAX_DELAY);
-    setTimeout(resolve, delay);
-  });
-  return next();
-};
 
 /**
  * Check if the signed in user can access the given user's information.
@@ -372,8 +358,8 @@ module.exports = function installUsersRoutes(app) {
   // DO NOT use this config parameter in any production worthy application!
   if (!AUTH_DISABLED) {
     // Public routes
-    router.post('/login', authDelay, validate(login.validationScheme), login);
-    router.post('/register', authDelay, validate(register.validationScheme), register);
+    router.post('/login', validate(login.validationScheme), login);
+    router.post('/register', validate(register.validationScheme), register);
   }
 
   const requireAdmin = makeRequireRole(Role.ADMIN);
