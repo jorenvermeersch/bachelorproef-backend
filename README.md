@@ -4,10 +4,12 @@ This is the backend used in lessons Webservices.
 
 ## Branches
 
-| Branch     | Description                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------ |
-| `main`     | New budget back-end API with cybersecurity improvements.                                   |
-| `original` | The original budget back-end API. Used as a base for cybersecurity improvements in `main`. |
+| Branch             | Description                                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `main`             | New budget back-end API with cybersecurity improvements.                                              |
+| `main-testing`     | `main` with authencation delay disabled and rate limiter points increased. Used in performance tests. |
+| `original`         | The original budget back-end API. Used as a base for cybersecurity improvements in `main`.            |
+| `original-testing` | `original` with authentication delay disabled. Used in performance tests.                             |
 
 ## Requirements
 
