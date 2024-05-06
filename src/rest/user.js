@@ -3,7 +3,6 @@ const config = require('config');
 const Joi = require('joi');
 
 const { requireAuthentication, makeRequireRole } = require('../core/auth');
-const { authDelay } = require('../core/delay');
 const Role = require('../core/roles');
 const {
   validate,
@@ -371,15 +370,9 @@ module.exports = function installUsersRoutes(app) {
   // DO NOT use this config parameter in any production worthy application!
   if (!AUTH_DISABLED) {
     // Public routes
-    router.post(
-      '/login',
-      authDelay,
-      validateAsync(login.validationScheme),
-      login,
-    );
+    router.post('/login', validateAsync(login.validationScheme), login);
     router.post(
       '/register',
-      authDelay,
       validateAsync(register.validationScheme),
       register,
     );
